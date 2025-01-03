@@ -1,7 +1,7 @@
 # Site settings
 title: Julie's Planet
 SEOTitle: 浅羽的小屋
-header-img: "https://github.com/QianyuXIE/QianyuXIE.github.io/tree/main/img/2018_02_22_08_37_whale.jpg"
+header-img: "https://github.com/QianyuXIE/QianyuXIE.github.io/tree/main/img/Me/Whale.jpg"
 email: xieqy1921@gmail.com
 description: "我刚刚睡醒，真对不起，瞧我的头发还是乱蓬蓬的……"
 keyword: "浅羽的小屋, Qianyu Xie, 谢浅羽, Java"
@@ -13,7 +13,7 @@ favicon: "/favicon.ico"
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "我刚刚睡醒，真对不起，瞧我的头发还是乱蓬蓬的……"
-sidebar-avatar: /img/2020_03_09_10_07_selfie.JPG     # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/Me/Me11.JPG     # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
