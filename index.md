@@ -1,7 +1,7 @@
 ---
 layout: academic-home
 title: "Qianyu Xie | Academic Homepage"
-description: "Qianyu Xie's academic homepage — research in medical image visualization, humanoid robotics, and artificial intelligence."
+description: "Qianyu Xie's academic homepage — research in multimodal large language models, affective computing, and generative models."
 hide-in-nav: true
 ---
 
@@ -13,7 +13,7 @@ hide-in-nav: true
     <p class="academic-role">Master's Student in Artificial Intelligence and Robotics<br>The Chinese University of Hong Kong, Shenzhen</p>
 
     <ul class="academic-contact-list">
-      <li><span class="academic-contact-icon" aria-hidden="true">@</span><a href="mailto:xieqy1921@gmail.com">Email</a></li>
+      <li><span class="academic-contact-icon" aria-hidden="true">@</span><a href="mailto:225040249@link.cuhk.edu.cn">Email</a></li>
       <li><span class="academic-contact-icon" aria-hidden="true">in</span><a href="https://linkedin.com/in/qianyu-xie-julie" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
       <li><span class="academic-contact-icon" aria-hidden="true">&lt;/&gt;</span><a href="https://github.com/QianyuXIE" target="_blank" rel="noopener noreferrer">GitHub</a></li>
     </ul>
@@ -24,26 +24,30 @@ hide-in-nav: true
   <article class="academic-content">
     <h2>About Me</h2>
     <p>I am a Master's student in <strong>Artificial Intelligence and Robotics</strong> (AI concentration) at the School of Data Science, <strong>The Chinese University of Hong Kong, Shenzhen</strong>.</p>
-    <p>I received my B.S. in Electronic Information Science and Technology from <strong>Jilin University</strong>. My work explores how artificial intelligence, computer vision, and interactive visualization can support medical imaging and intelligent robotic systems.</p>
+    <p>I received my B.S. in Electronic Information Science and Technology from <strong>Jilin University</strong>. My current research focuses on multimodal large language models, cross-modal affective computing, and efficient generative models. I am also an AI Model Engineer Intern at <strong>Huawei's 2012 Laboratories</strong>, where I work on scalable image generation with Mixture-of-Experts, recurrent computation, and Diffusion Transformers.</p>
 
     <h2>Research Interests</h2>
     <ul class="academic-interest-list">
+      <li>Multimodal Large Language Models</li>
+      <li>Cross-modal Emotion Recognition</li>
+      <li>Affective Computing</li>
+      <li>Diffusion Transformers</li>
+      <li>Mixture-of-Experts</li>
       <li>3D Medical Image Visualization</li>
-      <li>Humanoid Robot Control</li>
-      <li>Computer Vision</li>
-      <li>Artificial Intelligence</li>
     </ul>
 
-    <h2>Selected Publication</h2>
+    <h2>Selected Publications</h2>
     <ol class="academic-publication">
+      <li><strong>Qianyu Xie</strong>, B. Zhao, Z. Huang, H. Ma, Z. Liu, Z. Wang, D. Liang, and Z. Yu. “EmoGPT: Towards Explainable Multimodal Emotion Recognition with Cross-Modal Chain-of-Thought Supervision.” <em>Under review at NeurIPS 2026</em>.</li>
       <li><strong>Qianyu Xie</strong>, M. Noga, and K. Punithakumar. “Glasses-Free Holographic Visualization of Pediatric Computed Tomography DICOM Data on Looking Glass 16&Prime; OLED.” <em>2025 IEEE 38th International Symposium on Computer-Based Medical Systems (CBMS)</em>, pp. 869–876, 2025.</li>
     </ol>
 
     <h2>News</h2>
     <ul class="academic-news">
+      <li><time datetime="2026-06">Jun 2026</time><span>Joined Huawei's 2012 Laboratories as an AI Model Engineer Intern, working on multimodal large models and efficient image generation.</span></li>
+      <li><time datetime="2026">2026</time><span>Submitted EmoGPT, a cross-modal chain-of-thought framework for explainable multimodal emotion recognition, to NeurIPS 2026.</span></li>
       <li><time datetime="2025-09">Sep 2025</time><span>Started the M.Sc. program in Artificial Intelligence and Robotics at CUHK-Shenzhen.</span></li>
       <li><time datetime="2025">2025</time><span>First-author paper on glasses-free holographic visualization was accepted and presented at IEEE CBMS 2025.</span></li>
-      <li><time datetime="2024-09">Sep 2024</time><span>Joined the Mitacs Globalink Research Internship to work on 3D medical image visualization in Alberta, Canada.</span></li>
     </ul>
   </article>
 </div>
