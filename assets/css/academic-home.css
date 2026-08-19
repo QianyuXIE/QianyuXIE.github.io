@@ -21,13 +21,16 @@ body.academic-home {
   -webkit-font-smoothing: antialiased;
 }
 
-.academic-home a {
+.academic-content a,
+.academic-sidebar a {
   color: var(--academic-link);
   text-decoration: none;
 }
 
-.academic-home a:hover,
-.academic-home a:focus-visible {
+.academic-content a:hover,
+.academic-content a:focus-visible,
+.academic-sidebar a:hover,
+.academic-sidebar a:focus-visible {
   color: var(--academic-link-hover);
   text-decoration: underline;
 }
@@ -115,7 +118,7 @@ body.academic-home {
 .academic-shell {
   width: min(1120px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 58px 0 70px;
+  padding: 120px 0 70px;
 }
 
 .academic-profile-grid {
@@ -325,7 +328,7 @@ body.academic-home {
   }
 
   .academic-shell {
-    padding: 38px 0 50px;
+    padding: 96px 0 50px;
   }
 
   .academic-profile-grid {

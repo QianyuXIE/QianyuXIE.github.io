@@ -47,6 +47,11 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ "/css/hux-blog.min.css" | prepend: site.baseurl }}">
 
+    {% if page.layout == 'academic-home' %}
+    <!-- Academic CV CSS -->
+    <link rel="stylesheet" href="{{ "/assets/css/academic-home.css" | prepend: site.baseurl }}">
+    {% endif %}
+
     <!-- Custom Fonts -->
     <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
     <!-- Hux change font-awesome CDN to qiniu -->
