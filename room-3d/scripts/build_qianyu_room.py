@@ -20,12 +20,15 @@ from mathutils import Vector
 ROOT = Path(sys.argv[sys.argv.index("--") + 1]).resolve() if "--" in sys.argv else Path.cwd()
 OUTPUT = ROOT / "assets" / "room3d"
 SOURCE = ROOT / "room-3d" / "source"
+TEXTURES = OUTPUT / "textures"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 SOURCE.mkdir(parents=True, exist_ok=True)
+TEXTURES.mkdir(parents=True, exist_ok=True)
 
 
 PALETTE = {
     "wall": (0.72, 0.64, 0.51, 1),
+    "space": (0.93, 0.92, 0.88, 1),
     "wall_dark": (0.18, 0.26, 0.25, 1),
     "floor": (0.35, 0.17, 0.09, 1),
     "wood": (0.30, 0.12, 0.055, 1),
@@ -80,6 +83,7 @@ def initialize_materials():
     materials["metal"] = material("metal", PALETTE["metal"], roughness=0.30, metallic=0.85)
     materials["glass"] = material("glass", PALETTE["glass"], roughness=0.14, metallic=0.35)
     materials["sky"] = material("sky", PALETTE["sky"], roughness=0.35, emission=(0.11, 0.48, 0.56, 1))
+    materials["space"] = material("space", PALETTE["space"], roughness=0.82)
     return materials
 
 
@@ -133,6 +137,15 @@ def add_uv_sphere(name, location, scale, mat, interaction=None, group="environme
     return tag(obj, interaction, group)
 
 
+def add_torus(name, location, major_radius, minor_radius, mat, interaction=None, group="environment"):
+    bpy.ops.mesh.primitive_torus_add(major_radius=major_radius, minor_radius=minor_radius, major_segments=48, minor_segments=10, location=location)
+    obj = bpy.context.object
+    obj.name = name
+    obj.data.materials.append(mat)
+    bpy.ops.object.shade_smooth()
+    return tag(obj, interaction, group)
+
+
 def add_curve(name, points, radius, mat, interaction=None, group="environment", cyclic=False):
     curve = bpy.data.curves.new(name, "CURVE")
     curve.dimensions = "3D"
@@ -172,24 +185,9 @@ def look_at(obj, point):
 
 
 def room_shell():
-    add_box("floor", (0, 0, -0.16), (16, 12, 0.32), M["floor"], bevel=0.02, group="env")
-    # The rear wall is built around a real window opening, not a painted panel.
-    add_box("back_wall_left", (-6.95, 5.85, 4.7), (2.10, 0.24, 9.4), M["wall"], bevel=0.01, group="env")
-    add_box("back_wall_right", (3.55, 5.85, 4.7), (8.90, 0.24, 9.4), M["wall"], bevel=0.01, group="env")
-    add_box("back_wall_top", (-3.40, 5.85, 8.78), (4.90, 0.24, 1.84), M["wall"], bevel=0.01, group="env")
-    add_box("back_wall_bottom", (-3.40, 5.85, 1.74), (4.90, 0.24, 3.48), M["wall"], bevel=0.01, group="env")
-    add_box("left_wall", (-7.85, 0, 4.7), (0.24, 12, 9.4), M["wall_dark"], bevel=0.01, group="env")
-    add_box("baseboard_back", (0, 5.68, 0.42), (15.9, 0.16, 0.22), M["wood_light"], bevel=0.02, group="env")
-    add_box("baseboard_left", (-7.68, 0, 0.42), (0.16, 11.9, 0.22), M["wood_light"], bevel=0.02, group="env")
-    # Luminous exterior is set behind the opening rather than covering it.
-    add_box("window_exterior", (-3.4, 6.02, 5.8), (4.70, 0.05, 4.48), M["sky"], bevel=0.01, group="env")
-    add_cylinder("window_sun", (-4.50, 5.98, 6.72), 0.34, 0.04, M["cream"], vertices=48, rotation=(math.radians(90), 0, 0), group="env")
-    # A physical wall switch replaces the floating toolbar controls on Home.
-    add_box("wall_switch_plate", (5.85, 5.64, 4.15), (0.48, 0.07, 0.68), M["cream"], bevel=0.05, interaction="lamp", group="lamp")
-    add_box("wall_switch_toggle", (5.85, 5.57, 4.17), (0.12, 0.07, 0.30), M["red"], bevel=0.03, interaction="lamp", group="lamp", rotation=(math.radians(-14), 0, 0))
-    for x, z, sx, sz in [(-3.4, 5.8, 0.16, 4.9), (-5.75, 5.8, 0.16, 4.9), (-1.05, 5.8, 0.16, 4.9), (-3.4, 8.1, 4.9, 0.16), (-3.4, 3.5, 4.9, 0.16)]:
-        add_box("window_frame", (x, 5.54, z), (sx, 0.18, sz), M["cream"], bevel=0.015, group="env")
-    add_box("rug", (1.7, 0.45, 0.03), (7.2, 5.0, 0.07), M["cream"], bevel=0.24, group="env", rotation=(0, 0, math.radians(-7)))
+    # A single, oversized studio floor gives the scene an infinite white-world
+    # feeling. No room walls, window, or box geometry remain.
+    add_box("studio_floor", (0, 0, -0.12), (42, 42, 0.16), M["space"], bevel=0.10, group="environment")
 
 
 def desk_and_computer():
@@ -201,6 +199,9 @@ def desk_and_computer():
             add_box("desk_leg", (x, y, 1.48), (0.26, 0.26, 3.0), M["wood_dark"] if "wood_dark" in M else M["wood"], bevel=0.06, group="desk")
     add_box("desk_drawer", (4.45, 1.2, 2.45), (1.52, 1.48, 0.92), M["wood_light"], bevel=0.07, group="desk")
     add_box("drawer_handle", (4.45, -0.02, 2.46), (0.52, 0.12, 0.10), M["gold"], bevel=0.03, group="desk")
+    add_box("desk_apron", (2.25, 0.08, 2.72), (6.45, 0.16, 0.42), M["wood_light"], bevel=0.05, group="desk")
+    for x in (-0.35, 4.85):
+        add_box("desk_foot", (x, 1.18, 0.18), (1.00, 1.92, 0.12), M["wood_light"], bevel=0.06, group="desk")
 
     # MacBook: screen tilted backward around its hinge.
     add_box("macbook_base", (1.2, 1.18, 3.30), (2.35, 1.52, 0.12), M["metal"], bevel=0.07, interaction="cv", group=group)
@@ -208,15 +209,23 @@ def desk_and_computer():
     add_box("screen", (1.2, 1.80, 4.33), (2.12, 0.035, 1.40), M["screen"], bevel=0.03, interaction="cv", group=group, rotation=(math.radians(-18), 0, 0))
     add_box("terminal_line_1", (0.65, 1.765, 4.60), (0.72, 0.012, 0.035), M["teal_light"], bevel=0.01, group=group, rotation=(math.radians(-18), 0, 0))
     add_box("terminal_line_2", (0.93, 1.77, 4.39), (1.18, 0.012, 0.035), M["cream"], bevel=0.01, group=group, rotation=(math.radians(-18), 0, 0))
+    for row in range(4):
+        for column in range(10):
+            add_box("macbook_key_%02d_%02d" % (row, column), (-0.04 + column * 0.25, 0.69 + row * 0.19, 3.39), (0.16, 0.11, 0.035), M["ink"], bevel=0.012, interaction="cv", group=group)
+    add_box("macbook_trackpad", (1.20, 1.28, 3.39), (0.56, 0.40, 0.022), M["cream"], bevel=0.02, interaction="cv", group=group)
+    add_box("macbook_logo", (1.20, 1.93, 4.33), (0.24, 0.013, 0.24), M["cream"], bevel=0.04, interaction="cv", group=group, rotation=(math.radians(-18), 0, 0))
     add_focus("focus_cv", (1.2, 0.5, 4.2), (1.2, 1.2, 3.6))
 
 
 def research_corner():
-    # Whiteboard wall piece and pen
-    add_box("whiteboard", (-5.25, 5.50, 4.1), (3.2, 0.11, 2.35), M["paper"], bevel=0.06, interaction="research", group="whiteboard")
-    add_box("whiteboard_face", (-5.25, 5.43, 4.1), (2.94, 0.025, 2.08), M["cream"], bevel=0.03, interaction="research", group="whiteboard")
+    # A freestanding research board replaces the former wall-mounted board.
+    add_box("whiteboard", (-5.25, 3.82, 4.1), (3.2, 0.11, 2.35), M["paper"], bevel=0.06, interaction="research", group="whiteboard")
+    add_box("whiteboard_face", (-5.25, 3.74, 4.1), (2.94, 0.025, 2.08), M["cream"], bevel=0.03, interaction="research", group="whiteboard")
+    for x in (-6.35, -4.15):
+        add_box("whiteboard_leg", (x, 3.84, 1.35), (0.12, 0.12, 3.20), M["wood_light"], bevel=0.03, interaction="research", group="whiteboard")
+    add_box("whiteboard_tray", (-5.25, 3.63, 2.84), (2.78, 0.24, 0.12), M["wood_light"], bevel=0.025, interaction="research", group="whiteboard")
     for x, z, width, color in [(-5.95, 4.7, 0.78, "red"), (-5.15, 4.35, 1.30, "teal_light"), (-4.85, 3.82, 0.95, "gold"), (-5.75, 3.55, 0.52, "ink")]:
-        add_box("whiteboard_note", (x, 5.38, z), (width, 0.018, 0.08), M[color], bevel=0.02, group="whiteboard")
+        add_box("whiteboard_note", (x, 3.69, z), (width, 0.018, 0.08), M[color], bevel=0.02, interaction="research", group="whiteboard")
     add_cylinder("pen", (-5.9, 1.2, 3.31), 0.055, 1.2, M["red"], vertices=16, rotation=(0, math.radians(78), math.radians(15)), interaction="writing", group="writing")
     for offset in range(4):
         add_box("paper_%02d" % offset, (-3.10 + offset * 0.035, 1.25 + offset * 0.015, 3.26 + offset * 0.024), (1.28, 0.95, 0.028), M["paper"], bevel=0.018, interaction="writing", group="writing", rotation=(0, 0, math.radians(-7)))
@@ -230,9 +239,12 @@ def music_corner():
     add_cylinder("turntable_platter", (3.58, 1.15, 3.50), 0.54, 0.075, M["metal"], vertices=64, interaction="music", group=group)
     add_cylinder("vinyl", (3.58, 1.15, 3.57), 0.48, 0.035, M["vinyl"], vertices=64, interaction="music", group=group)
     add_cylinder("vinyl_label", (3.58, 1.15, 3.595), 0.14, 0.012, M["red"], vertices=48, interaction="music", group=group)
+    for groove in (0.21, 0.29, 0.37, 0.44):
+        add_torus("vinyl_groove", (3.58, 1.15, 3.61), groove, 0.008, M["ink"], interaction="music", group=group)
     add_curve("turntable_needle", [(4.63, 1.52, 3.57), (4.42, 1.35, 3.82), (4.14, 1.20, 3.60)], 0.028, M["metal"], interaction="music", group=group)
     for x in (4.58, 4.75):
         add_cylinder("turntable_button", (x, 0.70, 3.52), 0.07, 0.045, M["gold"], vertices=32, interaction="music", group=group)
+    add_box("turntable_display", (4.52, 0.72, 3.52), (0.18, 0.08, 0.10), M["screen"], bevel=0.02, interaction="music", group=group)
     # Headphones suspended on an arm.
     add_curve("headphones_band", [(5.35, 2.32, 3.7), (5.35, 1.70, 4.35), (5.35, 1.08, 3.7)], 0.08, M["ink"], interaction="music", group=group)
     add_uv_sphere("headphones_left", (5.35, 1.05, 3.48), (0.20, 0.16, 0.28), M["ink"], interaction="music", group=group)
@@ -246,7 +258,11 @@ def photography_corner():
     add_box("camera_body", (0.0, 2.12, 3.42), (1.28, 0.62, 0.56), M["ink"], bevel=0.10, interaction="photos", group=group)
     add_cylinder("camera_lens", (0.0, 1.77, 3.43), 0.30, 0.42, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), interaction="photos", group=group)
     add_cylinder("camera_lens_glass", (0.0, 1.55, 3.43), 0.22, 0.035, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), interaction="photos", group=group)
+    for radius in (0.25, 0.29):
+        ring = add_torus("camera_lens_ring", (0.0, 1.54, 3.43), radius, 0.018, M["gold"], interaction="photos", group=group)
+        ring.rotation_euler = (math.radians(90), 0, 0)
     add_box("camera_viewfinder", (0.0, 2.12, 3.78), (0.42, 0.28, 0.16), M["metal"], bevel=0.04, interaction="photos", group=group)
+    add_cylinder("camera_shutter", (0.46, 2.12, 3.75), 0.075, 0.05, M["red"], vertices=24, interaction="photos", group=group)
     for i, x in enumerate((-0.72, -0.36, 0.0)):
         add_cylinder("film_roll_%02d" % i, (x, 2.18, 3.31), 0.15, 0.32, M["gold"] if i == 1 else M["red"], vertices=32, rotation=(math.radians(90), 0, 0), interaction="photos", group="film")
     add_focus("focus_photos", (-0.25, 0.3, 4.1), (0.0, 1.8, 3.4))
@@ -298,11 +314,12 @@ def chair_guitar_lamp_and_decor():
         leaf = add_uv_sphere("plant_leaf_%02d" % i, (6.15 + math.cos(radius) * 0.40, 4.78 + math.sin(radius) * 0.12, 1.86 + (i % 2) * 0.18), (0.20, 0.08, 0.52), M["plant"], group="env")
         leaf.rotation_euler = (math.radians(35), 0, radius)
 
-    # Posters: original blank visual blocks, later replaced with Qianyu imagery.
-    add_text_panel("poster_research", (4.15, 5.46, 6.65), (2.15, 0.045, 2.55), "teal", "poster")
-    add_text_panel("poster_photo", (6.35, 5.46, 6.20), (1.62, 0.045, 2.05), "red", "poster")
-    add_box("poster_label_1", (4.15, 5.41, 6.70), (1.38, 0.018, 0.14), M["cream"], bevel=0.01, group="poster")
-    add_box("poster_label_2", (6.35, 5.41, 6.20), (0.96, 0.018, 0.13), M["paper"], bevel=0.01, group="poster")
+    # Freestanding photo frames keep the photography interaction legible
+    # without relying on a wall.
+    for i, (x, z, color) in enumerate(((5.20, 4.55, "teal"), (6.45, 4.05, "red"), (5.90, 2.75, "gold"))):
+        add_box("photo_frame", (x, 4.78, z), (0.92, 0.12, 1.16), M["wood"], bevel=0.05, interaction="photos", group="photos")
+        add_box("photo_frame_image", (x, 4.70, z), (0.72, 0.022, 0.89), M[color], bevel=0.02, interaction="photos", group="photos")
+        add_box("photo_frame_leg", (x, 4.92, z - 0.93), (0.12, 0.16, 0.92), M["wood_light"], bevel=0.025, interaction="photos", group="photos", rotation=(math.radians(-17), 0, 0))
 
 
 def lighting_and_camera():
@@ -310,8 +327,8 @@ def lighting_and_camera():
     world = bpy.data.worlds.new("Qianyu Room World") if not bpy.data.worlds else bpy.data.worlds[0]
     scene.world = world
     world.use_nodes = True
-    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.025, 0.045, 0.05, 1)
-    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.32
+    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.93, 0.92, 0.88, 1)
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.42
 
     def area(name, location, energy, size, color, target):
         data = bpy.data.lights.new(name, "AREA")
@@ -325,9 +342,11 @@ def lighting_and_camera():
         look_at(obj, target)
         return obj
 
-    area("window_key", (-4.0, 2.0, 8.1), 1150, 5.0, (0.48, 0.72, 0.82), (1.0, 1.2, 2.0))
-    area("warm_fill", (6.0, -2.4, 6.2), 880, 4.0, (1.0, 0.44, 0.15), (2.0, 1.0, 2.6))
-    area("shelf_bounce", (-6.5, 2.5, 5.5), 460, 2.4, (0.85, 0.52, 0.24), (-3.8, 3.0, 2.0))
+    # A broad white key, warm practical fill, and faint cool rim create soft
+    # grounded shadows without constructing any enclosing walls.
+    area("studio_key", (-4.5, -4.0, 11.0), 1600, 6.0, (1.0, 0.96, 0.88), (0.4, 1.0, 2.1))
+    area("studio_fill", (7.0, -1.5, 7.0), 720, 5.0, (1.0, 0.72, 0.48), (2.2, 1.1, 2.5))
+    area("studio_rim", (-7.0, 5.0, 6.0), 520, 4.0, (0.68, 0.84, 0.88), (-2.0, 2.5, 2.4))
 
     bpy.ops.object.camera_add(location=(15.8, -17.2, 12.6))
     camera = bpy.context.object
@@ -348,6 +367,51 @@ def lighting_and_camera():
     scene.render.film_transparent = False
     scene.view_settings.look = "AgX - Medium High Contrast"
     scene.render.filepath = str(OUTPUT / "qianyu-room-preview.png")
+
+
+def prepare_uvs():
+    """Give every renderable mesh an explicit, non-overlapping UV layout."""
+    bpy.ops.object.mode_set(mode="OBJECT") if bpy.context.object and bpy.context.object.mode != "OBJECT" else None
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH":
+            continue
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.025)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        obj["uv_layout"] = "smart_project_v1"
+
+
+def bake_floor_ao():
+    """Bake static ambient occlusion onto the studio floor for the source asset."""
+    floor = bpy.data.objects.get("studio_floor")
+    if not floor:
+        return
+    scene = bpy.context.scene
+    previous_engine = scene.render.engine
+    floor_material = M["space"]
+    nodes = floor_material.node_tree.nodes
+    bake_node = nodes.get("Floor AO Bake") or nodes.new("ShaderNodeTexImage")
+    bake_node.name = "Floor AO Bake"
+    bake_image = bpy.data.images.get("qianyu-floor-ao") or bpy.data.images.new("qianyu-floor-ao", width=768, height=768, alpha=False)
+    bake_node.image = bake_image
+    nodes.active = bake_node
+    bpy.ops.object.select_all(action="DESELECT")
+    floor.select_set(True)
+    bpy.context.view_layer.objects.active = floor
+    try:
+        scene.render.engine = "CYCLES"
+        scene.cycles.samples = 16
+        scene.cycles.bake_type = "AO"
+        bpy.ops.object.bake(type="AO", margin=10, use_clear=True)
+        bake_image.filepath_raw = str(TEXTURES / "studio-floor-ao.png")
+        bake_image.file_format = "PNG"
+        bake_image.save()
+    finally:
+        scene.render.engine = previous_engine
 
 
 def export_scene():
@@ -378,5 +442,7 @@ photography_corner()
 bookshelf_and_books()
 chair_guitar_lamp_and_decor()
 lighting_and_camera()
+prepare_uvs()
+bake_floor_ao()
 export_scene()
 print("Qianyu room source, preview, and GLB exported successfully.")

@@ -9,7 +9,7 @@ const probe = document.createElement("canvas");
 const supportsWebGL = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
 
 if (host && viewport && supportsWebGL) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -19,8 +19,7 @@ if (host && viewport && supportsWebGL) {
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x8ebec8);
-  scene.fog = new THREE.Fog(0x8ebec8, 27, 54);
+  scene.background = new THREE.Color(0xf5f3ee);
 
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -37,15 +36,20 @@ if (host && viewport && supportsWebGL) {
   camera.position.set(15.8, 12.2, 17.8);
   controls.update();
 
-  const hemi = new THREE.HemisphereLight(0xb4e7ff, 0x301408, 1.55);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xe8ddd0, 2.05);
   scene.add(hemi);
-  const keyLight = new THREE.DirectionalLight(0xffd0a4, 2.4);
-  keyLight.position.set(5, 12, 8);
+  const keyLight = new THREE.DirectionalLight(0xfff7e8, 3.2);
+  keyLight.position.set(-7, -8, 14);
   keyLight.castShadow = true;
-  keyLight.shadow.mapSize.set(1024, 1024);
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -15;
+  keyLight.shadow.camera.right = 15;
+  keyLight.shadow.camera.top = 15;
+  keyLight.shadow.camera.bottom = -15;
+  keyLight.shadow.bias = -0.0002;
   scene.add(keyLight);
-  const fillLight = new THREE.PointLight(0x62d9db, 28, 24, 2);
-  fillLight.position.set(-5, 7, 4);
+  const fillLight = new THREE.PointLight(0xffbd80, 18, 22, 2);
+  fillLight.position.set(7, -3, 7);
   scene.add(fillLight);
   const lampLight = new THREE.PointLight(0xff9d52, 22, 9, 2);
   lampLight.position.set(4, 5.8, 2.8);
