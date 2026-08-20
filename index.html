@@ -1,49 +1,198 @@
 ---
-layout: page
+layout: desk-home
+title: Home
+hide-in-nav: true
+nav-style: invert
+description: "Qianyu Xie（谢浅羽）的互动书桌：多模态人工智能、摄影、音乐与生活记录。"
+desk_photos:
+  - src: /img/Me/Me1.jpg
+    label: 光
+  - src: /img/Me/Me2.jpg
+    label: 路上
+  - src: /img/Me/Me3.jpg
+    label: 此刻
+  - src: /img/Me/Me4.jpg
+    label: 风景
+  - src: /img/Me/Me5.jpg
+    label: 漫游
+  - src: /img/Me/Me6.jpg
+    label: 日常
+  - src: /img/Me/Me7.jpg
+    label: 光影
+  - src: /img/Me/Me8.jpg
+    label: 远方
+  - src: /img/Me/Me9.jpg
+    label: 相遇
+  - src: /img/Me/Me10.jpg
+    label: 留白
+  - src: /img/Me/Me11.JPG
+    label: 小屋
+music_artists:
+  - Aimer
+  - 吴青峰
+research_keywords:
+  - Multimodal AI
+  - Affective Computing
+  - Generative Models
 ---
 
-{% for post in paginator.posts %}
-<div class="post-preview">
-    <a href="{{ post.url | prepend: site.baseurl }}">
-        <h2 class="post-title">
-            {{ post.title }}
-        </h2>
-        {% if post.subtitle %}
-        <h3 class="post-subtitle">
-            {{ post.subtitle }}
-        </h3>
-        {% endif %}
-    </a>
-    <p class="post-meta">
-        Posted by
-        {% if post.author %}
-        {{ post.author }}
-        {% else %}
-        {{ site.title }}
-        {% endif %}
-        on {{ post.date | date: "%B %-d, %Y" }}
-    </p>
-</div>
-<hr>
-{% endfor %}
+<main class="desk-home" id="main-content">
+  <div class="desk-surface">
+    <span class="desk-tape desk-tape-one" aria-hidden="true"></span>
+    <span class="desk-tape desk-tape-two" aria-hidden="true"></span>
 
-{% if paginator.total_pages > 1 %}
-<ul class="pager">
-    {% if paginator.previous_page %}
-    <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">
-            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-            Newer Posts
-        </a>
-    </li>
-    {% endif %}
-    {% if paginator.next_page %}
-    <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">
-            Older Posts
-            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-        </a>
-    </li>
-    {% endif %}
-</ul>
-{% endif %}
+    <section class="desk-object identity-card" aria-labelledby="desk-owner-name">
+      <span class="paper-clip" aria-hidden="true"></span>
+      <p class="identity-eyebrow">HELLO, THIS DESK BELONGS TO</p>
+      <h1 id="desk-owner-name">Qianyu Xie <span>谢浅羽</span></h1>
+      <p class="identity-role">人工智能与机器人硕士生<br><span>The Chinese University of Hong Kong, Shenzhen</span></p>
+      <blockquote>“我刚刚睡醒，真对不起，瞧我的头发还是乱蓬蓬的……”</blockquote>
+      <nav class="identity-links" aria-label="个人联系方式">
+        <a href="mailto:225040249@link.cuhk.edu.cn">Email</a>
+        <a href="https://linkedin.com/in/qianyu-xie-julie" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://github.com/QianyuXIE" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </section>
+
+    <aside class="desk-object status-note" aria-label="当前研究关键词">
+      <span class="push-pin" aria-hidden="true"></span>
+      <p>CURRENTLY CURIOUS ABOUT</p>
+      <ul>
+        {% for keyword in page.research_keywords %}
+        <li>{{ keyword }}</li>
+        {% endfor %}
+      </ul>
+      <span class="status-doodle" aria-hidden="true">↗</span>
+    </aside>
+
+    <a class="desk-object laptop" href="{{ '/cv.html' | relative_url }}" aria-label="打开 Qianyu Xie 的 CV">
+      <span class="laptop-screen">
+        <span class="laptop-toolbar" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="laptop-prompt">qianyu@desk:~$</span>
+        <strong>open cv.pdf</strong>
+        <span class="laptop-copy">Research · Experience · Publications</span>
+        <span class="laptop-cta">View CV <b aria-hidden="true">↗</b></span>
+      </span>
+      <span class="laptop-base" aria-hidden="true"><i></i></span>
+    </a>
+
+    <button class="desk-object research-paper" type="button" data-dialog-open="research-dialog" aria-haspopup="dialog">
+      <span class="paper-binding" aria-hidden="true"></span>
+      <span class="paper-kicker">RESEARCH NOTES / 01</span>
+      <strong>What am I<br>working on?</strong>
+      <span class="paper-rule"></span>
+      <span class="paper-copy">从情感理解到高效图像生成</span>
+      <span class="paper-open">Open notes →</span>
+      <span class="highlighter" aria-hidden="true"></span>
+    </button>
+
+    <a class="desk-object notebook" href="{{ '/moment.html' | relative_url }}" aria-label="打开 Moment 日记">
+      <span class="notebook-rings" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="notebook-label">
+        <small>JULIE'S</small>
+        <strong>Moment</strong>
+        <em>日常 / 文字 / 碎片</em>
+      </span>
+      <span class="notebook-corner" aria-hidden="true"></span>
+    </a>
+
+    <section class="desk-object camera-zone" aria-labelledby="photo-section-title">
+      <h2 id="photo-section-title" class="sr-only">随机照片</h2>
+      <button class="camera" id="photo-shuffle" type="button" aria-label="换一组照片">
+        <span class="camera-top" aria-hidden="true"></span>
+        <span class="camera-lens" aria-hidden="true"><i></i></span>
+        <span class="camera-flash" aria-hidden="true"></span>
+        <span class="camera-label">SHUFFLE</span>
+      </button>
+      <p>按一下相机，换一组光影</p>
+    </section>
+
+    <section class="desk-object photo-stack" id="photo-stack" aria-label="摄影作品预览">
+      {% for photo in page.desk_photos limit:3 %}
+      <article class="polaroid polaroid-{{ forloop.index }}" data-photo-slot>
+        <button class="polaroid-toggle" type="button" aria-expanded="false" aria-label="翻转照片：{{ photo.label }}">
+          <span class="polaroid-face polaroid-front">
+            <img src="{{ photo.src | relative_url }}" alt="浅羽的摄影照片：{{ photo.label }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+            <span class="polaroid-caption">{{ photo.label }}</span>
+          </span>
+          <span class="polaroid-face polaroid-back" aria-hidden="true">
+            <span class="photo-back-label">{{ photo.label }}</span>
+            <span class="photo-back-copy">把这一刻收进小屋。</span>
+          </span>
+        </button>
+        <a class="polaroid-about-link" href="{{ '/about.html' | relative_url }}">进入摄影页 →</a>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="desk-object music-zone">
+      <button class="headphones" id="music-toggle" type="button" aria-expanded="false" aria-controls="music-card">
+        <span class="headphone-band" aria-hidden="true"></span>
+        <span class="headphone-ear headphone-ear-left" aria-hidden="true"></span>
+        <span class="headphone-ear headphone-ear-right" aria-hidden="true"></span>
+        <span class="sr-only">查看最近在听</span>
+      </button>
+      <div class="music-card" id="music-card" hidden>
+        <small>CURRENTLY LISTENING</small>
+        <strong>{% for artist in page.music_artists %}{{ artist }}{% unless forloop.last %} · {% endunless %}{% endfor %}</strong>
+        <span>No autoplay, just good company.</span>
+      </div>
+    </section>
+
+    <div class="desk-object coffee" aria-hidden="true">
+      <span class="coffee-steam steam-one"></span>
+      <span class="coffee-steam steam-two"></span>
+      <span class="coffee-cup"><i></i></span>
+      <span class="coffee-saucer"></span>
+    </div>
+
+    <div class="desk-object plant" aria-hidden="true">
+      <span class="leaf leaf-one"></span>
+      <span class="leaf leaf-two"></span>
+      <span class="leaf leaf-three"></span>
+      <span class="leaf leaf-four"></span>
+      <span class="plant-pot"></span>
+    </div>
+
+    <p class="desk-hint">Click, flip, and wander around my desk.</p>
+  </div>
+
+  <div class="desk-dialog" id="research-dialog" role="dialog" aria-modal="true" aria-labelledby="research-dialog-title" hidden>
+    <div class="desk-dialog-backdrop" data-dialog-close></div>
+    <section class="desk-dialog-panel" tabindex="-1">
+      <button class="desk-dialog-close" type="button" data-dialog-close aria-label="关闭研究简介">×</button>
+      <p class="dialog-kicker">RESEARCH NOTES</p>
+      <h2 id="research-dialog-title">让模型更懂情绪，也更高效地创造。</h2>
+      <div class="research-note-grid">
+        <article>
+          <span>01</span>
+          <h3>Multimodal Understanding</h3>
+          <p>研究多模态大语言模型、跨模态情感识别与可解释推理。</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Affective Computing</h3>
+          <p>探索语言、视觉与声音之间的情绪线索如何被理解和连接。</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Efficient Generation</h3>
+          <p>关注 Diffusion Transformer、Mixture-of-Experts 与高效图像生成。</p>
+        </article>
+      </div>
+      <a class="dialog-cv-link" href="{{ '/cv.html' | relative_url }}">在 CV 中查看完整经历 →</a>
+    </section>
+  </div>
+
+  <script type="application/json" id="desk-photo-data">
+    [
+      {% for photo in page.desk_photos %}
+      {"src": "{{ photo.src | relative_url }}", "label": "{{ photo.label }}"}{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]
+  </script>
+</main>
+
+{% include room-experience.html %}

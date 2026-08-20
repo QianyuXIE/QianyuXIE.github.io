@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+{% include head.html %}
+
+<body class="desk-home-page" ontouchstart="">
+    {% include nav.html %}
+
+    {{ content }}
+
+    {% include footer.html %}
+    <script src="{{ "/js/desk-home.js" | prepend: site.baseurl }}"></script>
+    <script src="{{ "/js/room-experience.js" | prepend: site.baseurl }}"></script>
+</body>
+
+</html>
