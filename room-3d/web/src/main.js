@@ -12,13 +12,15 @@ if (host && viewport && supportsWebGL) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x071317);
-  scene.fog = new THREE.Fog(0x071317, 27, 54);
+  scene.background = new THREE.Color(0x8ebec8);
+  scene.fog = new THREE.Fog(0x8ebec8, 27, 54);
 
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -67,6 +69,16 @@ if (host && viewport && supportsWebGL) {
   let model = null;
   let lampOn = true;
 
+  const nameMatchers = [
+    [/(macbook|screen|terminal)/i, "cv"],
+    [/(whiteboard|paper|pen|highlighter)/i, "research"],
+    [/(turntable|vinyl|headphones)/i, "music"],
+    [/(camera|film|polaroid)/i, "photos"],
+    [/(bookshelf|book)/i, "about"],
+    [/(lamp)/i, "lamp"],
+    [/(whale)/i, "whale"]
+  ];
+
   const tooltip = document.createElement("span");
   tooltip.className = "room-webgl-tooltip";
   tooltip.hidden = true;
@@ -76,6 +88,8 @@ if (host && viewport && supportsWebGL) {
     let current = object;
     while (current) {
       if (current.userData && current.userData.interaction) return current.userData.interaction;
+      const match = nameMatchers.find(([matcher]) => matcher.test(current.name || ""));
+      if (match) return match[1];
       current = current.parent;
     }
     return null;
@@ -97,7 +111,6 @@ if (host && viewport && supportsWebGL) {
   function setLamp(next) {
     lampOn = next;
     lampLight.intensity = lampOn ? 22 : 0;
-    scene.background.set(lampOn ? 0x071317 : 0x030809);
   }
 
   renderer.domElement.addEventListener("pointermove", (event) => {
@@ -107,6 +120,10 @@ if (host && viewport && supportsWebGL) {
     renderer.domElement.style.cursor = interaction ? "pointer" : "grab";
     tooltip.hidden = !interaction;
     tooltip.textContent = labels[interaction] || "Explore";
+  });
+
+  ["pointerdown", "pointermove", "pointerup", "wheel"].forEach((eventName) => {
+    renderer.domElement.addEventListener(eventName, (event) => event.stopPropagation(), { passive: eventName !== "wheel" });
   });
 
   renderer.domElement.addEventListener("pointerleave", () => {
@@ -140,6 +157,7 @@ if (host && viewport && supportsWebGL) {
       scene.add(model);
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
+      renderer.domElement.tabIndex = 0;
       host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 房间。点击物件查看内容。");
     },
     undefined,

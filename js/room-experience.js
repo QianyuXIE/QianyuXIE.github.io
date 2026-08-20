@@ -388,6 +388,8 @@
       event.preventDefault();
       if (activePanel) {
         closePanel(true);
+      } else if (document.body.classList.contains("room-home-default")) {
+        return;
       } else {
         closeRoom();
       }
@@ -419,4 +421,12 @@
       resetCamera(true);
     }
   });
+
+  if (document.body.classList.contains("room-home-default")) {
+    experience.hidden = false;
+    experience.classList.add("is-entered");
+    shell.setAttribute("aria-hidden", "false");
+    peelHost.classList.add("is-hidden");
+    document.body.classList.add("room-body-locked");
+  }
 }());

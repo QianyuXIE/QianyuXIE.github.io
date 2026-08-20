@@ -3,7 +3,7 @@
 
 {% include head.html %}
 
-<body class="desk-home-page" ontouchstart="">
+<body class="desk-home-page{% if page.room_home %} room-home-default{% endif %}" ontouchstart="">
     {% include nav.html %}
 
     {{ content }}

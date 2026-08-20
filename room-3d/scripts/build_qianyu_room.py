@@ -39,6 +39,7 @@ PALETTE = {
     "gold": (0.75, 0.42, 0.08, 1),
     "vinyl": (0.008, 0.01, 0.012, 1),
     "glass": (0.03, 0.14, 0.14, 1),
+    "sky": (0.23, 0.64, 0.72, 1),
     "screen": (0.01, 0.045, 0.045, 1),
     "lamp": (1.0, 0.51, 0.10, 1),
     "plant": (0.05, 0.23, 0.10, 1),
@@ -78,6 +79,7 @@ def initialize_materials():
     materials["lamp"] = material("lamp", PALETTE["lamp"], roughness=0.4, metallic=0.05, emission=(1.0, 0.20, 0.02, 1))
     materials["metal"] = material("metal", PALETTE["metal"], roughness=0.30, metallic=0.85)
     materials["glass"] = material("glass", PALETTE["glass"], roughness=0.14, metallic=0.35)
+    materials["sky"] = material("sky", PALETTE["sky"], roughness=0.35, emission=(0.11, 0.48, 0.56, 1))
     return materials
 
 
@@ -171,12 +173,17 @@ def look_at(obj, point):
 
 def room_shell():
     add_box("floor", (0, 0, -0.16), (16, 12, 0.32), M["floor"], bevel=0.02, group="env")
-    add_box("back_wall", (0, 5.85, 4.7), (16, 0.24, 9.4), M["wall"], bevel=0.01, group="env")
+    # The rear wall is built around a real window opening, not a painted panel.
+    add_box("back_wall_left", (-6.95, 5.85, 4.7), (2.10, 0.24, 9.4), M["wall"], bevel=0.01, group="env")
+    add_box("back_wall_right", (3.55, 5.85, 4.7), (8.90, 0.24, 9.4), M["wall"], bevel=0.01, group="env")
+    add_box("back_wall_top", (-3.40, 5.85, 8.78), (4.90, 0.24, 1.84), M["wall"], bevel=0.01, group="env")
+    add_box("back_wall_bottom", (-3.40, 5.85, 1.74), (4.90, 0.24, 3.48), M["wall"], bevel=0.01, group="env")
     add_box("left_wall", (-7.85, 0, 4.7), (0.24, 12, 9.4), M["wall_dark"], bevel=0.01, group="env")
     add_box("baseboard_back", (0, 5.68, 0.42), (15.9, 0.16, 0.22), M["wood_light"], bevel=0.02, group="env")
     add_box("baseboard_left", (-7.68, 0, 0.42), (0.16, 11.9, 0.22), M["wood_light"], bevel=0.02, group="env")
-    # large window, frame and a muted exterior plane
-    add_box("window_exterior", (-3.4, 5.67, 5.8), (4.9, 0.08, 4.7), M["glass"], bevel=0.01, group="env")
+    # Luminous exterior is set behind the opening rather than covering it.
+    add_box("window_exterior", (-3.4, 6.02, 5.8), (4.70, 0.05, 4.48), M["sky"], bevel=0.01, group="env")
+    add_cylinder("window_sun", (-4.50, 5.98, 6.72), 0.34, 0.04, M["cream"], vertices=48, rotation=(math.radians(90), 0, 0), group="env")
     for x, z, sx, sz in [(-3.4, 5.8, 0.16, 4.9), (-5.75, 5.8, 0.16, 4.9), (-1.05, 5.8, 0.16, 4.9), (-3.4, 8.1, 4.9, 0.16), (-3.4, 3.5, 4.9, 0.16)]:
         add_box("window_frame", (x, 5.54, z), (sx, 0.18, sz), M["cream"], bevel=0.015, group="env")
     add_box("rug", (1.7, 0.45, 0.03), (7.2, 5.0, 0.07), M["cream"], bevel=0.24, group="env", rotation=(0, 0, math.radians(-7)))
