@@ -37,3 +37,5 @@ _site/
 .sass-cache/
 .bundle/
 vendor/bundle/
+node_modules/
+room-3d/web/node_modules/
