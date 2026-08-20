@@ -29,3 +29,11 @@ build/
 *.iws
 *.iml
 *.ipr
+
+### Jekyll / Bundler ###
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+.bundle/
+vendor/bundle/

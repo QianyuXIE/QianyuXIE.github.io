@@ -1,6 +1,7 @@
 ---
 layout: academic-home
 title: "CV"
+permalink: /cv/
 description: "Qianyu Xie's academic CV — research in multimodal large language models, affective computing, and generative models."
 hide-in-nav: false
 nav-style: invert
