@@ -75,9 +75,9 @@ if (host && viewport && supportsWebGL) {
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
-    [/(whiteboard|paper|pen|highlighter)/i, "research"],
+    [/(whiteboard|paper|pen|highlighter|research)/i, "research"],
     [/(turntable|vinyl|headphones)/i, "music"],
-    [/(camera|film|polaroid)/i, "photos"],
+    [/(camera|film|polaroid|photo_frame)/i, "photos"],
     [/(bookshelf|book)/i, "about"],
     [/(lamp)/i, "lamp"],
     [/(whale)/i, "whale"]

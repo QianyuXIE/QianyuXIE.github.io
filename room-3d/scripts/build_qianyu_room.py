@@ -218,18 +218,18 @@ def desk_and_computer():
 
 
 def research_corner():
-    # A freestanding research board replaces the former wall-mounted board.
-    add_box("whiteboard", (-5.25, 3.82, 4.1), (3.2, 0.11, 2.35), M["paper"], bevel=0.06, interaction="research", group="whiteboard")
-    add_box("whiteboard_face", (-5.25, 3.74, 4.1), (2.94, 0.025, 2.08), M["cream"], bevel=0.03, interaction="research", group="whiteboard")
-    for x in (-6.35, -4.15):
-        add_box("whiteboard_leg", (x, 3.84, 1.35), (0.12, 0.12, 3.20), M["wood_light"], bevel=0.03, interaction="research", group="whiteboard")
-    add_box("whiteboard_tray", (-5.25, 3.63, 2.84), (2.78, 0.24, 0.12), M["wood_light"], bevel=0.025, interaction="research", group="whiteboard")
-    for x, z, width, color in [(-5.95, 4.7, 0.78, "red"), (-5.15, 4.35, 1.30, "teal_light"), (-4.85, 3.82, 0.95, "gold"), (-5.75, 3.55, 0.52, "ink")]:
-        add_box("whiteboard_note", (x, 3.69, z), (width, 0.018, 0.08), M[color], bevel=0.02, interaction="research", group="whiteboard")
-    add_cylinder("pen", (-5.9, 1.2, 3.31), 0.055, 1.2, M["red"], vertices=16, rotation=(0, math.radians(78), math.radians(15)), interaction="writing", group="writing")
-    for offset in range(4):
-        add_box("paper_%02d" % offset, (-3.10 + offset * 0.035, 1.25 + offset * 0.015, 3.26 + offset * 0.024), (1.28, 0.95, 0.028), M["paper"], bevel=0.018, interaction="writing", group="writing", rotation=(0, 0, math.radians(-7)))
-    add_focus("focus_research", (-4.4, 0.3, 4.5), (-4.1, 2.2, 3.8))
+    # One refined, compact research easel — the only left-side narrative prop.
+    center = (-4.85, 3.86, 3.95)
+    add_box("research_easel_frame", center, (2.45, 0.12, 1.86), M["paper"], bevel=0.07, interaction="research", group="research")
+    add_box("research_easel_face", (-4.85, 3.77, 3.95), (2.19, 0.026, 1.58), M["cream"], bevel=0.035, interaction="research", group="research")
+    for x in (-5.78, -3.92):
+        add_box("research_easel_leg", (x, 3.89, 1.26), (0.10, 0.10, 3.05), M["wood_light"], bevel=0.035, interaction="research", group="research")
+    add_box("research_easel_tray", (-4.85, 3.64, 2.95), (2.02, 0.22, 0.10), M["wood_light"], bevel=0.025, interaction="research", group="research")
+    for x, z, width, color in [(-5.40, 4.45, 0.52, "red"), (-4.72, 4.15, 0.76, "teal_light"), (-4.64, 3.67, 0.62, "gold")]:
+        add_box("research_easel_note", (x, 3.72, z), (width, 0.020, 0.06), M[color], bevel=0.018, interaction="research", group="research")
+    for offset in range(2):
+        add_box("research_paper_%02d" % offset, (-1.30 + offset * 0.03, 1.13 + offset * 0.02, 3.25 + offset * 0.018), (0.82, 0.62, 0.024), M["paper"], bevel=0.018, interaction="research", group="research", rotation=(0, 0, math.radians(-8)))
+    add_focus("focus_research", (-4.4, 0.3, 4.3), (-4.85, 3.8, 3.7))
 
 
 def music_corner():
@@ -263,8 +263,6 @@ def photography_corner():
         ring.rotation_euler = (math.radians(90), 0, 0)
     add_box("camera_viewfinder", (0.0, 2.12, 3.78), (0.42, 0.28, 0.16), M["metal"], bevel=0.04, interaction="photos", group=group)
     add_cylinder("camera_shutter", (0.46, 2.12, 3.75), 0.075, 0.05, M["red"], vertices=24, interaction="photos", group=group)
-    for i, x in enumerate((-0.72, -0.36, 0.0)):
-        add_cylinder("film_roll_%02d" % i, (x, 2.18, 3.31), 0.15, 0.32, M["gold"] if i == 1 else M["red"], vertices=32, rotation=(math.radians(90), 0, 0), interaction="photos", group="film")
     add_focus("focus_photos", (-0.25, 0.3, 4.1), (0.0, 1.8, 3.4))
 
 
@@ -290,16 +288,10 @@ def bookshelf_and_books():
 def chair_guitar_lamp_and_decor():
     # Chair
     group = "chair"
-    add_cylinder("chair_stem", (2.8, -1.55, 1.45), 0.13, 1.65, M["metal"], vertices=32, interaction="whale", group=group)
-    add_cylinder("chair_base", (2.8, -1.55, 0.66), 0.95, 0.10, M["metal"], vertices=32, interaction="whale", group=group)
-    add_uv_sphere("chair_seat", (2.8, -1.55, 2.05), (1.15, 1.0, 0.28), M["teal"], interaction="whale", group=group)
-    add_uv_sphere("chair_back", (2.8, -0.88, 3.00), (1.16, 0.20, 1.12), M["teal"], interaction="whale", group=group)
-
-    # Guitar, intentionally simplified to keep web geometry light.
-    add_uv_sphere("guitar_body_lower", (-0.75, 4.65, 1.65), (0.48, 0.18, 0.62), M["red"], interaction="about", group="guitar")
-    add_uv_sphere("guitar_body_upper", (-0.75, 4.65, 2.35), (0.38, 0.16, 0.48), M["red"], interaction="about", group="guitar")
-    add_box("guitar_neck", (-0.75, 4.68, 3.25), (0.16, 0.09, 1.55), M["wood_light"], bevel=0.025, interaction="about", group="guitar")
-    add_box("guitar_head", (-0.75, 4.68, 4.10), (0.32, 0.12, 0.30), M["wood"], bevel=0.04, interaction="about", group="guitar")
+    add_cylinder("chair_stem", (2.8, -1.55, 1.45), 0.13, 1.65, M["metal"], vertices=32, group=group)
+    add_cylinder("chair_base", (2.8, -1.55, 0.66), 0.95, 0.10, M["metal"], vertices=32, group=group)
+    add_uv_sphere("chair_seat", (2.8, -1.55, 2.05), (1.15, 1.0, 0.28), M["teal"], group=group)
+    add_uv_sphere("chair_back", (2.8, -0.88, 3.00), (1.16, 0.20, 1.12), M["teal"], group=group)
 
     # Desk lamp with a warm emissive shade.
     add_cylinder("lampstand", (4.95, 2.10, 3.45), 0.22, 0.08, M["metal"], vertices=32, interaction="lamp", group="lamp")
@@ -316,7 +308,7 @@ def chair_guitar_lamp_and_decor():
 
     # Freestanding photo frames keep the photography interaction legible
     # without relying on a wall.
-    for i, (x, z, color) in enumerate(((5.20, 4.55, "teal"), (6.45, 4.05, "red"), (5.90, 2.75, "gold"))):
+    for i, (x, z, color) in enumerate(((5.85, 3.95, "teal"),)):
         add_box("photo_frame", (x, 4.78, z), (0.92, 0.12, 1.16), M["wood"], bevel=0.05, interaction="photos", group="photos")
         add_box("photo_frame_image", (x, 4.70, z), (0.72, 0.022, 0.89), M[color], bevel=0.02, interaction="photos", group="photos")
         add_box("photo_frame_leg", (x, 4.92, z - 0.93), (0.12, 0.16, 0.92), M["wood_light"], bevel=0.025, interaction="photos", group="photos", rotation=(math.radians(-17), 0, 0))
@@ -439,7 +431,6 @@ desk_and_computer()
 research_corner()
 music_corner()
 photography_corner()
-bookshelf_and_books()
 chair_guitar_lamp_and_decor()
 lighting_and_camera()
 prepare_uvs()
