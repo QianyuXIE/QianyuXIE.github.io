@@ -184,6 +184,9 @@ def room_shell():
     # Luminous exterior is set behind the opening rather than covering it.
     add_box("window_exterior", (-3.4, 6.02, 5.8), (4.70, 0.05, 4.48), M["sky"], bevel=0.01, group="env")
     add_cylinder("window_sun", (-4.50, 5.98, 6.72), 0.34, 0.04, M["cream"], vertices=48, rotation=(math.radians(90), 0, 0), group="env")
+    # A physical wall switch replaces the floating toolbar controls on Home.
+    add_box("wall_switch_plate", (5.85, 5.64, 4.15), (0.48, 0.07, 0.68), M["cream"], bevel=0.05, interaction="lamp", group="lamp")
+    add_box("wall_switch_toggle", (5.85, 5.57, 4.17), (0.12, 0.07, 0.30), M["red"], bevel=0.03, interaction="lamp", group="lamp", rotation=(math.radians(-14), 0, 0))
     for x, z, sx, sz in [(-3.4, 5.8, 0.16, 4.9), (-5.75, 5.8, 0.16, 4.9), (-1.05, 5.8, 0.16, 4.9), (-3.4, 8.1, 4.9, 0.16), (-3.4, 3.5, 4.9, 0.16)]:
         add_box("window_frame", (x, 5.54, z), (sx, 0.18, sz), M["cream"], bevel=0.015, group="env")
     add_box("rug", (1.7, 0.45, 0.03), (7.2, 5.0, 0.07), M["cream"], bevel=0.24, group="env", rotation=(0, 0, math.radians(-7)))
