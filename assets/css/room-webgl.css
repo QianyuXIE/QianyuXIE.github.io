@@ -1,0 +1,70 @@
+/* The WebGL layer is deliberately scoped to the room overlay. */
+.room-webgl {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  opacity: 0;
+  background: #071317;
+  transition: opacity 420ms ease;
+}
+
+.room-webgl.is-ready {
+  opacity: 1;
+}
+
+.room-webgl canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+.room-webgl canvas:active {
+  cursor: grabbing;
+}
+
+.room-webgl-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  padding: 8px 13px;
+  border: 1px solid rgba(205, 255, 244, 0.35);
+  border-radius: 999px;
+  background: rgba(5, 23, 25, 0.82);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  color: #e6fff8;
+  font: 600 11px/1.1 "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.room-webgl.has-error {
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  color: #effcf4;
+  font: 500 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: center;
+}
+
+.room-viewport--webgl .room-scene,
+.room-viewport--webgl .room-drag-hint {
+  visibility: hidden;
+}
+
+@media (max-width: 720px) {
+  .room-webgl-tooltip {
+    bottom: 18px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-webgl {
+    transition: none;
+  }
+}

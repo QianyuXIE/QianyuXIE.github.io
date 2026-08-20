@@ -352,8 +352,9 @@ def export_scene():
         export_cameras=True,
         export_lights=True,
         export_extras=True,
-        export_draco_mesh_compression_enable=True,
-        export_draco_mesh_compression_level=6,
+        # Keep the web export self-contained.  The model stays lightweight,
+        # while browsers can load it without a separate Draco decoder asset.
+        export_draco_mesh_compression_enable=False,
     )
 
 

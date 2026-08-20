@@ -200,6 +200,7 @@
     if (lampObject) {
       lampObject.setAttribute("aria-pressed", String(on));
     }
+    document.dispatchEvent(new CustomEvent("qianyu-room:lamp-changed", { detail: { on: on } }));
   }
 
   function toggleTime() {
@@ -327,6 +328,17 @@
       markExplored();
     });
   }
+
+  document.addEventListener("qianyu-room:interaction", function (event) {
+    var name = event.detail && event.detail.name;
+    var mappedName = name === "writing" ? "research" : name;
+    var hotspot = experience.querySelector("[data-room-panel='" + mappedName + "']");
+    if (hotspot) {
+      showPanel(mappedName, hotspot);
+    }
+  });
+
+  document.addEventListener("qianyu-room:lamp-toggle", toggleLamp);
 
   viewport.addEventListener("pointerdown", onPointerDown);
   viewport.addEventListener("pointermove", onPointerMove);
