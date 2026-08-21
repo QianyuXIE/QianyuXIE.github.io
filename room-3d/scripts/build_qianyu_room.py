@@ -203,17 +203,21 @@ def desk_and_computer():
     for x in (-0.35, 4.85):
         add_box("desk_foot", (x, 1.18, 0.18), (1.00, 1.92, 0.12), M["wood_light"], bevel=0.06, group="desk")
 
-    # MacBook: screen tilted backward around its hinge.
-    add_box("macbook_base", (1.2, 1.18, 3.30), (2.35, 1.52, 0.12), M["metal"], bevel=0.07, interaction="cv", group=group)
-    screen = add_box("macbook_screen", (1.2, 1.87, 4.33), (2.35, 0.10, 1.65), M["metal"], bevel=0.07, interaction="cv", group=group, rotation=(math.radians(-18), 0, 0))
-    add_box("screen", (1.2, 1.80, 4.33), (2.12, 0.035, 1.40), M["screen"], bevel=0.03, interaction="cv", group=group, rotation=(math.radians(-18), 0, 0))
-    add_box("terminal_line_1", (0.65, 1.765, 4.60), (0.72, 0.012, 0.035), M["teal_light"], bevel=0.01, group=group, rotation=(math.radians(-18), 0, 0))
-    add_box("terminal_line_2", (0.93, 1.77, 4.39), (1.18, 0.012, 0.035), M["cream"], bevel=0.01, group=group, rotation=(math.radians(-18), 0, 0))
+    # MacBook Air: a thin aluminium wedge, shallow black keyboard and slim lid.
+    add_box("macbook_air_base", (1.2, 1.18, 3.265), (2.72, 1.78, 0.09), M["metal"], bevel=0.055, interaction="cv", group=group)
+    add_box("macbook_air_deck", (1.2, 1.18, 3.320), (2.58, 1.66, 0.035), M["metal"], bevel=0.035, interaction="cv", group=group)
+    add_box("macbook_air_front_lip", (1.2, 0.292, 3.278), (0.62, 0.025, 0.025), M["ink"], bevel=0.012, interaction="cv", group=group)
+    add_cylinder("macbook_air_hinge", (1.2, 1.995, 3.47), 0.055, 2.34, M["ink"], vertices=32, rotation=(0, math.radians(90), 0), interaction="cv", group=group)
+    add_box("macbook_air_lid", (1.2, 2.18, 4.24), (2.70, 0.055, 1.72), M["metal"], bevel=0.055, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("macbook_air_bezel", (1.2, 2.135, 4.24), (2.55, 0.022, 1.57), M["ink"], bevel=0.035, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("macbook_air_screen", (1.2, 2.116, 4.22), (2.39, 0.012, 1.39), M["screen"], bevel=0.025, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("macbook_air_notch", (1.2, 2.099, 4.88), (0.34, 0.012, 0.10), M["ink"], bevel=0.025, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("terminal_line_1", (0.65, 2.085, 4.50), (0.72, 0.010, 0.035), M["teal_light"], bevel=0.01, group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("terminal_line_2", (0.93, 2.090, 4.31), (1.18, 0.010, 0.035), M["cream"], bevel=0.01, group=group, rotation=(math.radians(-14), 0, 0))
     for row in range(4):
         for column in range(10):
-            add_box("macbook_key_%02d_%02d" % (row, column), (-0.04 + column * 0.25, 0.69 + row * 0.19, 3.39), (0.16, 0.11, 0.035), M["ink"], bevel=0.012, interaction="cv", group=group)
-    add_box("macbook_trackpad", (1.20, 1.28, 3.39), (0.56, 0.40, 0.022), M["cream"], bevel=0.02, interaction="cv", group=group)
-    add_box("macbook_logo", (1.20, 1.93, 4.33), (0.24, 0.013, 0.24), M["cream"], bevel=0.04, interaction="cv", group=group, rotation=(math.radians(-18), 0, 0))
+            add_box("macbook_air_key_%02d_%02d" % (row, column), (-0.04 + column * 0.275, 1.10 + row * 0.175, 3.355), (0.19, 0.105, 0.028), M["ink"], bevel=0.012, group=group)
+    add_box("macbook_air_trackpad", (1.20, 0.665, 3.352), (1.10, 0.55, 0.018), M["cream"], bevel=0.025, interaction="cv", group=group)
     add_focus("focus_cv", (1.2, 0.5, 4.2), (1.2, 1.2, 3.6))
 
 
@@ -430,6 +434,7 @@ M = initialize_materials()
 room_shell()
 desk_and_computer()
 research_corner()
+bookshelf_and_books()
 music_corner()
 photography_corner()
 chair_guitar_lamp_and_decor()

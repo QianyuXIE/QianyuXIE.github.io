@@ -9,13 +9,15 @@ const probe = document.createElement("canvas");
 const supportsWebGL = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
 
 if (host && viewport && supportsWebGL) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+  const pixelRatioCap = window.matchMedia("(max-width: 720px)").matches ? 1.25 : 1.5;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
@@ -24,13 +26,13 @@ if (host && viewport && supportsWebGL) {
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.07;
+  controls.dampingFactor = 0.11;
   controls.enablePan = false;
   controls.minDistance = 12;
   controls.maxDistance = 30;
   controls.minPolarAngle = Math.PI * 0.18;
   controls.maxPolarAngle = Math.PI * 0.48;
-  controls.rotateSpeed = 0.45;
+  controls.rotateSpeed = 0.58;
   controls.zoomSpeed = 0.65;
   controls.target.set(0, 2.2, 1.1);
   camera.position.set(15.8, 12.2, 17.8);
@@ -41,7 +43,7 @@ if (host && viewport && supportsWebGL) {
   const keyLight = new THREE.DirectionalLight(0xfff7e8, 3.2);
   keyLight.position.set(-7, -8, 14);
   keyLight.castShadow = true;
-  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.mapSize.set(1024, 1024);
   keyLight.shadow.camera.left = -15;
   keyLight.shadow.camera.right = 15;
   keyLight.shadow.camera.top = 15;
@@ -74,6 +76,7 @@ if (host && viewport && supportsWebGL) {
   let lampOn = true;
   let pointerDown = null;
   let draggedSincePointerDown = false;
+  let controlsActive = false;
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
@@ -119,6 +122,23 @@ if (host && viewport && supportsWebGL) {
     lampLight.intensity = lampOn ? 22 : 0;
   }
 
+  function clearHover() {
+    hovered = null;
+    tooltip.hidden = true;
+    renderer.domElement.style.cursor = controlsActive ? "grabbing" : "grab";
+  }
+
+  controls.addEventListener("start", () => {
+    controlsActive = true;
+    draggedSincePointerDown = true;
+    clearHover();
+  });
+
+  controls.addEventListener("end", () => {
+    controlsActive = false;
+    renderer.domElement.style.cursor = "grab";
+  });
+
   renderer.domElement.addEventListener("pointerdown", (event) => {
     pointerDown = { x: event.clientX, y: event.clientY };
     draggedSincePointerDown = false;
@@ -128,6 +148,9 @@ if (host && viewport && supportsWebGL) {
     if (pointerDown && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 7) {
       draggedSincePointerDown = true;
     }
+    // Picking every tiny key/book while OrbitControls is moving was the main
+    // source of drag jank. Hover picking resumes as soon as the gesture ends.
+    if (pointerDown || controlsActive) return;
     const interaction = pick(event);
     if (interaction === hovered) return;
     hovered = interaction;
@@ -144,9 +167,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   renderer.domElement.addEventListener("pointerleave", () => {
-    hovered = null;
-    tooltip.hidden = true;
-    renderer.domElement.style.cursor = "grab";
+    clearHover();
   });
 
   renderer.domElement.addEventListener("click", (event) => {
@@ -173,6 +194,7 @@ if (host && viewport && supportsWebGL) {
         if (interactionFor(object)) interactiveMeshes.push(object);
       });
       scene.add(model);
+      renderer.shadowMap.needsUpdate = true;
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
       renderer.domElement.tabIndex = 0;
@@ -198,7 +220,6 @@ if (host && viewport && supportsWebGL) {
 
   function render() {
     const delta = clock.getDelta();
-    if (model) model.rotation.z = Math.sin(clock.elapsedTime * 0.22) * 0.006;
     controls.update(delta);
     renderer.render(scene, camera);
     requestAnimationFrame(render);
