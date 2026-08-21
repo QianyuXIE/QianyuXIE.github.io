@@ -234,6 +234,10 @@
   }
 
   function onPointerDown(event) {
+    // Once WebGL is ready, OrbitControls owns pointer capture and drag state.
+    if (viewport.classList.contains("room-viewport--webgl")) {
+      return;
+    }
     if (event.target.closest("button, a, .room-toolbar, .room-panel-layer")) {
       return;
     }
@@ -257,6 +261,9 @@
   }
 
   function onPointerMove(event) {
+    if (viewport.classList.contains("room-viewport--webgl")) {
+      return;
+    }
     if (!pointers[event.pointerId]) {
       return;
     }
@@ -276,6 +283,9 @@
   }
 
   function onPointerUp(event) {
+    if (viewport.classList.contains("room-viewport--webgl")) {
+      return;
+    }
     delete pointers[event.pointerId];
     pointerCount = Object.keys(pointers).length;
     if (pointerCount === 0) {
@@ -345,6 +355,9 @@
   viewport.addEventListener("pointerup", onPointerUp);
   viewport.addEventListener("pointercancel", onPointerUp);
   viewport.addEventListener("wheel", function (event) {
+    if (viewport.classList.contains("room-viewport--webgl")) {
+      return;
+    }
     event.preventDefault();
     camera.zoom = clamp(camera.zoom * (event.deltaY > 0 ? 0.92 : 1.08), 0.5, 1.35);
     applyCamera(false);

@@ -72,6 +72,8 @@ if (host && viewport && supportsWebGL) {
   let hovered = null;
   let model = null;
   let lampOn = true;
+  let pointerDown = null;
+  let draggedSincePointerDown = false;
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
@@ -117,7 +119,15 @@ if (host && viewport && supportsWebGL) {
     lampLight.intensity = lampOn ? 22 : 0;
   }
 
+  renderer.domElement.addEventListener("pointerdown", (event) => {
+    pointerDown = { x: event.clientX, y: event.clientY };
+    draggedSincePointerDown = false;
+  });
+
   renderer.domElement.addEventListener("pointermove", (event) => {
+    if (pointerDown && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 7) {
+      draggedSincePointerDown = true;
+    }
     const interaction = pick(event);
     if (interaction === hovered) return;
     hovered = interaction;
@@ -126,8 +136,11 @@ if (host && viewport && supportsWebGL) {
     tooltip.textContent = labels[interaction] || "Explore";
   });
 
-  ["pointerdown", "pointermove", "pointerup", "wheel"].forEach((eventName) => {
-    renderer.domElement.addEventListener(eventName, (event) => event.stopPropagation(), { passive: eventName !== "wheel" });
+  renderer.domElement.addEventListener("pointerup", () => {
+    window.setTimeout(() => {
+      pointerDown = null;
+      draggedSincePointerDown = false;
+    }, 0);
   });
 
   renderer.domElement.addEventListener("pointerleave", () => {
@@ -137,6 +150,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   renderer.domElement.addEventListener("click", (event) => {
+    if (draggedSincePointerDown) return;
     const interaction = pick(event);
     if (!interaction) return;
     if (interaction === "lamp") {

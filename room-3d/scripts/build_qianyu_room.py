@@ -219,17 +219,18 @@ def desk_and_computer():
 
 def research_corner():
     # One refined, compact research easel — the only left-side narrative prop.
-    center = (-4.85, 3.86, 3.95)
+    # Shift the freestanding research board entirely left of the bookcase.
+    center = (-7.30, 3.86, 3.95)
     add_box("research_easel_frame", center, (2.45, 0.12, 1.86), M["paper"], bevel=0.07, interaction="research", group="research")
-    add_box("research_easel_face", (-4.85, 3.77, 3.95), (2.19, 0.026, 1.58), M["cream"], bevel=0.035, interaction="research", group="research")
-    for x in (-5.78, -3.92):
+    add_box("research_easel_face", (-7.30, 3.77, 3.95), (2.19, 0.026, 1.58), M["cream"], bevel=0.035, interaction="research", group="research")
+    for x in (-8.23, -6.37):
         add_box("research_easel_leg", (x, 3.89, 1.26), (0.10, 0.10, 3.05), M["wood_light"], bevel=0.035, interaction="research", group="research")
-    add_box("research_easel_tray", (-4.85, 3.64, 2.95), (2.02, 0.22, 0.10), M["wood_light"], bevel=0.025, interaction="research", group="research")
-    for x, z, width, color in [(-5.40, 4.45, 0.52, "red"), (-4.72, 4.15, 0.76, "teal_light"), (-4.64, 3.67, 0.62, "gold")]:
+    add_box("research_easel_tray", (-7.30, 3.64, 2.95), (2.02, 0.22, 0.10), M["wood_light"], bevel=0.025, interaction="research", group="research")
+    for x, z, width, color in [(-7.85, 4.45, 0.52, "red"), (-7.17, 4.15, 0.76, "teal_light"), (-7.09, 3.67, 0.62, "gold")]:
         add_box("research_easel_note", (x, 3.72, z), (width, 0.020, 0.06), M[color], bevel=0.018, interaction="research", group="research")
     for offset in range(2):
         add_box("research_paper_%02d" % offset, (-1.30 + offset * 0.03, 1.13 + offset * 0.02, 3.25 + offset * 0.018), (0.82, 0.62, 0.024), M["paper"], bevel=0.018, interaction="research", group="research", rotation=(0, 0, math.radians(-8)))
-    add_focus("focus_research", (-4.4, 0.3, 4.3), (-4.85, 3.8, 3.7))
+    add_focus("focus_research", (-6.85, 0.3, 4.3), (-7.30, 3.8, 3.7))
 
 
 def music_corner():
