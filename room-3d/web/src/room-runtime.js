@@ -81,6 +81,7 @@ if (host && viewport && supportsWebGL) {
   let draggedSincePointerDown = false;
   let controlsActive = false;
   let renderQueued = false;
+  let focusToken = 0;
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
@@ -177,6 +178,32 @@ if (host && viewport && supportsWebGL) {
     requestRender();
   }
 
+  function focusOnObject(object) {
+    if (!object) return;
+    const bounds = new THREE.Box3().setFromObject(object);
+    const destinationTarget = bounds.getCenter(new THREE.Vector3());
+    const direction = camera.position.clone().sub(controls.target);
+    const destinationDistance = THREE.MathUtils.clamp(direction.length() * 0.8, controls.minDistance, 23);
+    const destinationPosition = destinationTarget.clone().add(direction.normalize().multiplyScalar(destinationDistance));
+    const startTarget = controls.target.clone();
+    const startPosition = camera.position.clone();
+    const token = ++focusToken;
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 360;
+
+    function step(now, startedAt) {
+      if (token !== focusToken) return;
+      const elapsed = duration ? (now - startedAt) / duration : 1;
+      const progress = Math.min(Math.max(elapsed, 0), 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      controls.target.lerpVectors(startTarget, destinationTarget, eased);
+      camera.position.lerpVectors(startPosition, destinationPosition, eased);
+      renderer.render(scene, camera);
+      if (progress < 1) requestAnimationFrame((next) => step(next, startedAt));
+    }
+
+    requestAnimationFrame((startedAt) => step(startedAt, startedAt));
+  }
+
   function setLamp(next) {
     lampOn = next;
     lampLight.intensity = lampOn ? 22 : 0;
@@ -214,6 +241,7 @@ if (host && viewport && supportsWebGL) {
   }
 
   controls.addEventListener("start", () => {
+    focusToken += 1;
     controlsActive = true;
     draggedSincePointerDown = true;
     setRenderQuality(draggingPixelRatio);
@@ -261,6 +289,7 @@ if (host && viewport && supportsWebGL) {
     const picked = pick(event);
     const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
+    focusOnObject(picked.object);
     if (interaction === "lamp") {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
       return;
