@@ -206,12 +206,12 @@ def desk_and_computer():
     # MacBook Air: a thin aluminium wedge, shallow black keyboard and slim lid.
     add_box("macbook_air_base", (1.2, 1.18, 3.265), (2.72, 1.78, 0.09), M["metal"], bevel=0.055, interaction="cv", group=group)
     add_box("macbook_air_deck", (1.2, 1.18, 3.320), (2.58, 1.66, 0.035), M["metal"], bevel=0.035, interaction="cv", group=group)
-    add_box("macbook_air_front_lip", (1.2, 0.292, 3.278), (0.62, 0.025, 0.025), M["ink"], bevel=0.012, interaction="cv", group=group)
-    add_cylinder("macbook_air_hinge", (1.2, 1.995, 3.47), 0.055, 2.34, M["ink"], vertices=32, rotation=(0, math.radians(90), 0), interaction="cv", group=group)
+    add_box("macbook_air_front_lip", (1.2, 0.292, 3.278), (0.62, 0.025, 0.025), M["ink"], bevel=0.012, group=group)
+    add_cylinder("macbook_air_hinge", (1.2, 1.995, 3.47), 0.055, 2.34, M["ink"], vertices=32, rotation=(0, math.radians(90), 0), group=group)
     add_box("macbook_air_lid", (1.2, 2.18, 4.24), (2.70, 0.055, 1.72), M["metal"], bevel=0.055, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
-    add_box("macbook_air_bezel", (1.2, 2.135, 4.24), (2.55, 0.022, 1.57), M["ink"], bevel=0.035, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("macbook_air_bezel", (1.2, 2.135, 4.24), (2.55, 0.022, 1.57), M["ink"], bevel=0.035, group=group, rotation=(math.radians(-14), 0, 0))
     add_box("macbook_air_screen", (1.2, 2.116, 4.22), (2.39, 0.012, 1.39), M["screen"], bevel=0.025, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
-    add_box("macbook_air_notch", (1.2, 2.099, 4.88), (0.34, 0.012, 0.10), M["ink"], bevel=0.025, interaction="cv", group=group, rotation=(math.radians(-14), 0, 0))
+    add_box("macbook_air_notch", (1.2, 2.099, 4.88), (0.34, 0.012, 0.10), M["ink"], bevel=0.025, group=group, rotation=(math.radians(-14), 0, 0))
     add_box("terminal_line_1", (0.65, 2.085, 4.50), (0.72, 0.010, 0.035), M["teal_light"], bevel=0.01, group=group, rotation=(math.radians(-14), 0, 0))
     add_box("terminal_line_2", (0.93, 2.090, 4.31), (1.18, 0.010, 0.035), M["cream"], bevel=0.01, group=group, rotation=(math.radians(-14), 0, 0))
     for row in range(4):
@@ -228,12 +228,12 @@ def research_corner():
     add_box("research_easel_frame", center, (2.45, 0.12, 1.86), M["paper"], bevel=0.07, interaction="research", group="research")
     add_box("research_easel_face", (-7.30, 3.77, 3.95), (2.19, 0.026, 1.58), M["cream"], bevel=0.035, interaction="research", group="research")
     for x in (-8.23, -6.37):
-        add_box("research_easel_leg", (x, 3.89, 1.26), (0.10, 0.10, 3.05), M["wood_light"], bevel=0.035, interaction="research", group="research")
-    add_box("research_easel_tray", (-7.30, 3.64, 2.95), (2.02, 0.22, 0.10), M["wood_light"], bevel=0.025, interaction="research", group="research")
+        add_box("research_easel_leg", (x, 3.89, 1.26), (0.10, 0.10, 3.05), M["wood_light"], bevel=0.035, group="research")
+    add_box("research_easel_tray", (-7.30, 3.64, 2.95), (2.02, 0.22, 0.10), M["wood_light"], bevel=0.025, group="research")
     for x, z, width, color in [(-7.85, 4.45, 0.52, "red"), (-7.17, 4.15, 0.76, "teal_light"), (-7.09, 3.67, 0.62, "gold")]:
-        add_box("research_easel_note", (x, 3.72, z), (width, 0.020, 0.06), M[color], bevel=0.018, interaction="research", group="research")
+        add_box("research_easel_note", (x, 3.72, z), (width, 0.020, 0.06), M[color], bevel=0.018, group="research")
     for offset in range(2):
-        add_box("research_paper_%02d" % offset, (-1.30 + offset * 0.03, 1.13 + offset * 0.02, 3.25 + offset * 0.018), (0.82, 0.62, 0.024), M["paper"], bevel=0.018, interaction="research", group="research", rotation=(0, 0, math.radians(-8)))
+        add_box("research_paper_%02d" % offset, (-1.30 + offset * 0.03, 1.13 + offset * 0.02, 3.25 + offset * 0.018), (0.82, 0.62, 0.024), M["paper"], bevel=0.018, interaction="research" if offset == 0 else None, group="research", rotation=(0, 0, math.radians(-8)))
     add_focus("focus_research", (-6.85, 0.3, 4.3), (-7.30, 3.8, 3.7))
 
 
@@ -241,19 +241,19 @@ def music_corner():
     group = "music"
     # Turntable body, platter, vinyl and needle.
     add_box("turntable_body", (3.95, 1.15, 3.34), (2.12, 1.60, 0.22), M["cream"], bevel=0.08, interaction="music", group=group)
-    add_cylinder("turntable_platter", (3.58, 1.15, 3.50), 0.54, 0.075, M["metal"], vertices=64, interaction="music", group=group)
+    add_cylinder("turntable_platter", (3.58, 1.15, 3.50), 0.54, 0.075, M["metal"], vertices=64, group=group)
     add_cylinder("vinyl", (3.58, 1.15, 3.57), 0.48, 0.035, M["vinyl"], vertices=64, interaction="music", group=group)
-    add_cylinder("vinyl_label", (3.58, 1.15, 3.595), 0.14, 0.012, M["red"], vertices=48, interaction="music", group=group)
+    add_cylinder("vinyl_label", (3.58, 1.15, 3.595), 0.14, 0.012, M["red"], vertices=48, group=group)
     for groove in (0.21, 0.29, 0.37, 0.44):
-        add_torus("vinyl_groove", (3.58, 1.15, 3.61), groove, 0.008, M["ink"], interaction="music", group=group)
-    add_curve("turntable_needle", [(4.63, 1.52, 3.57), (4.42, 1.35, 3.82), (4.14, 1.20, 3.60)], 0.028, M["metal"], interaction="music", group=group)
+        add_torus("vinyl_groove", (3.58, 1.15, 3.61), groove, 0.008, M["ink"], group=group)
+    add_curve("turntable_needle", [(4.63, 1.52, 3.57), (4.42, 1.35, 3.82), (4.14, 1.20, 3.60)], 0.028, M["metal"], group=group)
     for x in (4.58, 4.75):
-        add_cylinder("turntable_button", (x, 0.70, 3.52), 0.07, 0.045, M["gold"], vertices=32, interaction="music", group=group)
-    add_box("turntable_display", (4.52, 0.72, 3.52), (0.18, 0.08, 0.10), M["screen"], bevel=0.02, interaction="music", group=group)
+        add_cylinder("turntable_button", (x, 0.70, 3.52), 0.07, 0.045, M["gold"], vertices=32, group=group)
+    add_box("turntable_display", (4.52, 0.72, 3.52), (0.18, 0.08, 0.10), M["screen"], bevel=0.02, group=group)
     # Headphones suspended on an arm.
-    add_curve("headphones_band", [(5.35, 2.32, 3.7), (5.35, 1.70, 4.35), (5.35, 1.08, 3.7)], 0.08, M["ink"], interaction="music", group=group)
-    add_uv_sphere("headphones_left", (5.35, 1.05, 3.48), (0.20, 0.16, 0.28), M["ink"], interaction="music", group=group)
-    add_uv_sphere("headphones_right", (5.35, 1.05, 3.92), (0.20, 0.16, 0.28), M["ink"], interaction="music", group=group)
+    add_curve("headphones_band", [(5.35, 2.32, 3.7), (5.35, 1.70, 4.35), (5.35, 1.08, 3.7)], 0.08, M["ink"], group=group)
+    add_uv_sphere("headphones_left", (5.35, 1.05, 3.48), (0.20, 0.16, 0.28), M["ink"], group=group)
+    add_uv_sphere("headphones_right", (5.35, 1.05, 3.92), (0.20, 0.16, 0.28), M["ink"], group=group)
     add_focus("focus_music", (4.0, -0.1, 4.0), (3.9, 1.1, 3.4))
 
 
@@ -261,13 +261,13 @@ def photography_corner():
     # Camera body and lens on desk edge.
     group = "camera"
     add_box("camera_body", (0.0, 2.12, 3.42), (1.28, 0.62, 0.56), M["ink"], bevel=0.10, interaction="photos", group=group)
-    add_cylinder("camera_lens", (0.0, 1.77, 3.43), 0.30, 0.42, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), interaction="photos", group=group)
-    add_cylinder("camera_lens_glass", (0.0, 1.55, 3.43), 0.22, 0.035, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), interaction="photos", group=group)
+    add_cylinder("camera_lens", (0.0, 1.77, 3.43), 0.30, 0.42, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), group=group)
+    add_cylinder("camera_lens_glass", (0.0, 1.55, 3.43), 0.22, 0.035, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), group=group)
     for radius in (0.25, 0.29):
-        ring = add_torus("camera_lens_ring", (0.0, 1.54, 3.43), radius, 0.018, M["gold"], interaction="photos", group=group)
+        ring = add_torus("camera_lens_ring", (0.0, 1.54, 3.43), radius, 0.018, M["gold"], group=group)
         ring.rotation_euler = (math.radians(90), 0, 0)
-    add_box("camera_viewfinder", (0.0, 2.12, 3.78), (0.42, 0.28, 0.16), M["metal"], bevel=0.04, interaction="photos", group=group)
-    add_cylinder("camera_shutter", (0.46, 2.12, 3.75), 0.075, 0.05, M["red"], vertices=24, interaction="photos", group=group)
+    add_box("camera_viewfinder", (0.0, 2.12, 3.78), (0.42, 0.28, 0.16), M["metal"], bevel=0.04, group=group)
+    add_cylinder("camera_shutter", (0.46, 2.12, 3.75), 0.075, 0.05, M["red"], vertices=24, group=group)
     add_focus("focus_photos", (-0.25, 0.3, 4.1), (0.0, 1.8, 3.4))
 
 
@@ -285,8 +285,8 @@ def bookshelf_and_books():
         x = -5.55 + (i % 4) * 0.74
         z = 1.83 + level * 1.15
         height = 0.76 + (i % 3) * 0.15
-        add_box("book%02d_outer" % (i + 1), (x, 4.66, z), (0.52, 0.28, height), M[color], bevel=0.025, interaction="about", group=group, rotation=(0, 0, math.radians((-1 + i % 3) * 4)))
-        add_box("book%02d_pages" % (i + 1), (x, 4.50, z), (0.39, 0.018, height * 0.86), M["paper"], bevel=0.008, interaction="about", group=group, rotation=(0, 0, math.radians((-1 + i % 3) * 4)))
+        add_box("book%02d_outer" % (i + 1), (x, 4.66, z), (0.52, 0.28, height), M[color], bevel=0.025, group=group, rotation=(0, 0, math.radians((-1 + i % 3) * 4)))
+        add_box("book%02d_pages" % (i + 1), (x, 4.50, z), (0.39, 0.018, height * 0.86), M["paper"], bevel=0.008, group=group, rotation=(0, 0, math.radians((-1 + i % 3) * 4)))
     add_focus("focus_books", (-4.35, 2.3, 3.3), (-4.15, 4.7, 2.8))
 
 
@@ -299,10 +299,10 @@ def chair_guitar_lamp_and_decor():
     add_uv_sphere("chair_back", (2.8, -0.88, 3.00), (1.16, 0.20, 1.12), M["teal"], group=group)
 
     # Desk lamp with a warm emissive shade.
-    add_cylinder("lampstand", (4.95, 2.10, 3.45), 0.22, 0.08, M["metal"], vertices=32, interaction="lamp", group="lamp")
+    add_cylinder("lampstand", (4.95, 2.10, 3.45), 0.22, 0.08, M["metal"], vertices=32, group="lamp")
     add_cylinder("lamp_stem", (4.95, 2.10, 4.12), 0.065, 1.30, M["metal"], vertices=24, interaction="lamp", group="lamp")
     add_cylinder("lamp_shade", (4.95, 2.10, 4.88), 0.42, 0.46, M["lamp"], vertices=48, interaction="lamp", group="lamp")
-    add_uv_sphere("lamp_glow", (4.95, 2.10, 4.74), (0.22, 0.22, 0.12), M["lamp"], interaction="lamp", group="lamp")
+    add_uv_sphere("lamp_glow", (4.95, 2.10, 4.74), (0.22, 0.22, 0.12), M["lamp"], group="lamp")
 
     # Plant gives the silhouette a living edge.
     add_cylinder("plant_pot", (6.15, 4.78, 1.18), 0.38, 0.56, M["cream"], vertices=32, group="env")
@@ -315,8 +315,8 @@ def chair_guitar_lamp_and_decor():
     # without relying on a wall.
     for i, (x, z, color) in enumerate(((5.85, 3.95, "teal"),)):
         add_box("photo_frame", (x, 4.78, z), (0.92, 0.12, 1.16), M["wood"], bevel=0.05, interaction="photos", group="photos")
-        add_box("photo_frame_image", (x, 4.70, z), (0.72, 0.022, 0.89), M[color], bevel=0.02, interaction="photos", group="photos")
-        add_box("photo_frame_leg", (x, 4.92, z - 0.93), (0.12, 0.16, 0.92), M["wood_light"], bevel=0.025, interaction="photos", group="photos", rotation=(math.radians(-17), 0, 0))
+        add_box("photo_frame_image", (x, 4.70, z), (0.72, 0.022, 0.89), M[color], bevel=0.02, group="photos")
+        add_box("photo_frame_leg", (x, 4.92, z - 0.93), (0.12, 0.16, 0.92), M["wood_light"], bevel=0.025, group="photos", rotation=(math.radians(-17), 0, 0))
 
 
 def lighting_and_camera():
@@ -382,6 +382,44 @@ def prepare_uvs():
         obj["uv_layout"] = "smart_project_v1"
 
 
+def batch_static_meshes():
+    """Collapse non-interactive detail meshes by material before export.
+
+    The scene keeps named, independent meshes only for primary click targets.
+    Everything else is visually identical but becomes a small set of material
+    batches, which removes a large number of WebGL draw calls.
+    """
+    buckets = {}
+    for obj in list(bpy.context.scene.objects):
+        if obj.type != "MESH" or obj.name == "studio_floor" or obj.get("interaction"):
+            continue
+        if len(obj.data.materials) != 1 or obj.data.materials[0] is None:
+            continue
+        # Apply bevels before joining so the combined mesh matches the preview.
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        for modifier in list(obj.modifiers):
+            try:
+                bpy.ops.object.modifier_apply(modifier=modifier.name)
+            except RuntimeError:
+                pass
+        buckets.setdefault(obj.data.materials[0].name, []).append(obj)
+
+    for material_name, objects in buckets.items():
+        if len(objects) < 2:
+            continue
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in objects:
+            obj.select_set(True)
+        bpy.context.view_layer.objects.active = objects[0]
+        bpy.ops.object.join()
+        combined = bpy.context.object
+        combined.name = "static_" + material_name.lower().replace(" ", "_")
+        combined["room_group"] = "static"
+        combined["static_batch"] = material_name
+
+
 def bake_floor_ao():
     """Bake static ambient occlusion onto the studio floor for the source asset."""
     floor = bpy.data.objects.get("studio_floor")
@@ -439,6 +477,7 @@ music_corner()
 photography_corner()
 chair_guitar_lamp_and_decor()
 lighting_and_camera()
+batch_static_meshes()
 prepare_uvs()
 bake_floor_ao()
 export_scene()
