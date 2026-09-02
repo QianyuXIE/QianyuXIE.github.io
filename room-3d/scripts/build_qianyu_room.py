@@ -21,9 +21,11 @@ ROOT = Path(sys.argv[sys.argv.index("--") + 1]).resolve() if "--" in sys.argv el
 OUTPUT = ROOT / "assets" / "room3d"
 SOURCE = ROOT / "room-3d" / "source"
 TEXTURES = OUTPUT / "textures"
+PREVIEW = ROOT / "room-3d" / "preview"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 SOURCE.mkdir(parents=True, exist_ok=True)
 TEXTURES.mkdir(parents=True, exist_ok=True)
+PREVIEW.mkdir(parents=True, exist_ok=True)
 
 
 PALETTE = {
@@ -363,7 +365,8 @@ def lighting_and_camera():
     scene.render.image_settings.color_mode = "RGBA"
     scene.render.film_transparent = False
     scene.view_settings.look = "AgX - Medium High Contrast"
-    scene.render.filepath = str(OUTPUT / "qianyu-room-preview.png")
+    # Preview is a source-review artifact, not a visitor-facing site asset.
+    scene.render.filepath = str(PREVIEW / "qianyu-room-preview.png")
 
 
 def prepare_uvs():
