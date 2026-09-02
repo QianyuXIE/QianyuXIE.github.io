@@ -74,6 +74,7 @@ if (host && viewport && supportsWebGL) {
   };
   let interactiveMeshes = [];
   let hovered = null;
+  let hoveredObject = null;
   let model = null;
   let lampOn = true;
   let pointerDown = null;
@@ -134,7 +135,46 @@ if (host && viewport && supportsWebGL) {
     setPointer(event);
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(interactiveMeshes, false)[0];
-    return hit ? interactionFor(hit.object) : null;
+    return hit ? { object: hit.object, interaction: interactionFor(hit.object) } : null;
+  }
+
+  function materialList(object) {
+    if (!object || !object.material) return [];
+    return Array.isArray(object.material) ? object.material : [object.material];
+  }
+
+  function setObjectHighlight(object, active) {
+    materialList(object).forEach((material) => {
+      if (!material || !material.emissive) return;
+      if (!material.userData.roomHighlightOriginal) {
+        material.userData.roomHighlightOriginal = {
+          emissive: material.emissive.getHex(),
+          emissiveIntensity: material.emissiveIntensity
+        };
+      }
+      const original = material.userData.roomHighlightOriginal;
+      if (active) {
+        material.emissive.setHex(0x4faaa0);
+        material.emissiveIntensity = Math.max(original.emissiveIntensity, 0.24);
+      } else {
+        material.emissive.setHex(original.emissive);
+        material.emissiveIntensity = original.emissiveIntensity;
+      }
+    });
+  }
+
+  function setHovered(picked) {
+    const nextObject = picked ? picked.object : null;
+    const nextInteraction = picked ? picked.interaction : null;
+    if (nextObject === hoveredObject && nextInteraction === hovered) return;
+    setObjectHighlight(hoveredObject, false);
+    hoveredObject = nextObject;
+    hovered = nextInteraction;
+    setObjectHighlight(hoveredObject, Boolean(hovered));
+    renderer.domElement.style.cursor = hovered ? "pointer" : "grab";
+    tooltip.hidden = !hovered;
+    tooltip.textContent = labels[hovered] || "Explore";
+    requestRender();
   }
 
   function setLamp(next) {
@@ -165,9 +205,12 @@ if (host && viewport && supportsWebGL) {
   }
 
   function clearHover() {
+    setObjectHighlight(hoveredObject, false);
     hovered = null;
+    hoveredObject = null;
     tooltip.hidden = true;
     renderer.domElement.style.cursor = controlsActive ? "grabbing" : "grab";
+    requestRender();
   }
 
   controls.addEventListener("start", () => {
@@ -199,12 +242,7 @@ if (host && viewport && supportsWebGL) {
     // Picking every tiny key/book while OrbitControls is moving was the main
     // source of drag jank. Hover picking resumes as soon as the gesture ends.
     if (pointerDown || controlsActive) return;
-    const interaction = pick(event);
-    if (interaction === hovered) return;
-    hovered = interaction;
-    renderer.domElement.style.cursor = interaction ? "pointer" : "grab";
-    tooltip.hidden = !interaction;
-    tooltip.textContent = labels[interaction] || "Explore";
+    setHovered(pick(event));
   });
 
   renderer.domElement.addEventListener("pointerup", () => {
@@ -220,7 +258,8 @@ if (host && viewport && supportsWebGL) {
 
   renderer.domElement.addEventListener("click", (event) => {
     if (draggedSincePointerDown) return;
-    const interaction = pick(event);
+    const picked = pick(event);
+    const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
     if (interaction === "lamp") {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
@@ -239,7 +278,14 @@ if (host && viewport && supportsWebGL) {
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
-        if (hitTargetFor(object)) interactiveMeshes.push(object);
+        if (hitTargetFor(object)) {
+          // Interactive surfaces get their own material instance so a hover
+          // highlight never alters visually similar, non-interactive details.
+          object.material = Array.isArray(object.material)
+            ? object.material.map((material) => material.clone())
+            : object.material.clone();
+          interactiveMeshes.push(object);
+        }
       });
       scene.add(model);
       renderer.shadowMap.needsUpdate = true;
