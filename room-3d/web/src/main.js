@@ -11,7 +11,10 @@ const supportsWebGL = Boolean(probe.getContext("webgl2") || probe.getContext("we
 if (host && viewport && supportsWebGL) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
   const pixelRatioCap = window.matchMedia("(max-width: 720px)").matches ? 1.25 : 1.5;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  const restingPixelRatio = Math.min(devicePixelRatio, pixelRatioCap);
+  const draggingPixelRatio = Math.min(devicePixelRatio, 1);
+  renderer.setPixelRatio(restingPixelRatio);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
@@ -59,7 +62,6 @@ if (host && viewport && supportsWebGL) {
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  const clock = new THREE.Clock();
   const labels = {
     cv: "Open CV",
     research: "Research notes",
@@ -77,6 +79,7 @@ if (host && viewport && supportsWebGL) {
   let pointerDown = null;
   let draggedSincePointerDown = false;
   let controlsActive = false;
+  let renderQueued = false;
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
@@ -120,6 +123,28 @@ if (host && viewport && supportsWebGL) {
   function setLamp(next) {
     lampOn = next;
     lampLight.intensity = lampOn ? 22 : 0;
+    requestRender();
+  }
+
+  function setRenderQuality(pixelRatio) {
+    if (renderer.getPixelRatio() === pixelRatio) return;
+    renderer.setPixelRatio(pixelRatio);
+    resize();
+  }
+
+  // A static scene should not occupy a GPU frame on every display refresh.
+  // OrbitControls keeps the loop alive only while its damping is settling.
+  function requestRender() {
+    if (renderQueued || document.hidden) return;
+    renderQueued = true;
+    requestAnimationFrame(renderOnce);
+  }
+
+  function renderOnce() {
+    renderQueued = false;
+    const cameraChanged = controls.update();
+    renderer.render(scene, camera);
+    if (cameraChanged || controlsActive) requestRender();
   }
 
   function clearHover() {
@@ -131,13 +156,19 @@ if (host && viewport && supportsWebGL) {
   controls.addEventListener("start", () => {
     controlsActive = true;
     draggedSincePointerDown = true;
+    setRenderQuality(draggingPixelRatio);
     clearHover();
+    requestRender();
   });
 
   controls.addEventListener("end", () => {
     controlsActive = false;
+    setRenderQuality(restingPixelRatio);
     renderer.domElement.style.cursor = "grab";
+    requestRender();
   });
+
+  controls.addEventListener("change", requestRender);
 
   renderer.domElement.addEventListener("pointerdown", (event) => {
     pointerDown = { x: event.clientX, y: event.clientY };
@@ -198,6 +229,7 @@ if (host && viewport && supportsWebGL) {
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
       renderer.domElement.tabIndex = 0;
+      requestRender();
       host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 房间。点击物件查看内容。");
     },
     undefined,
@@ -213,16 +245,12 @@ if (host && viewport && supportsWebGL) {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    requestRender();
   }
 
   new ResizeObserver(resize).observe(host);
   resize();
-
-  function render() {
-    const delta = clock.getDelta();
-    controls.update(delta);
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
-  }
-  render();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) requestRender();
+  });
 }
