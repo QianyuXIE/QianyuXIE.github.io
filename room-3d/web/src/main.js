@@ -91,6 +91,18 @@ if (host && viewport && supportsWebGL) {
     [/(whale)/i, "whale"]
   ];
 
+  // Only the broad, intentional surfaces participate in raycasting.  The
+  // scene contains many visual details (individual keys, books and grooves),
+  // but they should not turn every pointer move into dozens of mesh tests.
+  const hitTargetMatchers = [
+    [/^macbook_air_(base|deck|lid|screen|trackpad)$/i, "cv"],
+    [/^(research_easel_(frame|face)|research_paper_00)$/i, "research"],
+    [/^(turntable_body|vinyl|headphones_band)$/i, "music"],
+    [/^(camera_body|photo_frame)$/i, "photos"],
+    [/^bookshelf_(left|right|top|shelf)$/i, "about"],
+    [/^lamp_(shade|stem|stand)$/i, "lamp"]
+  ];
+
   const tooltip = document.createElement("span");
   tooltip.className = "room-webgl-tooltip";
   tooltip.hidden = true;
@@ -105,6 +117,11 @@ if (host && viewport && supportsWebGL) {
       current = current.parent;
     }
     return null;
+  }
+
+  function hitTargetFor(object) {
+    const match = hitTargetMatchers.find(([matcher]) => matcher.test(object.name || ""));
+    return match ? match[1] : null;
   }
 
   function setPointer(event) {
@@ -222,7 +239,7 @@ if (host && viewport && supportsWebGL) {
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
-        if (interactionFor(object)) interactiveMeshes.push(object);
+        if (hitTargetFor(object)) interactiveMeshes.push(object);
       });
       scene.add(model);
       renderer.shadowMap.needsUpdate = true;
