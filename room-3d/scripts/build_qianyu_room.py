@@ -544,7 +544,7 @@ def batch_static_meshes():
     """
     buckets = {}
     for obj in list(bpy.context.scene.objects):
-        if obj.type != "MESH" or obj.name == "studio_floor" or obj.get("interaction"):
+        if obj.type != "MESH" or obj.name in ("studio_floor", "studio_wall", "studio_baseboard") or obj.get("interaction"):
             continue
         if len(obj.data.materials) != 1 or obj.data.materials[0] is None:
             continue
@@ -573,31 +573,65 @@ def batch_static_meshes():
         combined["static_batch"] = material_name
 
 
-def bake_floor_ao():
-    """Bake static ambient occlusion onto the studio floor for the source asset."""
-    floor = bpy.data.objects.get("studio_floor")
-    if not floor:
-        return
+def bake_static_ao():
+    """Bake AO into the base colour of each static material batch.
+
+    Interactive and animated meshes retain clean runtime materials. Photo
+    planes keep their authored UVs and image textures. Every other static mesh
+    receives a small, dedicated AO texture which is embedded in the GLB.
+    """
     scene = bpy.context.scene
     previous_engine = scene.render.engine
-    floor_material = M["space"]
-    nodes = floor_material.node_tree.nodes
-    bake_node = nodes.get("Floor AO Bake") or nodes.new("ShaderNodeTexImage")
-    bake_node.name = "Floor AO Bake"
-    bake_image = bpy.data.images.get("qianyu-floor-ao") or bpy.data.images.new("qianyu-floor-ao", width=768, height=768, alpha=False)
-    bake_node.image = bake_image
-    nodes.active = bake_node
-    bpy.ops.object.select_all(action="DESELECT")
-    floor.select_set(True)
-    bpy.context.view_layer.objects.active = floor
+    static_objects = [obj for obj in scene.objects if obj.type == "MESH" and obj.name.startswith("static_")]
+    for old_map in TEXTURES.glob("ao_*.png"):
+        old_map.unlink()
+    legacy_map = TEXTURES / "studio-floor-ao.png"
+    if legacy_map.exists():
+        legacy_map.unlink()
     try:
         scene.render.engine = "CYCLES"
-        scene.cycles.samples = 16
+        scene.cycles.samples = 64
         scene.cycles.bake_type = "AO"
-        bpy.ops.object.bake(type="AO", margin=10, use_clear=True)
-        bake_image.filepath_raw = str(TEXTURES / "studio-floor-ao.png")
-        bake_image.file_format = "PNG"
-        bake_image.save()
+        for obj in static_objects:
+            if len(obj.data.materials) != 1 or obj.data.materials[0] is None:
+                continue
+            original = obj.data.materials[0]
+            baked = original.copy()
+            baked.name = original.name + "_" + obj.name + "_baked"
+            obj.data.materials[0] = baked
+            baked.use_nodes = True
+            nodes = baked.node_tree.nodes
+            links = baked.node_tree.links
+            bsdf = nodes.get("Principled BSDF")
+            if not bsdf or bsdf.inputs["Base Color"].is_linked:
+                continue
+
+            safe_name = obj.name.lower().replace(".", "_").replace(" ", "_")
+            size = 256
+            bake_image = bpy.data.images.new("ao_" + safe_name, width=size, height=size, alpha=False)
+            bake_image.colorspace_settings.name = "Non-Color"
+            bake_node = nodes.new("ShaderNodeTexImage")
+            bake_node.name = "AO Bake"
+            bake_node.image = bake_image
+            nodes.active = bake_node
+
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.bake(type="AO", margin=8, use_clear=True)
+
+            bake_image.filepath_raw = str(TEXTURES / ("ao_" + safe_name + ".png"))
+            bake_image.file_format = "PNG"
+            bake_image.save()
+
+            multiply = nodes.new("ShaderNodeMixRGB")
+            multiply.name = "Baked AO Multiply"
+            multiply.blend_type = "MULTIPLY"
+            multiply.inputs[0].default_value = 0.45
+            multiply.inputs[1].default_value = bsdf.inputs["Base Color"].default_value
+            links.new(bake_node.outputs["Color"], multiply.inputs[2])
+            links.new(multiply.outputs["Color"], bsdf.inputs["Base Color"])
+            obj["ao_baked"] = True
     finally:
         scene.render.engine = previous_engine
 
@@ -629,7 +663,6 @@ open_studio_furnishings()
 lighting_and_camera()
 batch_static_meshes()
 prepare_uvs()
-# AO/light-map baking is deliberately postponed until the approved geometry
-# reaches Phase 3; baking a moving blockout creates waste and stale textures.
+bake_static_ao()
 export_scene()
 print("Qianyu room source, preview, and GLB exported successfully.")
