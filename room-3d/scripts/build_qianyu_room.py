@@ -406,6 +406,12 @@ def open_studio_furnishings():
         label_disc = add_cylinder("wall_record_label_%02d" % index, (4.25, 5.065, z), 0.13, 0.018, M[label], vertices=32, rotation=(math.radians(90), 0, 0), group="music")
         label_disc.rotation_euler = (math.radians(90), 0, 0)
 
+    # A physical rocker on the wall is the primary light switch.  Its shallow
+    # profile and dark centre make the interaction readable without adding a
+    # floating UI control to the room.
+    add_box("wall_switch_plate", (5.62, 5.10, 3.92), (0.42, 0.075, 0.58), M["cream"], bevel=0.055, interaction="lamp", group="lamp")
+    add_box("wall_switch_rocker", (5.62, 5.045, 3.92), (0.22, 0.055, 0.34), M["metal"], bevel=0.035, interaction="lamp", group="lamp", rotation=(math.radians(-7), 0, 0))
+
     # Camera and film on the left side of the desk.
     add_box("camera_body", (-1.55, 1.30, 3.28), (1.05, 0.52, 0.50), M["ink"], bevel=0.085, interaction="photos", group="camera")
     add_box("camera_grip", (-1.12, 1.24, 3.20), (0.28, 0.56, 0.58), M["ink"], bevel=0.075, group="camera")
@@ -425,10 +431,11 @@ def open_studio_furnishings():
             add_cylinder("turntable_foot", (x, y, 2.95), 0.07, 0.08, M["metal"], vertices=24, group="music")
     add_cylinder("turntable_platter", (2.10, 1.15, 3.22), 0.57, 0.075, M["metal"], vertices=64, group="music")
     add_cylinder("vinyl", (2.10, 1.15, 3.285), 0.52, 0.030, M["vinyl"], vertices=64, interaction="music", group="music")
-    add_cylinder("vinyl_label", (2.10, 1.15, 3.307), 0.14, 0.010, M["red"], vertices=48, group="music")
+    add_cylinder("vinyl_label", (2.10, 1.15, 3.307), 0.14, 0.010, M["red"], vertices=48, interaction="music", group="music")
+    add_box("vinyl_label_mark", (2.19, 1.15, 3.322), (0.075, 0.025, 0.018), M["paper"], bevel=0.006, interaction="music", group="music", rotation=(0, 0, math.radians(18)))
     add_cylinder("turntable_spindle", (2.10, 1.15, 3.34), 0.018, 0.08, M["metal"], vertices=20, group="music")
     for groove in (0.24, 0.34, 0.44):
-        add_torus("vinyl_groove", (2.10, 1.15, 3.318), groove, 0.006, M["metal"], group="music")
+        add_torus("vinyl_groove", (2.10, 1.15, 3.318), groove, 0.006, M["metal"], interaction="music", group="music")
     add_curve("turntable_needle", [(3.14, 1.55, 3.25), (2.98, 1.35, 3.48), (2.64, 1.18, 3.30)], 0.026, M["metal"], group="music")
     add_cylinder("turntable_button", (3.10, 0.62, 3.25), 0.065, 0.040, M["gold"], vertices=32, group="music")
     add_curve("headphones_band", [(0.92, 1.50, 3.17), (1.15, 1.18, 3.43), (1.42, 0.92, 3.17)], 0.052, M["ink"], interaction="music", group="music")

@@ -180,3 +180,20 @@ Before accepting any iteration, ask:
 - Can the action be closed and reversed predictably?
 - Does it still work smoothly on a mid-range phone?
 
+## 8. Execution record
+
+- [x] Phase 0: recording audit, visual system and object map documented.
+- [x] Phase 1: open studio blockout, restrained orbit and white-world framing.
+- [x] Phase 2: MacBook Air, camera, turntable, chair, lamps, guitar, wall
+  display and Qianyu-owned photography modelled in Blender.
+- [x] Phase 3: UV preparation, static AO baking and GLB export below the
+  3 MB target.
+- [x] Phase 4: authored focus cameras, reversible close behaviour, drawable
+  whiteboard, film gallery, CV terminal, music window and record animation.
+- [x] Phase 5: responsive camera distance, drag-quality throttling, demand
+  rendering, reduced-motion support, keyboard controls and in-world light
+  switch.
+
+Release verification must include the Vite production build, GitHub Pages
+build, public route checks, GLB size check and a final visual pass at 1440,
+1024, 768 and 390 px widths.

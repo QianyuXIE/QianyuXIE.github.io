@@ -475,6 +475,31 @@
   }, { passive: false });
 
   viewport.addEventListener("keydown", function (event) {
+    var webglReady = viewport.classList.contains("room-viewport--webgl");
+    var shortcutMap = { "1": "cv", "2": "research", "3": "photos", "4": "music", "5": "about" };
+    if (webglReady && shortcutMap[event.key]) {
+      event.preventDefault();
+      document.dispatchEvent(new CustomEvent("qianyu-room:focus-request", { detail: { name: shortcutMap[event.key] } }));
+      document.dispatchEvent(new CustomEvent("qianyu-room:interaction", { detail: { name: shortcutMap[event.key] } }));
+      markExplored();
+      return;
+    }
+    if (webglReady && event.key.toLowerCase() === "l") {
+      event.preventDefault();
+      toggleLamp();
+      return;
+    }
+    if (webglReady && event.key.toLowerCase() === "n") {
+      event.preventDefault();
+      toggleTime();
+      return;
+    }
+    if (webglReady && (/^Arrow/.test(event.key) || ["+", "=", "-", "_", "0"].indexOf(event.key) !== -1)) {
+      event.preventDefault();
+      document.dispatchEvent(new CustomEvent("qianyu-room:camera-key", { detail: { key: event.key, fast: event.shiftKey } }));
+      markExplored();
+      return;
+    }
     var handled = true;
     var step = event.shiftKey ? 70 : 34;
     if (event.key === "ArrowLeft") {
