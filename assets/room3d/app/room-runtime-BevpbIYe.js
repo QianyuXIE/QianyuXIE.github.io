@@ -26065,7 +26065,7 @@ if (on && lc && m0) {
         emissiveIntensity: Z.emissiveIntensity
       });
       const we = Z.userData.roomHighlightOriginal;
-      q ? (Z.emissive.setHex(5221024), Z.emissiveIntensity = Math.max(we.emissiveIntensity, 0.24)) : (Z.emissive.setHex(we.emissive), Z.emissiveIntensity = we.emissiveIntensity);
+      q ? (Z.emissive.setHex(13220241), Z.emissiveIntensity = Math.max(we.emissiveIntensity, 0.14)) : (Z.emissive.setHex(we.emissive), Z.emissiveIntensity = we.emissiveIntensity);
     });
   }, te = function(F) {
     const q = F ? F.object : null, Z = F ? F.interaction : null;
@@ -26099,17 +26099,17 @@ if (on && lc && m0) {
   const s = new v_({ antialias: !0, alpha: !1, powerPreference: "high-performance" }), e = window.matchMedia("(max-width: 720px)").matches ? 1.25 : 1.5, t = window.devicePixelRatio || 1, n = Math.min(t, e), i = Math.min(t, 1);
   s.setPixelRatio(n), s.outputColorSpace = Tt, s.toneMapping = eo, s.toneMappingExposure = 1.08, s.shadowMap.enabled = !0, s.shadowMap.type = hc, s.shadowMap.autoUpdate = !1, on.replaceChildren(s.domElement);
   const r = new Mu();
-  r.background = new De(16118766);
-  const a = new Dt(35, 1, 0.1, 100), o = new n0(a, s.domElement);
-  o.enableDamping = !0, o.dampingFactor = 0.11, o.enablePan = !1, o.minDistance = 12, o.maxDistance = 30, o.minPolarAngle = Math.PI * 0.18, o.maxPolarAngle = Math.PI * 0.48, o.rotateSpeed = 0.58, o.zoomSpeed = 0.65, o.target.set(0, 2.2, 1.1), a.position.set(15.8, 12.2, 17.8), o.update();
-  const c = new ad(16777215, 15261136, 2.05);
+  r.background = new De(15263455);
+  const a = new Dt(32, 1, 0.1, 100), o = new n0(a, s.domElement);
+  o.enableDamping = !0, o.dampingFactor = 0.11, o.enablePan = !1, o.minDistance = 10, o.maxDistance = 25, o.minPolarAngle = Math.PI * 0.2, o.maxPolarAngle = Math.PI * 0.43, o.rotateSpeed = 0.52, o.zoomSpeed = 0.65, o.target.set(0, 3, -1.8), a.position.set(10.8, 9.5, 16), o.update();
+  const c = new ad(16777215, 14078666, 1.55);
   r.add(c);
-  const l = new Gc(16775144, 3.2);
-  l.position.set(-7, -8, 14), l.castShadow = !0, l.shadow.mapSize.set(1024, 1024), l.shadow.camera.left = -15, l.shadow.camera.right = 15, l.shadow.camera.top = 15, l.shadow.camera.bottom = -15, l.shadow.bias = -2e-4, r.add(l);
-  const h = new Ka(16760192, 18, 22, 2);
-  h.position.set(7, -3, 7), r.add(h);
-  const d = new Ka(16751954, 22, 9, 2);
-  d.position.set(4, 5.8, 2.8), r.add(d);
+  const l = new Gc(16775403, 2.65);
+  l.position.set(-7, 12, 10), l.castShadow = !0, l.shadow.mapSize.set(1024, 1024), l.shadow.camera.left = -15, l.shadow.camera.right = 15, l.shadow.camera.top = 15, l.shadow.camera.bottom = -15, l.shadow.bias = -2e-4, r.add(l);
+  const h = new Ka(15265264, 8, 24, 2);
+  h.position.set(7, 6, 9), r.add(h);
+  const d = new Ka(16758381, 12, 9, 2);
+  d.position.set(-3.2, 5, -0.6), r.add(d);
   const u = new Ed(), f = new Le(), g = {
     cv: "Open CV",
     research: "Research notes",
@@ -26123,19 +26123,19 @@ if (on && lc && m0) {
   let v = [], m = null, p = null, S = null, T = !0, y = null, A = !1, w = !1, C = !1, x = 0;
   const E = [
     [/(macbook|screen|terminal)/i, "cv"],
-    [/(whiteboard|paper|pen|highlighter|research)/i, "research"],
-    [/(turntable|vinyl|headphones)/i, "music"],
-    [/(camera|film|polaroid|photo_frame)/i, "photos"],
-    [/(bookshelf|book)/i, "about"],
+    [/(whiteboard|paper|pen|research)/i, "research"],
+    [/(turntable|vinyl|headphones|wall_record)/i, "music"],
+    [/(camera|film|polaroid)/i, "photos"],
+    [/(about_frame)/i, "about"],
     [/(lamp)/i, "lamp"],
     [/(whale)/i, "whale"]
   ], K = [
     [/^macbook_air_(base|deck|lid|screen|trackpad)$/i, "cv"],
-    [/^(research_easel_(frame|face)|research_paper_00)$/i, "research"],
-    [/^(turntable_body|vinyl|headphones_band)$/i, "music"],
-    [/^(camera_body|photo_frame)$/i, "photos"],
-    [/^bookshelf_(left|right|top|shelf)$/i, "about"],
-    [/^lamp_(shade|stem|stand)$/i, "lamp"]
+    [/^(whiteboard_(paper|top_rail)|research_paper_00)$/i, "research"],
+    [/^(turntable_body|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
+    [/^camera_body$/i, "photos"],
+    [/^about_frame$/i, "about"],
+    [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem))$/i, "lamp"]
   ], R = document.createElement("span");
   R.className = "room-webgl-tooltip", R.hidden = !0, on.appendChild(R), o.addEventListener("start", () => {
     x += 1, w = !0, A = !0, de(i), nt(), ae();
@@ -26166,7 +26166,7 @@ if (on && lc && m0) {
     (F) => {
       S = F.scene, S.traverse((q) => {
         q.isMesh && (q.castShadow = !0, q.receiveShadow = !0, V(q) && (q.material = Array.isArray(q.material) ? q.material.map((Z) => Z.clone()) : q.material.clone(), v.push(q)));
-      }), r.add(S), s.shadowMap.needsUpdate = !0, lc.classList.add("room-viewport--webgl"), on.classList.add("is-ready"), s.domElement.tabIndex = 0, ae(), on.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 房间。点击物件查看内容。");
+      }), r.add(S), s.shadowMap.needsUpdate = !0, lc.classList.add("room-viewport--webgl"), on.classList.add("is-ready"), s.domElement.tabIndex = 0, ae(), on.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 工作室。点击物件查看内容。");
     },
     void 0,
     () => {

@@ -24,27 +24,27 @@ if (host && viewport && supportsWebGL) {
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf5f3ee);
+  scene.background = new THREE.Color(0xe8e6df);
 
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.11;
   controls.enablePan = false;
-  controls.minDistance = 12;
-  controls.maxDistance = 30;
-  controls.minPolarAngle = Math.PI * 0.18;
-  controls.maxPolarAngle = Math.PI * 0.48;
-  controls.rotateSpeed = 0.58;
+  controls.minDistance = 10;
+  controls.maxDistance = 25;
+  controls.minPolarAngle = Math.PI * 0.20;
+  controls.maxPolarAngle = Math.PI * 0.43;
+  controls.rotateSpeed = 0.52;
   controls.zoomSpeed = 0.65;
-  controls.target.set(0, 2.2, 1.1);
-  camera.position.set(15.8, 12.2, 17.8);
+  controls.target.set(0, 3.0, -1.8);
+  camera.position.set(10.8, 9.5, 16.0);
   controls.update();
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0xe8ddd0, 2.05);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 1.55);
   scene.add(hemi);
-  const keyLight = new THREE.DirectionalLight(0xfff7e8, 3.2);
-  keyLight.position.set(-7, -8, 14);
+  const keyLight = new THREE.DirectionalLight(0xfff8eb, 2.65);
+  keyLight.position.set(-7, 12, 10);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(1024, 1024);
   keyLight.shadow.camera.left = -15;
@@ -53,11 +53,11 @@ if (host && viewport && supportsWebGL) {
   keyLight.shadow.camera.bottom = -15;
   keyLight.shadow.bias = -0.0002;
   scene.add(keyLight);
-  const fillLight = new THREE.PointLight(0xffbd80, 18, 22, 2);
-  fillLight.position.set(7, -3, 7);
+  const fillLight = new THREE.PointLight(0xe8edf0, 8, 24, 2);
+  fillLight.position.set(7, 6, 9);
   scene.add(fillLight);
-  const lampLight = new THREE.PointLight(0xff9d52, 22, 9, 2);
-  lampLight.position.set(4, 5.8, 2.8);
+  const lampLight = new THREE.PointLight(0xffb66d, 12, 9, 2);
+  lampLight.position.set(-3.2, 5.0, -0.6);
   scene.add(lampLight);
 
   const raycaster = new THREE.Raycaster();
@@ -85,10 +85,10 @@ if (host && viewport && supportsWebGL) {
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
-    [/(whiteboard|paper|pen|highlighter|research)/i, "research"],
-    [/(turntable|vinyl|headphones)/i, "music"],
-    [/(camera|film|polaroid|photo_frame)/i, "photos"],
-    [/(bookshelf|book)/i, "about"],
+    [/(whiteboard|paper|pen|research)/i, "research"],
+    [/(turntable|vinyl|headphones|wall_record)/i, "music"],
+    [/(camera|film|polaroid)/i, "photos"],
+    [/(about_frame)/i, "about"],
     [/(lamp)/i, "lamp"],
     [/(whale)/i, "whale"]
   ];
@@ -98,11 +98,11 @@ if (host && viewport && supportsWebGL) {
   // but they should not turn every pointer move into dozens of mesh tests.
   const hitTargetMatchers = [
     [/^macbook_air_(base|deck|lid|screen|trackpad)$/i, "cv"],
-    [/^(research_easel_(frame|face)|research_paper_00)$/i, "research"],
-    [/^(turntable_body|vinyl|headphones_band)$/i, "music"],
-    [/^(camera_body|photo_frame)$/i, "photos"],
-    [/^bookshelf_(left|right|top|shelf)$/i, "about"],
-    [/^lamp_(shade|stem|stand)$/i, "lamp"]
+    [/^(whiteboard_(paper|top_rail)|research_paper_00)$/i, "research"],
+    [/^(turntable_body|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
+    [/^camera_body$/i, "photos"],
+    [/^about_frame$/i, "about"],
+    [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem))$/i, "lamp"]
   ];
 
   const tooltip = document.createElement("span");
@@ -155,8 +155,8 @@ if (host && viewport && supportsWebGL) {
       }
       const original = material.userData.roomHighlightOriginal;
       if (active) {
-        material.emissive.setHex(0x4faaa0);
-        material.emissiveIntensity = Math.max(original.emissiveIntensity, 0.24);
+        material.emissive.setHex(0xc9b991);
+        material.emissiveIntensity = Math.max(original.emissiveIntensity, 0.14);
       } else {
         material.emissive.setHex(original.emissive);
         material.emissiveIntensity = original.emissiveIntensity;
@@ -322,7 +322,7 @@ if (host && viewport && supportsWebGL) {
       host.classList.add("is-ready");
       renderer.domElement.tabIndex = 0;
       requestRender();
-      host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 房间。点击物件查看内容。");
+      host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 工作室。点击物件查看内容。");
     },
     undefined,
     () => {
