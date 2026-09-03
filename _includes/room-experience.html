@@ -183,10 +183,17 @@
         <a class="room-panel-link" href="{{ '/cv/' | relative_url }}">打开完整 CV →</a>
       </article>
 
-      <article class="room-panel" data-panel-name="research" role="dialog" aria-modal="true" aria-labelledby="room-research-title" hidden>
+      <article class="room-panel room-panel-whiteboard" data-panel-name="research" role="dialog" aria-modal="true" aria-labelledby="room-research-title" hidden>
         <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭研究面板">×</button>
-        <p class="room-panel-kicker">RESEARCH NOTES</p>
-        <h2 id="room-research-title">让模型更懂情绪，也更高效地创造。</h2>
+        <p class="room-panel-kicker">WHITEBOARD / DRAW MODE</p>
+        <h2 id="room-research-title">把一个研究想法画出来。</h2>
+        <div class="room-whiteboard-tools" aria-label="白板画笔">
+          <button type="button" data-board-color="#17191a" aria-pressed="true" aria-label="黑色画笔"><i class="is-black"></i></button>
+          <button type="button" data-board-color="#b74b3f" aria-pressed="false" aria-label="红色画笔"><i class="is-red"></i></button>
+          <button type="button" data-board-color="#3f6687" aria-pressed="false" aria-label="蓝色画笔"><i class="is-blue"></i></button>
+          <button class="room-whiteboard-clear" type="button" data-board-clear>clear</button>
+        </div>
+        <canvas id="room-whiteboard-canvas" class="room-whiteboard-canvas" aria-label="可绘画的研究白板"></canvas>
         <div class="room-research-list">
           <span><b>01</b> Multimodal Large Language Models</span>
           <span><b>02</b> Cross-modal Emotion Recognition</span>
@@ -222,9 +229,18 @@
         <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭音乐面板">×</button>
         <p class="room-panel-kicker">NOW SPINNING · 33⅓ RPM</p>
         <div class="room-album-art" aria-hidden="true"><span>QY</span><i></i></div>
-        <div>
+        <div class="room-music-copy">
           <h2 id="room-music-title">Aimer · 吴青峰</h2>
           <p>没有自动播放，只留下一张正在旋转的唱片。</p>
+          <ol class="room-track-list" aria-label="Currently listening">
+            <li><span>01</span><strong>Aimer</strong><em>night air</em></li>
+            <li><span>02</span><strong>吴青峰</strong><em>soft morning</em></li>
+          </ol>
+          <div class="room-player-controls" aria-label="唱片正在旋转">
+            <span aria-hidden="true">‹</span>
+            <span class="is-playing" aria-hidden="true">Ⅱ</span>
+            <span aria-hidden="true">›</span>
+          </div>
         </div>
       </article>
 

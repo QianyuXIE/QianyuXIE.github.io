@@ -33,6 +33,10 @@
   var dragOrigin = null;
   var pinchOrigin = null;
   var camera = { x: 0, y: 0, zoom: 0.9 };
+  var whiteboard = document.getElementById("room-whiteboard-canvas");
+  var whiteboardColor = "#17191a";
+  var whiteboardDrawing = false;
+  var whiteboardReady = false;
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -145,6 +149,98 @@
     });
   }
 
+  function whiteboardPoint(event) {
+    var bounds = whiteboard.getBoundingClientRect();
+    return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+  }
+
+  function seedWhiteboard(context, width, height) {
+    context.save();
+    context.strokeStyle = "#202326";
+    context.fillStyle = "#202326";
+    context.lineWidth = 2;
+    context.font = "600 14px ui-monospace, monospace";
+    context.fillText("MULTIMODAL AI", 26, 35);
+    context.fillText("EMOTION", width * 0.68, height * 0.38);
+    context.fillText("GENERATE", width * 0.38, height * 0.78);
+    context.beginPath();
+    context.arc(width * 0.26, height * 0.48, 30, 0, Math.PI * 2);
+    context.rect(width * 0.62, height * 0.24, 88, 52);
+    context.moveTo(width * 0.31, height * 0.48);
+    context.lineTo(width * 0.61, height * 0.36);
+    context.moveTo(width * 0.64, height * 0.47);
+    context.lineTo(width * 0.5, height * 0.7);
+    context.stroke();
+    context.restore();
+  }
+
+  function sizeWhiteboard() {
+    if (!whiteboard || whiteboard.offsetParent === null) {
+      return;
+    }
+    var width = Math.max(whiteboard.clientWidth, 280);
+    var height = Math.max(whiteboard.clientHeight, 210);
+    var ratio = Math.min(window.devicePixelRatio || 1, 2);
+    if (whiteboard.width === Math.round(width * ratio) && whiteboard.height === Math.round(height * ratio)) {
+      return;
+    }
+    whiteboard.width = Math.round(width * ratio);
+    whiteboard.height = Math.round(height * ratio);
+    var context = whiteboard.getContext("2d");
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    seedWhiteboard(context, width, height);
+  }
+
+  function initializeWhiteboard() {
+    if (!whiteboard || whiteboardReady) {
+      sizeWhiteboard();
+      return;
+    }
+    whiteboardReady = true;
+    whiteboard.addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      whiteboardDrawing = true;
+      whiteboard.setPointerCapture(event.pointerId);
+      var point = whiteboardPoint(event);
+      var context = whiteboard.getContext("2d");
+      context.beginPath();
+      context.moveTo(point.x, point.y);
+    });
+    whiteboard.addEventListener("pointermove", function (event) {
+      if (!whiteboardDrawing) return;
+      var point = whiteboardPoint(event);
+      var context = whiteboard.getContext("2d");
+      context.strokeStyle = whiteboardColor;
+      context.lineWidth = 3;
+      context.lineTo(point.x, point.y);
+      context.stroke();
+    });
+    whiteboard.addEventListener("pointerup", function () {
+      whiteboardDrawing = false;
+    });
+    whiteboard.addEventListener("pointercancel", function () {
+      whiteboardDrawing = false;
+    });
+    Array.prototype.forEach.call(experience.querySelectorAll("[data-board-color]"), function (button) {
+      button.addEventListener("click", function () {
+        whiteboardColor = button.getAttribute("data-board-color");
+        Array.prototype.forEach.call(experience.querySelectorAll("[data-board-color]"), function (choice) {
+          choice.setAttribute("aria-pressed", String(choice === button));
+        });
+      });
+    });
+    var clearButton = experience.querySelector("[data-board-clear]");
+    if (clearButton) {
+      clearButton.addEventListener("click", function () {
+        var context = whiteboard.getContext("2d");
+        context.clearRect(0, 0, whiteboard.width, whiteboard.height);
+      });
+    }
+    sizeWhiteboard();
+  }
+
   function showPanel(name, hotspot) {
     window.clearTimeout(panelTimer);
     if (activeHotspot) {
@@ -164,11 +260,15 @@
       });
       activePanel = target;
       panelLayer.hidden = false;
+      if (name === "research") {
+        window.requestAnimationFrame(initializeWhiteboard);
+      }
+      document.dispatchEvent(new CustomEvent("qianyu-room:panel-changed", { detail: { open: true, name: name } }));
       var focusable = getFocusable(target);
       if (focusable.length) {
         focusable[0].focus();
       }
-    }, reducedMotion ? 20 : 390);
+    }, reducedMotion ? 20 : 500);
   }
 
   function closePanel(restoreFocus) {
@@ -183,6 +283,8 @@
     }
     activePanel = null;
     activeHotspot = null;
+    document.dispatchEvent(new CustomEvent("qianyu-room:panel-changed", { detail: { open: false } }));
+    document.dispatchEvent(new CustomEvent("qianyu-room:camera-reset"));
     if (restoreFocus !== false && !experience.hidden) {
       if (panelOpener && typeof panelOpener.focus === "function") {
         panelOpener.focus();
@@ -214,6 +316,7 @@
     if (label) {
       label.textContent = night ? "night" : "day";
     }
+    document.dispatchEvent(new CustomEvent("qianyu-room:time-changed", { detail: { night: night } }));
   }
 
   function pointerDistance() {
@@ -335,13 +438,15 @@
   if (resetButton) {
     resetButton.addEventListener("click", function () {
       resetCamera(false);
+      document.dispatchEvent(new CustomEvent("qianyu-room:camera-reset"));
       markExplored();
     });
   }
 
   document.addEventListener("qianyu-room:interaction", function (event) {
     var name = event.detail && event.detail.name;
-    var mappedName = name === "writing" ? "research" : name;
+    var panelMap = { writing: "research", photos: "film" };
+    var mappedName = panelMap[name] || name;
     var hotspot = experience.querySelector("[data-room-panel='" + mappedName + "']");
     if (hotspot) {
       showPanel(mappedName, hotspot);
@@ -349,6 +454,11 @@
   });
 
   document.addEventListener("qianyu-room:lamp-toggle", toggleLamp);
+  window.addEventListener("resize", function () {
+    if (activePanel && activePanel.getAttribute("data-panel-name") === "research") {
+      sizeWhiteboard();
+    }
+  });
 
   viewport.addEventListener("pointerdown", onPointerDown);
   viewport.addEventListener("pointermove", onPointerMove);

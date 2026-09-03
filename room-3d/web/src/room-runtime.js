@@ -41,6 +41,33 @@ if (host && viewport && supportsWebGL) {
   camera.position.set(10.8, 9.5, 16.0);
   controls.update();
 
+  const overviewPose = {
+    position: new THREE.Vector3(10.8, 9.5, 16.0),
+    target: new THREE.Vector3(0, 3.0, -1.8)
+  };
+  const cameraPoses = {
+    cv: {
+      position: new THREE.Vector3(0, 4.8, 2.7),
+      target: new THREE.Vector3(-0.15, 3.65, -1.35)
+    },
+    research: {
+      position: new THREE.Vector3(-3.7, 5.5, -0.5),
+      target: new THREE.Vector3(-3.72, 5.18, -5.18)
+    },
+    photos: {
+      position: new THREE.Vector3(-1.55, 4.45, 2.0),
+      target: new THREE.Vector3(-1.55, 3.3, -1.05)
+    },
+    music: {
+      position: new THREE.Vector3(2.35, 4.7, 2.2),
+      target: new THREE.Vector3(2.38, 3.18, -1.15)
+    },
+    about: {
+      position: new THREE.Vector3(2.0, 5.7, -0.7),
+      target: new THREE.Vector3(2.02, 5.42, -5.12)
+    }
+  };
+
   const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 1.55);
   scene.add(hemi);
   const keyLight = new THREE.DirectionalLight(0xfff8eb, 2.65);
@@ -76,7 +103,11 @@ if (host && viewport && supportsWebGL) {
   let hovered = null;
   let hoveredObject = null;
   let model = null;
+  let vinyl = null;
   let lampOn = true;
+  let isNight = false;
+  let recordSpinning = false;
+  let lastRenderTime = 0;
   let pointerDown = null;
   let draggedSincePointerDown = false;
   let controlsActive = false;
@@ -178,25 +209,32 @@ if (host && viewport && supportsWebGL) {
     requestRender();
   }
 
-  function focusOnObject(object) {
-    if (!object) return;
-    const bounds = new THREE.Box3().setFromObject(object);
-    const destinationTarget = bounds.getCenter(new THREE.Vector3());
-    const direction = camera.position.clone().sub(controls.target);
-    const destinationDistance = THREE.MathUtils.clamp(direction.length() * 0.8, controls.minDistance, 23);
-    const destinationPosition = destinationTarget.clone().add(direction.normalize().multiplyScalar(destinationDistance));
+  function fallbackPose(object) {
+    if (!object) return overviewPose;
+    const destinationTarget = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
+    const direction = camera.position.clone().sub(controls.target).normalize();
+    return {
+      target: destinationTarget,
+      position: destinationTarget.clone().add(direction.multiplyScalar(8.5))
+    };
+  }
+
+  function animateCamera(pose, durationOverride) {
+    if (!pose) return;
     const startTarget = controls.target.clone();
     const startPosition = camera.position.clone();
     const token = ++focusToken;
-    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 360;
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? 0
+      : (durationOverride || 560);
 
     function step(now, startedAt) {
       if (token !== focusToken) return;
       const elapsed = duration ? (now - startedAt) / duration : 1;
       const progress = Math.min(Math.max(elapsed, 0), 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      controls.target.lerpVectors(startTarget, destinationTarget, eased);
-      camera.position.lerpVectors(startPosition, destinationPosition, eased);
+      controls.target.lerpVectors(startTarget, pose.target, eased);
+      camera.position.lerpVectors(startPosition, pose.position, eased);
       renderer.render(scene, camera);
       if (progress < 1) requestAnimationFrame((next) => step(next, startedAt));
     }
@@ -206,7 +244,19 @@ if (host && viewport && supportsWebGL) {
 
   function setLamp(next) {
     lampOn = next;
-    lampLight.intensity = lampOn ? 22 : 0;
+    lampLight.intensity = lampOn ? (isNight ? 28 : 16) : 0;
+    requestRender();
+  }
+
+  function setTimeOfDay(night) {
+    isNight = night;
+    scene.background.setHex(night ? 0x171a1d : 0xe8e6df);
+    hemi.intensity = night ? 0.38 : 1.55;
+    keyLight.intensity = night ? 0.55 : 2.65;
+    keyLight.color.setHex(night ? 0xa9c1de : 0xfff8eb);
+    fillLight.intensity = night ? 2.8 : 8;
+    renderer.toneMappingExposure = night ? 0.9 : 1.08;
+    setLamp(lampOn);
     requestRender();
   }
 
@@ -224,11 +274,14 @@ if (host && viewport && supportsWebGL) {
     requestAnimationFrame(renderOnce);
   }
 
-  function renderOnce() {
+  function renderOnce(now) {
     renderQueued = false;
+    const delta = lastRenderTime ? Math.min((now - lastRenderTime) / 1000, 0.05) : 0;
+    lastRenderTime = now;
+    if (recordSpinning && vinyl) vinyl.rotation.y += delta * 0.78;
     const cameraChanged = controls.update();
     renderer.render(scene, camera);
-    if (cameraChanged || controlsActive) requestRender();
+    if (cameraChanged || controlsActive || recordSpinning) requestRender();
   }
 
   function clearHover() {
@@ -289,21 +342,29 @@ if (host && viewport && supportsWebGL) {
     const picked = pick(event);
     const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
-    focusOnObject(picked.object);
     if (interaction === "lamp") {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
       return;
     }
+    animateCamera(cameraPoses[interaction] || fallbackPose(picked.object));
     document.dispatchEvent(new CustomEvent("qianyu-room:interaction", { detail: { name: interaction } }));
   });
 
   document.addEventListener("qianyu-room:lamp-changed", (event) => setLamp(Boolean(event.detail && event.detail.on)));
+  document.addEventListener("qianyu-room:time-changed", (event) => setTimeOfDay(Boolean(event.detail && event.detail.night)));
+  document.addEventListener("qianyu-room:camera-reset", () => animateCamera(overviewPose, 620));
+  document.addEventListener("qianyu-room:panel-changed", (event) => {
+    const detail = event.detail || {};
+    recordSpinning = Boolean(detail.open && detail.name === "music");
+    requestRender();
+  });
 
   new GLTFLoader().load(
     "/assets/room3d/qianyu-room.glb",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {
+        if (/^vinyl$/i.test(object.name || "")) vinyl = object;
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
