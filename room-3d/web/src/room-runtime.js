@@ -9,6 +9,7 @@ const probe = document.createElement("canvas");
 const supportsWebGL = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
 
 if (host && viewport && supportsWebGL) {
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
   const pixelRatioCap = window.matchMedia("(max-width: 720px)").matches ? 1.25 : 1.5;
   const devicePixelRatio = window.devicePixelRatio || 1;
@@ -68,6 +69,28 @@ if (host && viewport && supportsWebGL) {
     }
   };
 
+  function responsivePose(pose) {
+    if (host.clientWidth >= 720 || host.clientWidth / Math.max(host.clientHeight, 1) > 0.82) return pose;
+    const direction = pose.position.clone().sub(pose.target).multiplyScalar(1.38);
+    return { position: pose.target.clone().add(direction), target: pose.target.clone() };
+  }
+
+  function currentOverviewPose() {
+    if (host.clientWidth < 600) {
+      return {
+        position: new THREE.Vector3(14.2, 12.2, 21.5),
+        target: overviewPose.target.clone()
+      };
+    }
+    if (host.clientWidth < 900) {
+      return {
+        position: new THREE.Vector3(12.2, 10.4, 18.4),
+        target: overviewPose.target.clone()
+      };
+    }
+    return { position: overviewPose.position.clone(), target: overviewPose.target.clone() };
+  }
+
   const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 1.55);
   scene.add(hemi);
   const keyLight = new THREE.DirectionalLight(0xfff8eb, 2.65);
@@ -83,7 +106,7 @@ if (host && viewport && supportsWebGL) {
   const fillLight = new THREE.PointLight(0xe8edf0, 8, 24, 2);
   fillLight.position.set(7, 6, 9);
   scene.add(fillLight);
-  const lampLight = new THREE.PointLight(0xffb66d, 12, 9, 2);
+  const lampLight = new THREE.PointLight(0xffb66d, 0, 9, 2);
   lampLight.position.set(-3.2, 5.0, -0.6);
   scene.add(lampLight);
 
@@ -104,7 +127,9 @@ if (host && viewport && supportsWebGL) {
   let hoveredObject = null;
   let model = null;
   let vinyl = null;
-  let lampOn = true;
+  let recordPivot = null;
+  let recordParts = [];
+  let lampOn = false;
   let isNight = false;
   let recordSpinning = false;
   let lastRenderTime = 0;
@@ -133,7 +158,7 @@ if (host && viewport && supportsWebGL) {
     [/^(turntable_body|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
     [/^camera_body$/i, "photos"],
     [/^about_frame$/i, "about"],
-    [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem))$/i, "lamp"]
+    [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem)|wall_switch_(plate|rocker))$/i, "lamp"]
   ];
 
   const tooltip = document.createElement("span");
@@ -224,7 +249,7 @@ if (host && viewport && supportsWebGL) {
     const startTarget = controls.target.clone();
     const startPosition = camera.position.clone();
     const token = ++focusToken;
-    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const duration = reducedMotionQuery.matches
       ? 0
       : (durationOverride || 560);
 
@@ -260,6 +285,22 @@ if (host && viewport && supportsWebGL) {
     requestRender();
   }
 
+  function nudgeCamera(key, fast) {
+    focusToken += 1;
+    const offset = camera.position.clone().sub(controls.target);
+    const spherical = new THREE.Spherical().setFromVector3(offset);
+    const angleStep = fast ? 0.18 : 0.09;
+    if (key === "ArrowLeft") spherical.theta -= angleStep;
+    if (key === "ArrowRight") spherical.theta += angleStep;
+    if (key === "ArrowUp") spherical.phi = Math.max(controls.minPolarAngle, spherical.phi - angleStep);
+    if (key === "ArrowDown") spherical.phi = Math.min(controls.maxPolarAngle, spherical.phi + angleStep);
+    if (key === "+" || key === "=") spherical.radius = Math.max(controls.minDistance, spherical.radius * 0.9);
+    if (key === "-" || key === "_") spherical.radius = Math.min(controls.maxDistance, spherical.radius * 1.1);
+    camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
+    controls.update();
+    requestRender();
+  }
+
   function setRenderQuality(pixelRatio) {
     if (renderer.getPixelRatio() === pixelRatio) return;
     renderer.setPixelRatio(pixelRatio);
@@ -278,7 +319,7 @@ if (host && viewport && supportsWebGL) {
     renderQueued = false;
     const delta = lastRenderTime ? Math.min((now - lastRenderTime) / 1000, 0.05) : 0;
     lastRenderTime = now;
-    if (recordSpinning && vinyl) vinyl.rotation.y += delta * 0.78;
+    if (recordSpinning && recordPivot) recordPivot.rotation.y += delta * 0.78;
     const cameraChanged = controls.update();
     renderer.render(scene, camera);
     if (cameraChanged || controlsActive || recordSpinning) requestRender();
@@ -346,16 +387,25 @@ if (host && viewport && supportsWebGL) {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
       return;
     }
-    animateCamera(cameraPoses[interaction] || fallbackPose(picked.object));
+    animateCamera(responsivePose(cameraPoses[interaction] || fallbackPose(picked.object)));
     document.dispatchEvent(new CustomEvent("qianyu-room:interaction", { detail: { name: interaction } }));
   });
 
   document.addEventListener("qianyu-room:lamp-changed", (event) => setLamp(Boolean(event.detail && event.detail.on)));
   document.addEventListener("qianyu-room:time-changed", (event) => setTimeOfDay(Boolean(event.detail && event.detail.night)));
-  document.addEventListener("qianyu-room:camera-reset", () => animateCamera(overviewPose, 620));
+  document.addEventListener("qianyu-room:camera-reset", () => animateCamera(currentOverviewPose(), 620));
+  document.addEventListener("qianyu-room:focus-request", (event) => {
+    const interaction = event.detail && event.detail.name;
+    if (interaction && cameraPoses[interaction]) animateCamera(responsivePose(cameraPoses[interaction]));
+  });
+  document.addEventListener("qianyu-room:camera-key", (event) => {
+    const detail = event.detail || {};
+    if (detail.key === "0") animateCamera(currentOverviewPose(), 620);
+    else nudgeCamera(detail.key, Boolean(detail.fast));
+  });
   document.addEventListener("qianyu-room:panel-changed", (event) => {
     const detail = event.detail || {};
-    recordSpinning = Boolean(detail.open && detail.name === "music");
+    recordSpinning = Boolean(detail.open && detail.name === "music" && !reducedMotionQuery.matches);
     requestRender();
   });
 
@@ -365,6 +415,7 @@ if (host && viewport && supportsWebGL) {
       model = gltf.scene;
       model.traverse((object) => {
         if (/^vinyl$/i.test(object.name || "")) vinyl = object;
+        if (/^vinyl(?:_label(?:_mark)?|_groove(?:\.\d+)?)?$/i.test(object.name || "")) recordParts.push(object);
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
@@ -378,10 +429,23 @@ if (host && viewport && supportsWebGL) {
         }
       });
       scene.add(model);
+      if (vinyl && recordParts.length) {
+        model.updateMatrixWorld(true);
+        const pivotPosition = vinyl.position.clone();
+        recordPivot = new THREE.Group();
+        recordPivot.name = "vinyl_spin_pivot";
+        recordPivot.position.copy(pivotPosition);
+        model.add(recordPivot);
+        recordPivot.updateMatrixWorld(true);
+        recordParts.forEach((part) => recordPivot.attach(part));
+      }
       renderer.shadowMap.needsUpdate = true;
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
+      viewport.tabIndex = -1;
       renderer.domElement.tabIndex = 0;
+      renderer.domElement.setAttribute("role", "application");
+      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。方向键旋转，加减号缩放，数字 1 到 5 打开 CV、研究、摄影、音乐和 About，L 开关灯，N 切换昼夜，0 返回总览。");
       requestRender();
       host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 工作室。点击物件查看内容。");
     },
@@ -395,7 +459,14 @@ if (host && viewport && supportsWebGL) {
   function resize() {
     const width = Math.max(host.clientWidth, 1);
     const height = Math.max(host.clientHeight, 1);
+    if (!model) {
+      const pose = currentOverviewPose();
+      camera.position.copy(pose.position);
+      controls.target.copy(pose.target);
+      controls.update();
+    }
     camera.aspect = width / height;
+    camera.fov = width < 600 ? 40 : width < 900 ? 35 : 32;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
     requestRender();
