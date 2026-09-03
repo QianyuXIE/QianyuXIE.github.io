@@ -86,6 +86,8 @@ def initialize_materials():
     materials["glass"] = material("glass", PALETTE["glass"], roughness=0.14, metallic=0.35)
     materials["sky"] = material("sky", PALETTE["sky"], roughness=0.35, emission=(0.11, 0.48, 0.56, 1))
     materials["space"] = material("space", PALETTE["space"], roughness=0.82)
+    materials["photo_sea"] = image_material("photo_sea", ROOT / "img" / "Me" / "Me8.jpg")
+    materials["photo_snow"] = image_material("photo_snow", ROOT / "img" / "Me" / "Me9.jpg")
     return materials
 
 
@@ -124,6 +126,18 @@ def add_cylinder(name, location, radius, depth, mat, vertices=48, rotation=(0, 0
     bpy.ops.object.shade_smooth()
     bevel = obj.modifiers.new("rim_softness", "BEVEL")
     bevel.width = min(radius * 0.08, 0.035)
+    bevel.segments = 2
+    return tag(obj, interaction, group)
+
+
+def add_cone(name, location, radius_bottom, radius_top, depth, mat, vertices=48, rotation=(0, 0, 0), interaction=None, group="environment"):
+    bpy.ops.mesh.primitive_cone_add(vertices=vertices, radius1=radius_bottom, radius2=radius_top, depth=depth, location=location, rotation=rotation)
+    obj = bpy.context.object
+    obj.name = name
+    obj.data.materials.append(mat)
+    bpy.ops.object.shade_smooth()
+    bevel = obj.modifiers.new("rim_softness", "BEVEL")
+    bevel.width = min(radius_bottom * 0.06, 0.025)
     bevel.segments = 2
     return tag(obj, interaction, group)
 
@@ -181,6 +195,44 @@ def add_text_panel(name, location, size, color, group):
     return panel
 
 
+def image_material(name, path):
+    mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    for node in list(nodes):
+        nodes.remove(node)
+    output = nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
+    image = nodes.new("ShaderNodeTexImage")
+    image.image = bpy.data.images.load(str(path), check_existing=True)
+    bsdf.inputs["Roughness"].default_value = 0.62
+    links.new(image.outputs["Color"], bsdf.inputs["Base Color"])
+    links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
+    return mat
+
+
+def add_image_plane(name, location, width, height, mat, interaction=None, group="wall"):
+    vertices = [
+        (-width / 2, 0, -height / 2),
+        (width / 2, 0, -height / 2),
+        (width / 2, 0, height / 2),
+        (-width / 2, 0, height / 2),
+    ]
+    mesh = bpy.data.meshes.new(name + "_mesh")
+    mesh.from_pydata(vertices, [], [(0, 1, 2, 3)])
+    mesh.update()
+    uv_layer = mesh.uv_layers.new(name="UVMap")
+    for loop, uv in zip(mesh.loops, ((0, 0), (1, 0), (1, 1), (0, 1))):
+        uv_layer.data[loop.index].uv = uv
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.location = location
+    obj.data.materials.append(mat)
+    obj["preserve_uv"] = True
+    return tag(obj, interaction, group)
+
+
 def look_at(obj, point):
     direction = Vector(point) - obj.location
     obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
@@ -200,8 +252,8 @@ def desk_and_computer():
     add_box("desk_top", (0.15, 1.15, 2.92), (7.25, 2.30, 0.17), M["cream"], bevel=0.075, group="desk")
     for x in (-2.95, 3.25):
         for y in (0.38, 1.92):
-            add_box("desk_leg", (x, y, 1.46), (0.17, 0.17, 2.85), M["wood_light"], bevel=0.04, group="desk")
-        add_box("desk_leg_bridge", (x, 1.15, 0.20), (0.86, 1.78, 0.12), M["wood_light"], bevel=0.04, group="desk")
+            lean = math.radians(2.5 if x < 0 else -2.5)
+            add_box("desk_leg", (x, y, 1.46), (0.16, 0.16, 2.85), M["wood_light"], bevel=0.035, group="desk", rotation=(0, lean, 0))
     add_box("desk_front_edge", (0.15, -0.01, 2.82), (7.05, 0.10, 0.17), M["paper"], bevel=0.035, group="desk")
 
     # MacBook Air blockout: recognisable proportions without decorative bulk.
@@ -343,8 +395,8 @@ def open_studio_furnishings():
         add_box("wall_book_%02d" % index, (x, 4.87, 6.13 + (height - 0.70) * 0.5), (0.25, 0.25, height), M[color], bevel=0.018, group="wall", rotation=(0, 0, math.radians((index - 2) * 1.5)))
 
     add_box("about_frame", (2.02, 5.18, 5.42), (1.62, 0.10, 2.28), M["ink"], bevel=0.045, interaction="about", group="about")
-    add_box("about_image_upper", (2.02, 5.10, 5.87), (1.42, 0.022, 1.17), M["cream"], bevel=0.018, group="about")
-    add_box("about_image_lower", (2.02, 5.095, 4.89), (1.42, 0.022, 0.67), M["blue"], bevel=0.018, group="about")
+    add_image_plane("about_image_upper", (2.02, 5.105, 5.92), 1.42, 1.12, M["photo_sea"], group="about")
+    add_image_plane("about_image_lower", (2.02, 5.100, 4.90), 1.42, 0.74, M["photo_snow"], group="about")
     add_focus("focus_about", (2.0, 0.7, 5.7), (2.02, 5.12, 5.42))
 
     # Three wall records create one clean vertical rhythm.
@@ -356,18 +408,25 @@ def open_studio_furnishings():
 
     # Camera and film on the left side of the desk.
     add_box("camera_body", (-1.55, 1.30, 3.28), (1.05, 0.52, 0.50), M["ink"], bevel=0.085, interaction="photos", group="camera")
+    add_box("camera_grip", (-1.12, 1.24, 3.20), (0.28, 0.56, 0.58), M["ink"], bevel=0.075, group="camera")
+    add_box("camera_top_plate", (-1.55, 1.30, 3.57), (0.76, 0.42, 0.08), M["metal"], bevel=0.025, group="camera")
     add_cylinder("camera_lens", (-1.55, 0.98, 3.29), 0.27, 0.38, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
     add_cylinder("camera_lens_glass", (-1.55, 0.78, 3.29), 0.20, 0.030, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
     add_box("camera_viewfinder", (-1.55, 1.30, 3.60), (0.36, 0.24, 0.14), M["metal"], bevel=0.035, group="camera")
     add_cylinder("camera_shutter", (-1.18, 1.30, 3.58), 0.065, 0.045, M["metal"], vertices=24, group="camera")
+    add_cylinder("camera_mode_dial", (-1.82, 1.30, 3.64), 0.105, 0.055, M["metal"], vertices=36, group="camera")
     add_cylinder("film_canister", (-2.35, 1.34, 3.20), 0.15, 0.32, M["gold"], vertices=32, group="camera")
     add_focus("focus_photos", (-1.55, -2.0, 4.45), (-1.55, 1.05, 3.30))
 
     # Record player and headphones on the right side of the desk.
     add_box("turntable_body", (2.42, 1.15, 3.08), (2.14, 1.52, 0.20), M["ink"], bevel=0.075, interaction="music", group="music")
+    for x in (1.62, 3.18):
+        for y in (0.64, 1.66):
+            add_cylinder("turntable_foot", (x, y, 2.95), 0.07, 0.08, M["metal"], vertices=24, group="music")
     add_cylinder("turntable_platter", (2.10, 1.15, 3.22), 0.57, 0.075, M["metal"], vertices=64, group="music")
     add_cylinder("vinyl", (2.10, 1.15, 3.285), 0.52, 0.030, M["vinyl"], vertices=64, interaction="music", group="music")
     add_cylinder("vinyl_label", (2.10, 1.15, 3.307), 0.14, 0.010, M["red"], vertices=48, group="music")
+    add_cylinder("turntable_spindle", (2.10, 1.15, 3.34), 0.018, 0.08, M["metal"], vertices=20, group="music")
     for groove in (0.24, 0.34, 0.44):
         add_torus("vinyl_groove", (2.10, 1.15, 3.318), groove, 0.006, M["metal"], group="music")
     add_curve("turntable_needle", [(3.14, 1.55, 3.25), (2.98, 1.35, 3.48), (2.64, 1.18, 3.30)], 0.026, M["metal"], group="music")
@@ -378,15 +437,24 @@ def open_studio_furnishings():
     add_focus("focus_music", (2.35, -2.2, 4.7), (2.38, 1.15, 3.18))
 
     # Black swivel chair, deliberately centred but not blocking the laptop.
-    add_cylinder("chair_stem", (0.55, -1.05, 1.18), 0.11, 1.45, M["metal"], vertices=32, group="chair")
-    add_cylinder("chair_base", (0.55, -1.05, 0.46), 0.74, 0.08, M["metal"], vertices=32, group="chair")
+    add_cylinder("chair_stem", (0.55, -1.05, 1.10), 0.10, 1.34, M["metal"], vertices=32, group="chair")
+    add_cylinder("chair_hub", (0.55, -1.05, 0.40), 0.22, 0.12, M["metal"], vertices=32, group="chair")
+    for index in range(5):
+        angle = math.radians(index * 72)
+        spoke_x = 0.55 + math.cos(angle) * 0.43
+        spoke_y = -1.05 + math.sin(angle) * 0.43
+        add_box("chair_spoke_%02d" % index, (spoke_x, spoke_y, 0.40), (0.88, 0.10, 0.08), M["metal"], bevel=0.035, group="chair", rotation=(0, 0, angle))
+        add_cylinder("chair_wheel_%02d" % index, (0.55 + math.cos(angle) * 0.86, -1.05 + math.sin(angle) * 0.86, 0.29), 0.11, 0.09, M["ink"], vertices=24, rotation=(math.radians(90), 0, angle), group="chair")
     add_uv_sphere("chair_seat", (0.55, -1.05, 1.76), (0.92, 0.76, 0.22), M["ink"], group="chair")
     add_uv_sphere("chair_back", (0.55, -0.48, 2.62), (0.92, 0.17, 0.88), M["ink"], group="chair")
+    add_curve("chair_back_support_left", [(0.05, -0.82, 1.82), (-0.18, -0.64, 2.42), (0.00, -0.54, 3.10)], 0.045, M["metal"], group="chair")
+    add_curve("chair_back_support_right", [(1.05, -0.82, 1.82), (1.28, -0.64, 2.42), (1.10, -0.54, 3.10)], 0.045, M["metal"], group="chair")
 
     # Left-side floor lamp and guitar balance the wall without another shelf.
     add_cylinder("floor_lamp_base", (-5.15, 3.55, 0.18), 0.48, 0.10, M["metal"], vertices=48, group="lamp")
     add_cylinder("floor_lamp_stem", (-5.15, 3.55, 2.20), 0.055, 4.00, M["metal"], vertices=24, interaction="lamp", group="lamp")
-    add_cylinder("floor_lamp_shade", (-5.15, 3.55, 4.35), 0.48, 0.62, M["cream"], vertices=48, interaction="lamp", group="lamp")
+    add_cone("floor_lamp_shade", (-5.15, 3.55, 4.35), 0.52, 0.36, 0.62, M["cream"], vertices=48, interaction="lamp", group="lamp")
+    add_uv_sphere("floor_lamp_bulb", (-5.15, 3.55, 4.16), (0.13, 0.13, 0.16), M["lamp"], group="lamp")
 
     guitar_lower = add_uv_sphere("guitar_lower_body", (-4.08, 2.68, 1.18), (0.56, 0.18, 0.70), M["wood"], group="guitar")
     guitar_lower.rotation_euler = (0, math.radians(-8), 0)
@@ -399,7 +467,7 @@ def open_studio_furnishings():
     # Small articulated task lamp on the desk.
     add_cylinder("lamp_stand", (-2.72, 1.70, 3.08), 0.25, 0.07, M["ink"], vertices=36, group="lamp")
     add_curve("lamp_stem", [(-2.72, 1.70, 3.10), (-2.45, 1.72, 3.84), (-2.12, 1.45, 4.17)], 0.045, M["ink"], interaction="lamp", group="lamp")
-    shade = add_cylinder("lamp_shade", (-2.02, 1.34, 4.12), 0.24, 0.42, M["ink"], vertices=36, rotation=(0, math.radians(58), 0), interaction="lamp", group="lamp")
+    shade = add_cone("lamp_shade", (-2.02, 1.34, 4.12), 0.26, 0.14, 0.42, M["ink"], vertices=36, rotation=(0, math.radians(58), 0), interaction="lamp", group="lamp")
     shade.rotation_euler = (0, math.radians(58), 0)
 
 
@@ -455,7 +523,7 @@ def prepare_uvs():
     """Give every renderable mesh an explicit, non-overlapping UV layout."""
     bpy.ops.object.mode_set(mode="OBJECT") if bpy.context.object and bpy.context.object.mode != "OBJECT" else None
     for obj in bpy.context.scene.objects:
-        if obj.type != "MESH":
+        if obj.type != "MESH" or obj.get("preserve_uv"):
             continue
         bpy.ops.object.select_all(action="DESELECT")
         obj.select_set(True)
