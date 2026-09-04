@@ -26192,7 +26192,7 @@ if (Lt && ar && rh) {
   ], _e = [
     [/^macbook_air_(base|deck|lid|screen|trackpad)$/i, "cv"],
     [/^(whiteboard_(paper|top_rail)|research_paper_00)$/i, "research"],
-    [/^(turntable_body|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
+    [/^(turntable_body|turntable_dust_lid|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
     [/^camera_body$/i, "photos"],
     [/^about_frame$/i, "about"],
     [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem)|wall_switch_(plate|rocker))$/i, "lamp"]
