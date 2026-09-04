@@ -12,79 +12,126 @@
       <div class="room-webgl" id="room-webgl" aria-label="浅羽的 3D 工作室"></div>
     </div>
 
+    {% assign lead_photo = page.desk_photos | first %}
     <div class="room-panel-layer" id="room-panel-layer" hidden>
       <div class="room-panel-backdrop" data-room-panel-close></div>
 
-      <article class="room-panel" data-panel-name="cv" role="dialog" aria-modal="true" aria-labelledby="room-cv-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭 CV 面板">×</button>
-        <p class="room-panel-kicker">CV TERMINAL</p>
-        <h2 id="room-cv-title">Qianyu Xie / 谢浅羽</h2>
-        <p>CUHK-Shenzhen 人工智能与机器人硕士生，研究多模态智能、情感计算与高效生成模型。</p>
-        <div class="room-terminal-lines" aria-hidden="true">
-          <span><b>›</b> research --multimodal --affective</span>
-          <span><b>›</b> experience --huawei-2012-labs</span>
-          <span><b>›</b> publications --selected</span>
+      <article class="room-panel room-app room-app-terminal" data-panel-name="cv" role="dialog" aria-modal="true" aria-labelledby="room-cv-title" hidden>
+        <header class="room-app-bar">
+          <span class="room-app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 id="room-cv-title">TERMINAL — qianyu@room:~</h2>
+          <span class="room-app-status">zsh · 80×24</span>
+          <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭 CV 面板">×</button>
+        </header>
+        <div class="room-terminal-screen">
+          <div class="room-terminal-mark" aria-hidden="true"><span>Q</span><span>Y</span></div>
+          <p class="room-terminal-welcome">Last login: now on qianyu-room<br>Welcome to Qianyu's spatial portfolio.</p>
+          <div class="room-terminal-output">
+            <p><b>qianyu@room</b><em> ~ % </em>whoami</p>
+            <p class="is-output">Qianyu Xie / 谢浅羽<br>AI &amp; Robotics MSc @ CUHK-Shenzhen</p>
+            <p><b>qianyu@room</b><em> ~ % </em>cat interests.txt</p>
+            <p class="is-output">Multimodal AI · Affective Computing · Generative Models</p>
+            <p><b>qianyu@room</b><em> ~ % </em><span class="room-terminal-cursor">open cv.pdf</span></p>
+          </div>
+          <a class="room-terminal-command" href="{{ '/' | relative_url }}">PRESS ENTER TO OPEN FULL CV ↗</a>
         </div>
-        <a class="room-panel-link" href="{{ '/' | relative_url }}">打开完整 CV →</a>
       </article>
 
-      <article class="room-panel room-panel-whiteboard" data-panel-name="research" role="dialog" aria-modal="true" aria-labelledby="room-research-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭研究面板">×</button>
-        <p class="room-panel-kicker">WHITEBOARD / DRAW MODE</p>
-        <h2 id="room-research-title">把一个研究想法画出来。</h2>
-        <div class="room-whiteboard-tools" aria-label="白板画笔">
-          <button type="button" data-board-color="#17191a" aria-pressed="true" aria-label="黑色画笔"><i class="is-black"></i></button>
-          <button type="button" data-board-color="#b74b3f" aria-pressed="false" aria-label="红色画笔"><i class="is-red"></i></button>
-          <button type="button" data-board-color="#3f6687" aria-pressed="false" aria-label="蓝色画笔"><i class="is-blue"></i></button>
-          <button class="room-whiteboard-clear" type="button" data-board-clear>clear</button>
-        </div>
-        <canvas id="room-whiteboard-canvas" class="room-whiteboard-canvas" aria-label="可绘画的研究白板"></canvas>
-        <div class="room-research-list">
-          <span><b>01</b> Multimodal Large Language Models</span>
-          <span><b>02</b> Cross-modal Emotion Recognition</span>
-          <span><b>03</b> Diffusion Transformers &amp; Mixture-of-Experts</span>
-        </div>
-        <a class="room-panel-link" href="{{ '/' | relative_url }}">在 CV 中查看完整研究经历 →</a>
-      </article>
-
-      <article class="room-panel room-panel-film" data-panel-name="film" role="dialog" aria-modal="true" aria-labelledby="room-film-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭摄影面板">×</button>
-        <p class="room-panel-kicker">FILM ROLL / QY-01</p>
-        <h2 id="room-film-title">收集路过的光。</h2>
-        <div class="room-film-strip">
-          {% for photo in page.desk_photos limit:6 %}
-          <figure>
-            <img src="{{ photo.src | relative_url }}" alt="浅羽的摄影照片：{{ photo.label }}" loading="lazy">
-            <figcaption>{{ forloop.index | prepend: '0' }} · {{ photo.label }}</figcaption>
-          </figure>
-          {% endfor %}
-        </div>
-        <a class="room-panel-link" href="{{ '/about/' | relative_url }}">进入完整摄影页 →</a>
-      </article>
-
-      <article class="room-panel room-panel-music" data-panel-name="music" role="dialog" aria-modal="true" aria-labelledby="room-music-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭音乐面板">×</button>
-        <p class="room-panel-kicker">NOW SPINNING · 33⅓ RPM</p>
-        <div class="room-album-art" aria-hidden="true"><span>QY</span><i></i></div>
-        <div class="room-music-copy">
-          <h2 id="room-music-title">Aimer · 吴青峰</h2>
-          <p>没有自动播放，只留下一张正在旋转的唱片。</p>
-          <ol class="room-track-list" aria-label="Currently listening">
-            <li><span>01</span><strong>Aimer</strong><em>night air</em></li>
-            <li><span>02</span><strong>吴青峰</strong><em>soft morning</em></li>
-          </ol>
-          <div class="room-player-controls" aria-label="唱片正在旋转">
-            <span aria-hidden="true">‹</span><span class="is-playing" aria-hidden="true">Ⅱ</span><span aria-hidden="true">›</span>
+      <article class="room-panel room-app room-app-whiteboard" data-panel-name="research" role="dialog" aria-modal="true" aria-labelledby="room-research-title" hidden>
+        <header class="room-app-bar">
+          <span class="room-app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 id="room-research-title">WHITEBOARD — RESEARCH MAP</h2>
+          <span class="room-app-status">DRAW MODE</span>
+          <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭研究面板">×</button>
+        </header>
+        <div class="room-whiteboard-commandbar">
+          <span>QY / UNTITLED BOARD</span>
+          <div class="room-whiteboard-tools" aria-label="白板画笔">
+            <button type="button" data-board-color="#17191a" aria-pressed="true" aria-label="黑色画笔"><i class="is-black"></i></button>
+            <button type="button" data-board-color="#b74b3f" aria-pressed="false" aria-label="红色画笔"><i class="is-red"></i></button>
+            <button type="button" data-board-color="#3f6687" aria-pressed="false" aria-label="蓝色画笔"><i class="is-blue"></i></button>
+            <button class="room-whiteboard-clear" type="button" data-board-clear>clear</button>
           </div>
         </div>
+        <div class="room-whiteboard-workspace">
+          <canvas id="room-whiteboard-canvas" class="room-whiteboard-canvas" aria-label="可绘画的研究白板"></canvas>
+          <aside class="room-research-inspector">
+            <small>ACTIVE LAYERS</small>
+            <span><b>01</b> Multimodal LLMs</span>
+            <span><b>02</b> Emotion Recognition</span>
+            <span><b>03</b> Diffusion &amp; MoE</span>
+            <a href="{{ '/' | relative_url }}">VIEW IN CV ↗</a>
+          </aside>
+        </div>
       </article>
 
-      <article class="room-panel" data-panel-name="about" role="dialog" aria-modal="true" aria-labelledby="room-about-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭 About 面板">×</button>
-        <p class="room-panel-kicker">FRAME / ABOUT</p>
-        <h2 id="room-about-title">研究之外，我也收集照片、音乐和文字。</h2>
-        <p>我喜欢让严谨的研究和柔软的生活同时留在同一个空间里。</p>
-        <a class="room-panel-link" href="{{ '/about/' | relative_url }}">继续认识我 →</a>
+      <article class="room-panel room-app room-app-film" data-panel-name="film" role="dialog" aria-modal="true" aria-labelledby="room-film-title" hidden>
+        <header class="room-app-bar">
+          <span class="room-app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 id="room-film-title">FILM ARCHIVE — QY/01</h2>
+          <span class="room-app-status">11 FRAMES</span>
+          <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭摄影面板">×</button>
+        </header>
+        <nav class="room-film-tabs" aria-label="摄影分类"><span>CONTACT SHEET</span><span>LIGHT</span><span>ON THE ROAD</span><a href="{{ '/about/' | relative_url }}">ALL PHOTOS ↗</a></nav>
+        <div class="room-film-browser">
+          <aside class="room-film-thumbs" aria-label="选择照片">
+            {% for photo in page.desk_photos limit:5 %}
+            <button type="button" data-film-src="{{ photo.src | relative_url }}" data-film-label="{{ photo.label }}"{% if forloop.first %} class="is-selected" aria-pressed="true"{% else %} aria-pressed="false"{% endif %}>
+              <span>{{ forloop.index | prepend: '0' }}</span><img src="{{ photo.src | relative_url }}" alt="{{ photo.label }}" loading="lazy">
+            </button>
+            {% endfor %}
+          </aside>
+          <figure class="room-film-stage">
+            <div class="room-film-perf" aria-hidden="true"></div>
+            <img id="room-film-main" src="{{ lead_photo.src | relative_url }}" alt="浅羽的摄影照片：{{ lead_photo.label }}">
+            <figcaption><span id="room-film-caption">FRAME 01 · {{ lead_photo.label }}</span><em>QY COLOR / PERSONAL ARCHIVE</em></figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="room-panel room-app room-app-music" data-panel-name="music" role="dialog" aria-modal="true" aria-labelledby="room-music-title" hidden>
+        <header class="room-app-bar">
+          <span class="room-app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 id="room-music-title">RECORD LIBRARY — CURRENTLY LISTENING</h2>
+          <span class="room-app-status">33⅓ RPM</span>
+          <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭音乐面板">×</button>
+        </header>
+        <div class="room-music-browser">
+          <aside class="room-record-shelf">
+            <small>MY RECORDS</small>
+            <button type="button" class="is-active"><i class="is-aimer">A</i><span><b>Aimer</b><em>night air</em></span></button>
+            <button type="button"><i class="is-wuqingfeng">吴</i><span><b>吴青峰</b><em>soft morning</em></span></button>
+            <button type="button"><i class="is-qy">QY</i><span><b>Room mix</b><em>personal archive</em></span></button>
+          </aside>
+          <section class="room-record-main">
+            <div class="room-record-hero"><div class="room-album-art" aria-hidden="true"><span>A</span><i></i></div><div><small>NOW SPINNING</small><h3>Aimer</h3><p>A quiet soundtrack for late-night research.</p></div></div>
+            <ol class="room-track-list" aria-label="Currently listening">
+              <li><span>01</span><strong>Aimer</strong><em>night air</em><time>04:12</time></li>
+              <li><span>02</span><strong>吴青峰</strong><em>soft morning</em><time>03:48</time></li>
+              <li><span>03</span><strong>QY mix</strong><em>focus loop</em><time>42:00</time></li>
+            </ol>
+            <div class="room-player-bar"><span aria-hidden="true">◀</span><span class="is-playing" aria-hidden="true">Ⅱ</span><span aria-hidden="true">▶</span><i></i><small>01:37 / 04:12</small></div>
+          </section>
+        </div>
+      </article>
+
+      <article class="room-panel room-app room-app-about" data-panel-name="about" role="dialog" aria-modal="true" aria-labelledby="room-about-title" hidden>
+        <header class="room-app-bar">
+          <span class="room-app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 id="room-about-title">PROFILE — QIANYU.XIE</h2>
+          <span class="room-app-status">ONLINE</span>
+          <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭 About 面板">×</button>
+        </header>
+        <div class="room-profile-body">
+          <figure><img src="{{ lead_photo.src | relative_url }}" alt="谢浅羽" loading="lazy"><figcaption>QY / SHENZHEN / 2026</figcaption></figure>
+          <div class="room-profile-copy">
+            <small>ABOUT THIS PERSON</small>
+            <h3>研究之外，我也收集照片、音乐和文字。</h3>
+            <p>我喜欢让严谨的研究和柔软的生活，同时留在同一个空间里。</p>
+            <dl><div><dt>BASED IN</dt><dd>Shenzhen</dd></div><div><dt>STUDYING</dt><dd>AI &amp; Robotics</dd></div><div><dt>CURIOUS ABOUT</dt><dd>People &amp; Machines</dd></div></dl>
+            <a class="room-profile-link" href="{{ '/about/' | relative_url }}">CONTINUE TO ABOUT ↗</a>
+          </div>
+        </div>
       </article>
     </div>
   </div>

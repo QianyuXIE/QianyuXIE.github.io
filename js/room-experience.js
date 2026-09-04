@@ -37,6 +37,9 @@
   var whiteboardColor = "#17191a";
   var whiteboardDrawing = false;
   var whiteboardReady = false;
+  var filmMain = document.getElementById("room-film-main");
+  var filmCaption = document.getElementById("room-film-caption");
+  var filmButtons = experience.querySelectorAll("[data-film-src]");
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -462,6 +465,26 @@
     if (activePanel && activePanel.getAttribute("data-panel-name") === "research") {
       sizeWhiteboard();
     }
+  });
+
+  Array.prototype.forEach.call(filmButtons, function (button, index) {
+    button.addEventListener("click", function () {
+      if (!filmMain) return;
+      Array.prototype.forEach.call(filmButtons, function (choice) {
+        var selected = choice === button;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+      filmMain.classList.add("is-changing");
+      filmMain.onload = function () {
+        filmMain.classList.remove("is-changing");
+      };
+      filmMain.src = button.getAttribute("data-film-src");
+      filmMain.alt = "浅羽的摄影照片：" + button.getAttribute("data-film-label");
+      if (filmCaption) {
+        filmCaption.textContent = "FRAME " + String(index + 1).padStart(2, "0") + " · " + button.getAttribute("data-film-label");
+      }
+    });
   });
 
   viewport.addEventListener("pointerdown", onPointerDown);

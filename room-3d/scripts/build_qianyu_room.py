@@ -43,7 +43,7 @@ PALETTE = {
     "red": (0.42, 0.075, 0.055, 1),
     "gold": (0.62, 0.43, 0.16, 1),
     "vinyl": (0.008, 0.01, 0.012, 1),
-    "glass": (0.018, 0.028, 0.030, 1),
+    "glass": (0.16, 0.21, 0.22, 0.24),
     "sky": (0.32, 0.38, 0.39, 1),
     "screen": (0.008, 0.012, 0.011, 1),
     "lamp": (0.95, 0.76, 0.46, 1),
@@ -83,7 +83,13 @@ def initialize_materials():
     materials["screen"] = material("screen", PALETTE["screen"], roughness=0.25, metallic=0.15, emission=(0.001, 0.003, 0.003, 1))
     materials["lamp"] = material("lamp", PALETTE["lamp"], roughness=0.4, metallic=0.05, emission=(1.0, 0.20, 0.02, 1))
     materials["metal"] = material("metal", PALETTE["metal"], roughness=0.30, metallic=0.85)
-    materials["glass"] = material("glass", PALETTE["glass"], roughness=0.14, metallic=0.35)
+    materials["glass"] = material("glass", PALETTE["glass"], roughness=0.10, metallic=0.08)
+    glass_bsdf = materials["glass"].node_tree.nodes.get("Principled BSDF")
+    glass_bsdf.inputs["Alpha"].default_value = 0.24
+    if "Transmission Weight" in glass_bsdf.inputs:
+        glass_bsdf.inputs["Transmission Weight"].default_value = 0.38
+    if hasattr(materials["glass"], "surface_render_method"):
+        materials["glass"].surface_render_method = "DITHERED"
     materials["sky"] = material("sky", PALETTE["sky"], roughness=0.35, emission=(0.11, 0.48, 0.56, 1))
     materials["space"] = material("space", PALETTE["space"], roughness=0.82)
     materials["photo_sea"] = image_material("photo_sea", ROOT / "img" / "Me" / "Me8.jpg")
@@ -249,27 +255,27 @@ def room_shell():
 def desk_and_computer():
     group = "computer"
     # Thin off-white desktop on two restrained timber trestles.
-    add_box("desk_top", (0.15, 1.15, 2.92), (7.25, 2.30, 0.17), M["cream"], bevel=0.075, group="desk")
+    add_box("desk_top", (0.15, 1.15, 2.92), (7.25, 2.30, 0.12), M["cream"], bevel=0.038, group="desk")
     for x in (-2.95, 3.25):
         for y in (0.38, 1.92):
             lean = math.radians(2.5 if x < 0 else -2.5)
-            add_box("desk_leg", (x, y, 1.46), (0.16, 0.16, 2.85), M["wood_light"], bevel=0.035, group="desk", rotation=(0, lean, 0))
-    add_box("desk_front_edge", (0.15, -0.01, 2.82), (7.05, 0.10, 0.17), M["paper"], bevel=0.035, group="desk")
+            add_box("desk_leg", (x, y, 1.46), (0.13, 0.13, 2.85), M["wood_light"], bevel=0.022, group="desk", rotation=(0, lean, 0))
+    add_box("desk_front_edge", (0.15, -0.01, 2.86), (7.05, 0.045, 0.075), M["paper"], bevel=0.018, group="desk")
 
     # MacBook Air blockout: recognisable proportions without decorative bulk.
-    add_box("macbook_air_base", (-0.15, 0.92, 3.045), (2.30, 1.48, 0.075), M["metal"], bevel=0.045, interaction="cv", group=group)
-    add_box("macbook_air_deck", (-0.15, 0.92, 3.088), (2.20, 1.38, 0.025), M["metal"], bevel=0.025, interaction="cv", group=group)
-    add_box("macbook_air_front_lip", (-0.15, 0.18, 3.052), (0.58, 0.020, 0.020), M["ink"], bevel=0.008, group=group)
-    add_cylinder("macbook_air_hinge", (-0.15, 1.63, 3.18), 0.045, 2.02, M["ink"], vertices=32, rotation=(0, math.radians(90), 0), group=group)
-    add_box("macbook_air_lid", (-0.15, 1.79, 3.86), (2.28, 0.045, 1.52), M["metal"], bevel=0.045, interaction="cv", group=group, rotation=(math.radians(-12), 0, 0))
-    add_box("macbook_air_bezel", (-0.15, 1.752, 3.86), (2.16, 0.018, 1.40), M["ink"], bevel=0.028, group=group, rotation=(math.radians(-12), 0, 0))
-    add_box("macbook_air_screen", (-0.15, 1.738, 3.84), (2.02, 0.010, 1.25), M["screen"], bevel=0.018, interaction="cv", group=group, rotation=(math.radians(-12), 0, 0))
-    add_box("terminal_line_1", (-0.55, 1.724, 4.04), (0.72, 0.008, 0.025), M["teal_light"], bevel=0.008, group=group, rotation=(math.radians(-12), 0, 0))
-    add_box("terminal_line_2", (-0.38, 1.728, 3.84), (1.06, 0.008, 0.024), M["cream"], bevel=0.008, group=group, rotation=(math.radians(-12), 0, 0))
+    add_box("macbook_air_base", (-0.15, 0.92, 3.015), (2.16, 1.36, 0.045), M["metal"], bevel=0.026, interaction="cv", group=group)
+    add_box("macbook_air_deck", (-0.15, 0.94, 3.044), (2.08, 1.28, 0.012), M["metal"], bevel=0.014, interaction="cv", group=group)
+    add_box("macbook_air_front_lip", (-0.15, 0.24, 3.020), (0.48, 0.012, 0.012), M["ink"], bevel=0.004, group=group)
+    add_cylinder("macbook_air_hinge", (-0.15, 1.58, 3.11), 0.028, 1.86, M["ink"], vertices=32, rotation=(0, math.radians(90), 0), group=group)
+    add_box("macbook_air_lid", (-0.15, 1.72, 3.77), (2.10, 0.026, 1.42), M["metal"], bevel=0.025, interaction="cv", group=group, rotation=(math.radians(-12), 0, 0))
+    add_box("macbook_air_bezel", (-0.15, 1.698, 3.77), (2.02, 0.010, 1.34), M["ink"], bevel=0.018, group=group, rotation=(math.radians(-12), 0, 0))
+    add_box("macbook_air_screen", (-0.15, 1.689, 3.76), (1.90, 0.006, 1.20), M["screen"], bevel=0.012, interaction="cv", group=group, rotation=(math.radians(-12), 0, 0))
+    add_box("terminal_line_1", (-0.51, 1.681, 3.96), (0.62, 0.007, 0.020), M["teal_light"], bevel=0.006, group=group, rotation=(math.radians(-12), 0, 0))
+    add_box("terminal_line_2", (-0.35, 1.684, 3.78), (0.94, 0.007, 0.019), M["cream"], bevel=0.006, group=group, rotation=(math.radians(-12), 0, 0))
     for row in range(4):
         for column in range(9):
-            add_box("macbook_air_key_%02d_%02d" % (row, column), (-1.02 + column * 0.22, 0.90 + row * 0.145, 3.116), (0.15, 0.085, 0.022), M["ink"], bevel=0.009, group=group)
-    add_box("macbook_air_trackpad", (-0.15, 0.48, 3.112), (0.88, 0.40, 0.012), M["cream"], bevel=0.018, interaction="cv", group=group)
+            add_box("macbook_air_key_%02d_%02d" % (row, column), (-0.95 + column * 0.20, 0.91 + row * 0.132, 3.056), (0.135, 0.074, 0.010), M["ink"], bevel=0.005, group=group)
+    add_box("macbook_air_trackpad", (-0.15, 0.51, 3.054), (0.78, 0.34, 0.006), M["cream"], bevel=0.010, interaction="cv", group=group)
 
     # Papers are the quiet research entry point on the left of the desktop.
     for offset in range(2):
@@ -413,68 +419,83 @@ def open_studio_furnishings():
     add_box("wall_switch_rocker", (5.62, 5.045, 3.92), (0.22, 0.055, 0.34), M["metal"], bevel=0.035, interaction="lamp", group="lamp", rotation=(math.radians(-7), 0, 0))
 
     # Camera and film on the left side of the desk.
-    add_box("camera_body", (-1.55, 1.30, 3.28), (1.05, 0.52, 0.50), M["ink"], bevel=0.085, interaction="photos", group="camera")
-    add_box("camera_grip", (-1.12, 1.24, 3.20), (0.28, 0.56, 0.58), M["ink"], bevel=0.075, group="camera")
-    add_box("camera_top_plate", (-1.55, 1.30, 3.57), (0.76, 0.42, 0.08), M["metal"], bevel=0.025, group="camera")
-    add_cylinder("camera_lens", (-1.55, 0.98, 3.29), 0.27, 0.38, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
-    add_cylinder("camera_lens_glass", (-1.55, 0.78, 3.29), 0.20, 0.030, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
-    add_box("camera_viewfinder", (-1.55, 1.30, 3.60), (0.36, 0.24, 0.14), M["metal"], bevel=0.035, group="camera")
-    add_cylinder("camera_shutter", (-1.18, 1.30, 3.58), 0.065, 0.045, M["metal"], vertices=24, group="camera")
-    add_cylinder("camera_mode_dial", (-1.82, 1.30, 3.64), 0.105, 0.055, M["metal"], vertices=36, group="camera")
-    add_cylinder("film_canister", (-2.35, 1.34, 3.20), 0.15, 0.32, M["gold"], vertices=32, group="camera")
+    add_box("camera_body", (-1.55, 1.30, 3.24), (0.90, 0.42, 0.40), M["ink"], bevel=0.045, interaction="photos", group="camera")
+    add_box("camera_grip", (-1.18, 1.27, 3.18), (0.22, 0.46, 0.44), M["ink"], bevel=0.038, group="camera")
+    add_box("camera_top_plate", (-1.55, 1.30, 3.465), (0.66, 0.34, 0.045), M["metal"], bevel=0.014, group="camera")
+    add_cylinder("camera_lens", (-1.55, 1.01, 3.24), 0.225, 0.32, M["metal"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
+    add_cylinder("camera_lens_glass", (-1.55, 0.84, 3.24), 0.165, 0.020, M["glass"], vertices=48, rotation=(math.radians(90), 0, 0), group="camera")
+    for radius in (0.18, 0.215):
+        lens_ring = add_torus("camera_lens_ring", (-1.55, 0.827, 3.24), radius, 0.010, M["metal"], group="camera")
+        lens_ring.rotation_euler = (math.radians(90), 0, 0)
+    add_box("camera_viewfinder", (-1.55, 1.30, 3.505), (0.30, 0.20, 0.10), M["metal"], bevel=0.020, group="camera")
+    add_cylinder("camera_shutter", (-1.24, 1.30, 3.50), 0.050, 0.030, M["metal"], vertices=24, group="camera")
+    add_cylinder("camera_mode_dial", (-1.79, 1.30, 3.515), 0.078, 0.035, M["metal"], vertices=36, group="camera")
+    add_box("camera_lug_left", (-2.02, 1.28, 3.32), (0.035, 0.08, 0.10), M["metal"], bevel=0.010, group="camera")
+    add_box("camera_lug_right", (-1.08, 1.28, 3.32), (0.035, 0.08, 0.10), M["metal"], bevel=0.010, group="camera")
+    add_cylinder("film_canister", (-2.24, 1.34, 3.14), 0.12, 0.28, M["gold"], vertices=32, group="camera")
     add_focus("focus_photos", (-1.55, -2.0, 4.45), (-1.55, 1.05, 3.30))
 
     # Record player and headphones on the right side of the desk.
-    add_box("turntable_body", (2.42, 1.15, 3.08), (2.14, 1.52, 0.20), M["ink"], bevel=0.075, interaction="music", group="music")
+    add_box("turntable_body", (2.42, 1.15, 3.03), (2.02, 1.44, 0.12), M["ink"], bevel=0.035, interaction="music", group="music")
     for x in (1.62, 3.18):
         for y in (0.64, 1.66):
-            add_cylinder("turntable_foot", (x, y, 2.95), 0.07, 0.08, M["metal"], vertices=24, group="music")
-    add_cylinder("turntable_platter", (2.10, 1.15, 3.22), 0.57, 0.075, M["metal"], vertices=64, group="music")
-    add_cylinder("vinyl", (2.10, 1.15, 3.285), 0.52, 0.030, M["vinyl"], vertices=64, interaction="music", group="music")
-    add_cylinder("vinyl_label", (2.10, 1.15, 3.307), 0.14, 0.010, M["red"], vertices=48, interaction="music", group="music")
-    add_box("vinyl_label_mark", (2.19, 1.15, 3.322), (0.075, 0.025, 0.018), M["paper"], bevel=0.006, interaction="music", group="music", rotation=(0, 0, math.radians(18)))
-    add_cylinder("turntable_spindle", (2.10, 1.15, 3.34), 0.018, 0.08, M["metal"], vertices=20, group="music")
+            add_cylinder("turntable_foot", (x, y, 2.94), 0.050, 0.055, M["metal"], vertices=24, group="music")
+    add_cylinder("turntable_platter", (2.10, 1.15, 3.13), 0.54, 0.045, M["metal"], vertices=64, group="music")
+    add_cylinder("vinyl", (2.10, 1.15, 3.17), 0.50, 0.022, M["vinyl"], vertices=64, interaction="music", group="music")
+    add_cylinder("vinyl_label", (2.10, 1.15, 3.187), 0.13, 0.008, M["red"], vertices=48, interaction="music", group="music")
+    add_box("vinyl_label_mark", (2.19, 1.15, 3.198), (0.065, 0.020, 0.012), M["paper"], bevel=0.004, interaction="music", group="music", rotation=(0, 0, math.radians(18)))
+    add_cylinder("turntable_spindle", (2.10, 1.15, 3.22), 0.014, 0.065, M["metal"], vertices=20, group="music")
     for groove in (0.24, 0.34, 0.44):
-        add_torus("vinyl_groove", (2.10, 1.15, 3.318), groove, 0.006, M["metal"], interaction="music", group="music")
-    add_curve("turntable_needle", [(3.14, 1.55, 3.25), (2.98, 1.35, 3.48), (2.64, 1.18, 3.30)], 0.026, M["metal"], group="music")
-    add_cylinder("turntable_button", (3.10, 0.62, 3.25), 0.065, 0.040, M["gold"], vertices=32, group="music")
-    add_curve("headphones_band", [(0.92, 1.50, 3.17), (1.15, 1.18, 3.43), (1.42, 0.92, 3.17)], 0.052, M["ink"], interaction="music", group="music")
-    add_uv_sphere("headphones_left", (0.90, 1.51, 3.15), (0.13, 0.10, 0.18), M["ink"], group="music")
-    add_uv_sphere("headphones_right", (1.44, 0.90, 3.15), (0.13, 0.10, 0.18), M["ink"], group="music")
+        add_torus("vinyl_groove", (2.10, 1.15, 3.195), groove, 0.004, M["metal"], interaction="music", group="music")
+    add_curve("turntable_needle", [(3.10, 1.52, 3.14), (2.96, 1.36, 3.36), (2.61, 1.18, 3.20)], 0.018, M["metal"], group="music")
+    add_cylinder("turntable_button", (3.08, 0.60, 3.13), 0.052, 0.030, M["gold"], vertices=32, group="music")
+    add_box("turntable_dust_lid", (2.42, 1.80, 3.82), (1.98, 0.028, 1.20), M["glass"], bevel=0.018, interaction="music", group="music", rotation=(math.radians(-11), 0, 0))
+    add_curve("headphones_band", [(0.98, 1.47, 3.10), (1.17, 1.18, 3.34), (1.38, 0.94, 3.10)], 0.038, M["ink"], interaction="music", group="music")
+    add_uv_sphere("headphones_left", (0.96, 1.48, 3.08), (0.10, 0.075, 0.145), M["ink"], group="music")
+    add_uv_sphere("headphones_right", (1.40, 0.92, 3.08), (0.10, 0.075, 0.145), M["ink"], group="music")
     add_focus("focus_music", (2.35, -2.2, 4.7), (2.38, 1.15, 3.18))
 
     # Black swivel chair, deliberately centred but not blocking the laptop.
-    add_cylinder("chair_stem", (0.55, -1.05, 1.10), 0.10, 1.34, M["metal"], vertices=32, group="chair")
-    add_cylinder("chair_hub", (0.55, -1.05, 0.40), 0.22, 0.12, M["metal"], vertices=32, group="chair")
+    chair_x, chair_y = 1.35, -1.22
+    add_cylinder("chair_stem", (chair_x, chair_y, 1.04), 0.075, 1.24, M["metal"], vertices=32, group="chair")
+    add_cylinder("chair_hub", (chair_x, chair_y, 0.39), 0.16, 0.09, M["metal"], vertices=32, group="chair")
     for index in range(5):
         angle = math.radians(index * 72)
-        spoke_x = 0.55 + math.cos(angle) * 0.43
-        spoke_y = -1.05 + math.sin(angle) * 0.43
-        add_box("chair_spoke_%02d" % index, (spoke_x, spoke_y, 0.40), (0.88, 0.10, 0.08), M["metal"], bevel=0.035, group="chair", rotation=(0, 0, angle))
-        add_cylinder("chair_wheel_%02d" % index, (0.55 + math.cos(angle) * 0.86, -1.05 + math.sin(angle) * 0.86, 0.29), 0.11, 0.09, M["ink"], vertices=24, rotation=(math.radians(90), 0, angle), group="chair")
-    add_uv_sphere("chair_seat", (0.55, -1.05, 1.76), (0.92, 0.76, 0.22), M["ink"], group="chair")
-    add_uv_sphere("chair_back", (0.55, -0.48, 2.62), (0.92, 0.17, 0.88), M["ink"], group="chair")
-    add_curve("chair_back_support_left", [(0.05, -0.82, 1.82), (-0.18, -0.64, 2.42), (0.00, -0.54, 3.10)], 0.045, M["metal"], group="chair")
-    add_curve("chair_back_support_right", [(1.05, -0.82, 1.82), (1.28, -0.64, 2.42), (1.10, -0.54, 3.10)], 0.045, M["metal"], group="chair")
+        spoke_x = chair_x + math.cos(angle) * 0.36
+        spoke_y = chair_y + math.sin(angle) * 0.36
+        add_box("chair_spoke_%02d" % index, (spoke_x, spoke_y, 0.39), (0.72, 0.075, 0.060), M["metal"], bevel=0.022, group="chair", rotation=(0, 0, angle))
+        add_cylinder("chair_wheel_%02d" % index, (chair_x + math.cos(angle) * 0.72, chair_y + math.sin(angle) * 0.72, 0.28), 0.085, 0.070, M["ink"], vertices=24, rotation=(math.radians(90), 0, angle), group="chair")
+    add_uv_sphere("chair_seat", (chair_x, chair_y, 1.67), (0.72, 0.60, 0.15), M["ink"], group="chair")
+    add_uv_sphere("chair_back", (chair_x, chair_y + 0.48, 2.48), (0.70, 0.11, 0.72), M["ink"], group="chair")
+    add_curve("chair_back_support_left", [(chair_x - 0.40, chair_y + 0.13, 1.70), (chair_x - 0.55, chair_y + 0.31, 2.31), (chair_x - 0.44, chair_y + 0.42, 2.94)], 0.032, M["metal"], group="chair")
+    add_curve("chair_back_support_right", [(chair_x + 0.40, chair_y + 0.13, 1.70), (chair_x + 0.55, chair_y + 0.31, 2.31), (chair_x + 0.44, chair_y + 0.42, 2.94)], 0.032, M["metal"], group="chair")
 
     # Left-side floor lamp and guitar balance the wall without another shelf.
-    add_cylinder("floor_lamp_base", (-5.15, 3.55, 0.18), 0.48, 0.10, M["metal"], vertices=48, group="lamp")
-    add_cylinder("floor_lamp_stem", (-5.15, 3.55, 2.20), 0.055, 4.00, M["metal"], vertices=24, interaction="lamp", group="lamp")
-    add_cone("floor_lamp_shade", (-5.15, 3.55, 4.35), 0.52, 0.36, 0.62, M["cream"], vertices=48, interaction="lamp", group="lamp")
-    add_uv_sphere("floor_lamp_bulb", (-5.15, 3.55, 4.16), (0.13, 0.13, 0.16), M["lamp"], group="lamp")
+    add_cylinder("floor_lamp_base", (-5.15, 3.55, 0.15), 0.34, 0.070, M["metal"], vertices=48, group="lamp")
+    add_cylinder("floor_lamp_stem", (-5.15, 3.55, 2.18), 0.040, 4.00, M["metal"], vertices=24, interaction="lamp", group="lamp")
+    add_cone("floor_lamp_shade", (-5.15, 3.55, 4.32), 0.43, 0.30, 0.56, M["cream"], vertices=48, interaction="lamp", group="lamp")
+    add_uv_sphere("floor_lamp_bulb", (-5.15, 3.55, 4.15), (0.10, 0.10, 0.13), M["lamp"], group="lamp")
 
-    guitar_lower = add_uv_sphere("guitar_lower_body", (-4.08, 2.68, 1.18), (0.56, 0.18, 0.70), M["wood"], group="guitar")
+    guitar_lower = add_uv_sphere("guitar_lower_body", (-4.22, 2.68, 1.18), (0.50, 0.14, 0.64), M["wood"], group="guitar")
     guitar_lower.rotation_euler = (0, math.radians(-8), 0)
-    guitar_upper = add_uv_sphere("guitar_upper_body", (-4.08, 2.67, 1.72), (0.45, 0.16, 0.52), M["wood"], group="guitar")
+    guitar_upper = add_uv_sphere("guitar_upper_body", (-4.22, 2.67, 1.68), (0.39, 0.13, 0.46), M["wood"], group="guitar")
     guitar_upper.rotation_euler = (0, math.radians(-8), 0)
-    add_cylinder("guitar_sound_hole", (-4.08, 2.485, 1.48), 0.17, 0.020, M["ink"], vertices=32, rotation=(math.radians(90), 0, 0), group="guitar")
-    add_box("guitar_neck", (-3.86, 2.64, 2.62), (0.18, 0.12, 1.72), M["wood_light"], bevel=0.025, group="guitar", rotation=(0, math.radians(8), 0))
-    add_box("guitar_head", (-3.71, 2.63, 3.48), (0.28, 0.14, 0.42), M["wood"], bevel=0.04, group="guitar", rotation=(0, math.radians(8), 0))
+    add_cylinder("guitar_sound_hole", (-4.22, 2.525, 1.46), 0.15, 0.014, M["ink"], vertices=32, rotation=(math.radians(90), 0, 0), group="guitar")
+    add_box("guitar_bridge", (-4.21, 2.515, 1.06), (0.32, 0.025, 0.075), M["ink"], bevel=0.018, group="guitar")
+    add_box("guitar_neck", (-4.02, 2.64, 2.52), (0.15, 0.085, 1.66), M["wood_light"], bevel=0.020, group="guitar", rotation=(0, math.radians(8), 0))
+    add_box("guitar_fretboard", (-4.02, 2.565, 2.52), (0.105, 0.020, 1.58), M["ink"], bevel=0.010, group="guitar", rotation=(0, math.radians(8), 0))
+    add_box("guitar_head", (-3.88, 2.62, 3.37), (0.24, 0.11, 0.38), M["wood"], bevel=0.032, group="guitar", rotation=(0, math.radians(8), 0))
+    for string_index in range(4):
+        string_x = -4.235 + string_index * 0.010
+        add_curve("guitar_string_%02d" % string_index, [(string_x, 2.492, 1.08), (string_x + 0.08, 2.542, 2.40), (string_x + 0.19, 2.590, 3.46)], 0.004, M["cream"], group="guitar")
+    add_curve("guitar_stand", [(-4.58, 2.82, 0.24), (-4.35, 2.74, 0.64), (-4.22, 2.72, 1.02)], 0.028, M["metal"], group="guitar")
+    add_curve("guitar_stand_left", [(-4.36, 2.75, 0.32), (-4.64, 2.68, 0.17)], 0.028, M["metal"], group="guitar")
+    add_curve("guitar_stand_right", [(-4.36, 2.75, 0.32), (-4.08, 2.79, 0.17)], 0.028, M["metal"], group="guitar")
 
     # Small articulated task lamp on the desk.
-    add_cylinder("lamp_stand", (-2.72, 1.70, 3.08), 0.25, 0.07, M["ink"], vertices=36, group="lamp")
-    add_curve("lamp_stem", [(-2.72, 1.70, 3.10), (-2.45, 1.72, 3.84), (-2.12, 1.45, 4.17)], 0.045, M["ink"], interaction="lamp", group="lamp")
-    shade = add_cone("lamp_shade", (-2.02, 1.34, 4.12), 0.26, 0.14, 0.42, M["ink"], vertices=36, rotation=(0, math.radians(58), 0), interaction="lamp", group="lamp")
+    add_cylinder("lamp_stand", (-2.72, 1.70, 3.04), 0.19, 0.05, M["ink"], vertices=36, group="lamp")
+    add_curve("lamp_stem", [(-2.72, 1.70, 3.07), (-2.46, 1.72, 3.72), (-2.16, 1.46, 4.00)], 0.032, M["ink"], interaction="lamp", group="lamp")
+    shade = add_cone("lamp_shade", (-2.08, 1.36, 3.96), 0.22, 0.12, 0.34, M["ink"], vertices=36, rotation=(0, math.radians(58), 0), interaction="lamp", group="lamp")
     shade.rotation_euler = (0, math.radians(58), 0)
 
 
