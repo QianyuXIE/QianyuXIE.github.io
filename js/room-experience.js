@@ -14,7 +14,7 @@
   var timeButton = document.getElementById("room-time-toggle");
   var resetButton = document.getElementById("room-reset");
 
-  if (!peel || !experience || !enterButton || !shell || !viewport || !scene || !panelLayer) {
+  if (!experience || !shell || !viewport || !panelLayer) {
     return;
   }
 
@@ -58,6 +58,7 @@
   }
 
   function applyCamera(instant) {
+    if (!scene) return;
     var limits = cameraLimits();
     camera.x = clamp(camera.x, -limits.x, limits.x);
     camera.y = clamp(camera.y, -limits.y, limits.y);
@@ -82,6 +83,7 @@
   }
 
   function openRoom() {
+    if (!peel || !peelHost || !enterButton) return;
     if (!experience.hidden) {
       return;
     }
@@ -110,6 +112,7 @@
   }
 
   function closeRoom() {
+    if (!peel || !peelHost) return;
     if (experience.hidden || experience.classList.contains("is-closing")) {
       return;
     }
@@ -131,6 +134,7 @@
   }
 
   function focusOnHotspot(hotspot) {
+    if (!hotspot || !scene) return;
     var hotspotBox = hotspot.getBoundingClientRect();
     var viewportBox = viewport.getBoundingClientRect();
     var hotspotCenterX = hotspotBox.left + hotspotBox.width / 2;
@@ -247,8 +251,10 @@
       activeHotspot.classList.remove("is-active");
     }
     activeHotspot = hotspot;
-    activeHotspot.classList.add("is-active");
-    focusOnHotspot(hotspot);
+    if (activeHotspot) {
+      activeHotspot.classList.add("is-active");
+      focusOnHotspot(hotspot);
+    }
 
     panelTimer = window.setTimeout(function () {
       var target = panelLayer.querySelector("[data-panel-name='" + name + "']");
@@ -307,9 +313,9 @@
 
   function toggleTime() {
     var night = experience.classList.toggle("is-night");
-    timeButton.setAttribute("aria-pressed", String(night));
-    var icon = timeButton.querySelector(".room-time-icon");
-    var label = timeButton.querySelector("em");
+    if (timeButton) timeButton.setAttribute("aria-pressed", String(night));
+    var icon = timeButton ? timeButton.querySelector(".room-time-icon") : null;
+    var label = timeButton ? timeButton.querySelector("em") : null;
     if (icon) {
       icon.textContent = night ? "☾" : "☼";
     }
@@ -407,8 +413,8 @@
     }
   }
 
-  peel.addEventListener("click", openRoom);
-  enterButton.addEventListener("click", enterRoom);
+  if (peel) peel.addEventListener("click", openRoom);
+  if (enterButton) enterButton.addEventListener("click", enterRoom);
 
   Array.prototype.forEach.call(closeButtons, function (button) {
     button.addEventListener("click", closeRoom);
@@ -448,9 +454,7 @@
     var panelMap = { writing: "research", photos: "film" };
     var mappedName = panelMap[name] || name;
     var hotspot = experience.querySelector("[data-room-panel='" + mappedName + "']");
-    if (hotspot) {
-      showPanel(mappedName, hotspot);
-    }
+    showPanel(mappedName, hotspot);
   });
 
   document.addEventListener("qianyu-room:lamp-toggle", toggleLamp);
@@ -574,7 +578,7 @@
     experience.hidden = false;
     experience.classList.add("is-entered");
     shell.setAttribute("aria-hidden", "false");
-    peelHost.classList.add("is-hidden");
+    if (peelHost) peelHost.classList.add("is-hidden");
     document.body.classList.add("room-body-locked");
   }
 }());
