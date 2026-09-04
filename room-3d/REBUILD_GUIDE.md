@@ -1,6 +1,6 @@
 # Qianyu Room — Rebuild Guide
 
-This document is the source of truth for rebuilding the Home experience. It
+This document is the source of truth for rebuilding the Room experience. It
 uses the supplied screen recording as a behavioural and art-direction
 reference while keeping all geometry, textures, copy, photographs and code
 original to Qianyu's site.
@@ -77,8 +77,8 @@ Every major object must therefore have all four parts:
 
 Keep GitHub Pages and Jekyll as the host. Do not migrate the site to Next.js
 or add a runtime service. The current Three.js/Vite island remains isolated to
-Home and can provide the required experience without changing CV, Moment,
-About or post routes.
+`/room/`; the root path `/` renders the academic CV, while `/cv/` remains as a
+backward-compatible alias. Moment, About and post routes remain unchanged.
 
 Source ownership:
 
