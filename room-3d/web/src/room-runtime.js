@@ -4,9 +4,25 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");
+const loadingScreen = document.getElementById("room-loading");
+const loadingLabel = document.getElementById("room-loading-label");
+const loadingProgress = document.getElementById("room-loading-progress");
+const loadingValue = document.getElementById("room-loading-value");
 
 const probe = document.createElement("canvas");
 const supportsWebGL = Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
+
+function setLoadingProgress(value) {
+  const progress = Math.min(Math.max(Math.round(value), 0), 100);
+  if (loadingProgress) loadingProgress.style.width = `${progress}%`;
+  if (loadingValue) loadingValue.value = `${String(progress).padStart(3, "0")}%`;
+}
+
+if (host && viewport && !supportsWebGL && loadingScreen) {
+  loadingScreen.classList.add("has-error");
+  if (loadingLabel) loadingLabel.textContent = "WebGL is not available";
+  if (loadingValue) loadingValue.value = "—";
+}
 
 if (host && viewport && supportsWebGL) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -446,13 +462,31 @@ if (host && viewport && supportsWebGL) {
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("role", "application");
       renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。方向键旋转，加减号缩放，数字 1 到 5 打开 CV、研究、摄影、音乐和 About，L 开关灯，N 切换昼夜，0 返回总览。");
+      setLoadingProgress(100);
+      if (loadingLabel) loadingLabel.textContent = "room ready";
       requestRender();
       host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 工作室。点击物件查看内容。");
+
+      if (loadingScreen) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            loadingScreen.classList.add("is-complete");
+            window.setTimeout(() => {
+              loadingScreen.hidden = true;
+            }, reducedMotionQuery.matches ? 20 : 420);
+          });
+        });
+      }
     },
-    undefined,
+    (event) => {
+      if (!event.lengthComputable || !event.total) return;
+      setLoadingProgress(Math.min((event.loaded / event.total) * 100, 96));
+    },
     () => {
       host.classList.add("has-error");
-      host.textContent = "3D room could not load. The illustrated room remains available.";
+      if (loadingScreen) loadingScreen.classList.add("has-error");
+      if (loadingLabel) loadingLabel.textContent = "room could not load — refresh to retry";
+      if (loadingValue) loadingValue.value = "ERR";
     }
   );
 

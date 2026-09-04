@@ -1,170 +1,15 @@
-<div class="room-peel-host" id="room-peel-host">
-  <div class="room-peel-shadow" aria-hidden="true"></div>
-  <button class="room-peel" id="room-peel" type="button" aria-label="打开浅羽的互动房间" aria-controls="room-experience" aria-expanded="false">
-    <span class="room-peel-paper" aria-hidden="true"></span>
-    <span class="room-peel-corner" aria-hidden="true"></span>
-    <span class="room-peel-label">进入小屋</span>
-  </button>
-</div>
-
-<section class="room-experience" id="room-experience" aria-label="浅羽的互动房间" {% unless page.room_home %}hidden{% endunless %}>
-  <div class="room-entry" id="room-entry">
-    <div class="room-entry-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-    <p class="room-entry-kicker">A SMALL WORLD OF QIANYU</p>
-    <h2>浅羽的小屋</h2>
-    <p class="room-entry-copy">这里放着我的研究、照片、音乐和一些生活碎片。</p>
-    <div class="room-entry-instructions">
-      <span class="room-instruction-desktop">拖动画面或滚动滚轮探索 · 点击物件互动</span>
-      <span class="room-instruction-mobile">单指拖动 · 双指缩放 · 点击物件互动</span>
-    </div>
-    <button class="room-enter-button" id="room-enter" type="button">click to enter</button>
-    <button class="room-entry-close" type="button" data-room-close aria-label="关闭房间入口">×</button>
-  </div>
-
-  <div class="room-shell" id="room-shell" aria-hidden="true">
-    <header class="room-toolbar" aria-label="房间控制">
-      <div class="room-toolbar-brand">
-        <span>QY</span>
-        <strong>浅羽的小屋</strong>
-      </div>
-      <div class="room-toolbar-actions">
-        <button type="button" id="room-lamp-toggle" aria-pressed="false" title="切换台灯">
-          <span aria-hidden="true">◉</span><em>lamp</em>
-        </button>
-        <button type="button" id="room-time-toggle" aria-pressed="false" title="切换昼夜">
-          <span class="room-time-icon" aria-hidden="true">☼</span><em>day</em>
-        </button>
-        <button type="button" id="room-reset" title="重置视角">
-          <span aria-hidden="true">⌂</span><em>reset</em>
-        </button>
-        <button type="button" data-room-close title="关闭房间">
-          <span aria-hidden="true">×</span><em>close</em>
-        </button>
-      </div>
-    </header>
-
+<section class="room-experience" id="room-experience" aria-label="浅羽的互动房间">
+  <div class="room-shell" id="room-shell" aria-hidden="false">
     <div class="room-viewport" id="room-viewport" tabindex="0" aria-label="可拖动和缩放的互动房间。方向键旋转，加减号缩放，数字 1 到 5 打开物件，L 开关灯，N 切换昼夜，0 返回总览。">
-      <div class="room-webgl" id="room-webgl" aria-live="polite">Loading 3D room…</div>
-      <div class="room-scene" id="room-scene">
-        <div class="room-sky" aria-hidden="true">
-          <i class="room-cloud room-cloud-one"></i>
-          <i class="room-cloud room-cloud-two"></i>
-          <i class="room-moon"></i>
-          <i class="room-star room-star-one"></i>
-          <i class="room-star room-star-two"></i>
-          <i class="room-star room-star-three"></i>
-        </div>
-
-        <div class="room-architecture" aria-hidden="true">
-          <div class="room-wall-back"></div>
-          <div class="room-wall-left"></div>
-          <div class="room-floor"></div>
-          <div class="room-baseboard"></div>
-          <div class="room-window">
-            <span class="window-frame window-frame-v"></span>
-            <span class="window-frame window-frame-h"></span>
-            <span class="window-curtain window-curtain-left"></span>
-            <span class="window-curtain window-curtain-right"></span>
-          </div>
-          <div class="room-rug"></div>
-          <div class="room-lamp-glow"></div>
-        </div>
-
-        <button class="room-hotspot room-hotspot-photos" type="button" data-room-panel="photos" aria-label="打开摄影照片墙">
-          <span class="room-object-label">photography</span>
-          <span class="photo-frame photo-frame-one"><img src="{{ '/img/Me/Me5.jpg' | relative_url }}" alt="" loading="lazy"></span>
-          <span class="photo-frame photo-frame-two"><img src="{{ '/img/Me/Me7.jpg' | relative_url }}" alt="" loading="lazy"></span>
-          <span class="photo-frame photo-frame-three"><img src="{{ '/img/Me/Me9.jpg' | relative_url }}" alt="" loading="lazy"></span>
-          <span class="photo-pin photo-pin-one" aria-hidden="true"></span>
-          <span class="photo-pin photo-pin-two" aria-hidden="true"></span>
-          <span class="photo-pin photo-pin-three" aria-hidden="true"></span>
-        </button>
-
-        <div class="room-desk" aria-hidden="true">
-          <span class="desk-top"></span>
-          <span class="desk-drawer"><i></i><i></i></span>
-          <span class="desk-leg desk-leg-left"></span>
-          <span class="desk-leg desk-leg-right"></span>
-        </div>
-
-        <button class="room-hotspot room-hotspot-laptop" type="button" data-room-panel="cv" aria-label="打开学术 CV">
-          <span class="room-object-label">CV terminal</span>
-          <span class="room-monitor">
-            <span class="room-monitor-bar"><i></i><i></i><i></i></span>
-            <strong>qianyu@room</strong>
-            <em>$ open cv</em>
-            <b>_</b>
-          </span>
-          <span class="room-monitor-stand"></span>
-          <span class="room-keyboard"></span>
-        </button>
-
-        <button class="room-hotspot room-hotspot-research" type="button" data-room-panel="research" aria-label="打开研究笔记">
-          <span class="room-object-label">research notes</span>
-          <span class="research-sheet research-sheet-back"></span>
-          <span class="research-sheet research-sheet-front">
-            <i></i><i></i><i></i><b>RESEARCH</b>
-          </span>
-          <span class="research-pen"></span>
-        </button>
-
-        <button class="room-hotspot room-hotspot-camera" type="button" data-room-panel="film" aria-label="打开摄影胶卷">
-          <span class="room-object-label">film rolls</span>
-          <span class="mini-camera-body">
-            <i class="mini-camera-lens"></i>
-            <i class="mini-camera-flash"></i>
-          </span>
-          <span class="film-roll film-roll-one"></span>
-          <span class="film-roll film-roll-two"></span>
-        </button>
-
-        <button class="room-hotspot room-hotspot-lamp" id="room-lamp-object" type="button" aria-label="开关桌灯">
-          <span class="room-object-label">switch light</span>
-          <span class="table-lamp-shade"></span>
-          <span class="table-lamp-neck"></span>
-          <span class="table-lamp-base"></span>
-        </button>
-
-        <a class="room-hotspot room-hotspot-notebook" href="{{ '/moment/' | relative_url }}" aria-label="进入 Moment 页面">
-          <span class="room-object-label">Moment</span>
-          <span class="room-notebook-cover"><i></i><strong>Moment</strong><em>日常碎片</em></span>
-          <span class="room-notebook-pages"></span>
-        </a>
-
-        <button class="room-hotspot room-hotspot-vinyl" type="button" data-room-panel="music" aria-label="打开音乐唱片">
-          <span class="room-object-label">currently listening</span>
-          <span class="turntable-case">
-            <i class="turntable-record"><b></b></i>
-            <i class="turntable-arm"></i>
-            <i class="turntable-switch"></i>
-          </span>
-          <span class="vinyl-sleeve">A</span>
-        </button>
-
-        <button class="room-hotspot room-hotspot-books" type="button" data-room-panel="about" aria-label="打开关于我的书架">
-          <span class="room-object-label">about me</span>
-          <span class="bookshelf-case">
-            <i class="shelf-line shelf-line-one"></i>
-            <i class="shelf-line shelf-line-two"></i>
-            <b class="book book-one"></b><b class="book book-two"></b><b class="book book-three"></b>
-            <b class="book book-four"></b><b class="book book-five"></b><b class="book book-six"></b>
-            <span class="shelf-plant"><i></i><i></i><i></i></span>
-          </span>
-        </button>
-
-        <button class="room-hotspot room-hotspot-whale" type="button" data-room-panel="whale" aria-label="查看鲸鱼彩蛋">
-          <span class="room-object-label">a tiny secret</span>
-          <span class="whale-body"><i></i><b></b></span>
-        </button>
-
-        <div class="room-chair" aria-hidden="true">
-          <span class="chair-back"></span>
-          <span class="chair-seat"></span>
-          <span class="chair-base"></span>
+      <div class="room-loading" id="room-loading" role="status" aria-live="polite">
+        <div class="room-loading-copy">
+          <span>QY / SPATIAL PORTFOLIO</span>
+          <strong id="room-loading-label">assembling the room</strong>
+          <div class="room-loading-track" aria-hidden="true"><i id="room-loading-progress"></i></div>
+          <output id="room-loading-value" aria-label="加载进度">000%</output>
         </div>
       </div>
-
-      <p class="room-drag-hint" aria-hidden="true">drag to look around · scroll to zoom</p>
+      <div class="room-webgl" id="room-webgl" aria-label="浅羽的 3D 工作室"></div>
     </div>
 
     <div class="room-panel-layer" id="room-panel-layer" hidden>
@@ -217,14 +62,6 @@
         <a class="room-panel-link" href="{{ '/about/' | relative_url }}">进入完整摄影页 →</a>
       </article>
 
-      <article class="room-panel" data-panel-name="photos" role="dialog" aria-modal="true" aria-labelledby="room-photos-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭照片墙">×</button>
-        <p class="room-panel-kicker">PHOTO WALL</p>
-        <h2 id="room-photos-title">摄影是我保存日常的方法。</h2>
-        <p>这里有光、路上、此刻，也有一些还在慢慢整理的生活。</p>
-        <a class="room-panel-link" href="{{ '/about/' | relative_url }}">看看我的摄影作品 →</a>
-      </article>
-
       <article class="room-panel room-panel-music" data-panel-name="music" role="dialog" aria-modal="true" aria-labelledby="room-music-title" hidden>
         <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭音乐面板">×</button>
         <p class="room-panel-kicker">NOW SPINNING · 33⅓ RPM</p>
@@ -237,27 +74,17 @@
             <li><span>02</span><strong>吴青峰</strong><em>soft morning</em></li>
           </ol>
           <div class="room-player-controls" aria-label="唱片正在旋转">
-            <span aria-hidden="true">‹</span>
-            <span class="is-playing" aria-hidden="true">Ⅱ</span>
-            <span aria-hidden="true">›</span>
+            <span aria-hidden="true">‹</span><span class="is-playing" aria-hidden="true">Ⅱ</span><span aria-hidden="true">›</span>
           </div>
         </div>
       </article>
 
       <article class="room-panel" data-panel-name="about" role="dialog" aria-modal="true" aria-labelledby="room-about-title" hidden>
         <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭 About 面板">×</button>
-        <p class="room-panel-kicker">BOOKSHELF / ABOUT</p>
+        <p class="room-panel-kicker">FRAME / ABOUT</p>
         <h2 id="room-about-title">研究之外，我也收集照片、音乐和文字。</h2>
         <p>我喜欢让严谨的研究和柔软的生活同时留在同一个空间里。</p>
         <a class="room-panel-link" href="{{ '/about/' | relative_url }}">继续认识我 →</a>
-      </article>
-
-      <article class="room-panel room-panel-whale" data-panel-name="whale" role="dialog" aria-modal="true" aria-labelledby="room-whale-title" hidden>
-        <button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭鲸鱼彩蛋">×</button>
-        <p class="room-panel-kicker">A TINY SECRET</p>
-        <h2 id="room-whale-title">Caring is not an advantage, Sherlock.</h2>
-        <p>但我还是愿意在意一些小事。</p>
-        <a class="room-panel-link" href="{{ '/moment/' | relative_url }}">去 Moment 看看 →</a>
       </article>
     </div>
   </div>
