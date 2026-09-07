@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");
@@ -34,7 +35,7 @@ if (host && viewport && supportsWebGL) {
   renderer.setPixelRatio(restingPixelRatio);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = 0.92;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
@@ -42,46 +43,60 @@ if (host && viewport && supportsWebGL) {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xe8e6df);
+  // Metal needs reflected studio illumination as well as direct light.
+  const environmentRoom = new RoomEnvironment();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environmentMap = pmrem.fromScene(environmentRoom, 0.04);
+  scene.environment = environmentMap.texture;
+  scene.environmentIntensity = 0.32;
+  environmentRoom.dispose();
+  pmrem.dispose();
 
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.11;
   controls.enablePan = false;
-  controls.minDistance = 10;
+  controls.minDistance = 2;
   controls.maxDistance = 25;
   controls.minPolarAngle = Math.PI * 0.20;
   controls.maxPolarAngle = Math.PI * 0.43;
+  controls.minAzimuthAngle = -Math.PI * 0.40;
+  controls.maxAzimuthAngle = Math.PI * 0.40;
   controls.rotateSpeed = 0.52;
   controls.zoomSpeed = 0.65;
-  controls.target.set(0, 3.0, -1.8);
-  camera.position.set(10.8, 9.5, 16.0);
+  controls.target.set(0, 3.50, -1.25);
+  camera.position.set(-9.0, 10.0, 16.8);
   controls.update();
 
   const overviewPose = {
-    position: new THREE.Vector3(10.8, 9.5, 16.0),
-    target: new THREE.Vector3(0, 3.0, -1.8)
+    position: new THREE.Vector3(-9.0, 10.0, 16.8),
+    target: new THREE.Vector3(0, 3.50, -1.25)
   };
   const cameraPoses = {
     cv: {
-      position: new THREE.Vector3(0, 4.8, 2.7),
-      target: new THREE.Vector3(-0.15, 3.65, -1.35)
+      position: new THREE.Vector3(0.05, 3.8, 1.45),
+      target: new THREE.Vector3(0.05, 3.60, -1.40)
     },
     research: {
-      position: new THREE.Vector3(-3.7, 5.5, -0.5),
-      target: new THREE.Vector3(-3.72, 5.18, -5.18)
+      position: new THREE.Vector3(-3.0, 5.60, 1.8),
+      target: new THREE.Vector3(-2.88, 5.37, -3.48)
     },
     photos: {
-      position: new THREE.Vector3(-1.55, 4.45, 2.0),
-      target: new THREE.Vector3(-1.55, 3.3, -1.05)
+      position: new THREE.Vector3(-3.15, 4.00, 1.90),
+      target: new THREE.Vector3(-2.29, 3.22, -.57)
     },
     music: {
-      position: new THREE.Vector3(2.35, 4.7, 2.2),
-      target: new THREE.Vector3(2.38, 3.18, -1.15)
+      position: new THREE.Vector3(.60, 5.00, 2.40),
+      target: new THREE.Vector3(2.25, 3.22, -1.02)
     },
     about: {
-      position: new THREE.Vector3(2.0, 5.7, -0.7),
-      target: new THREE.Vector3(2.02, 5.42, -5.12)
+      position: new THREE.Vector3(1.83, 5.70, 1.5),
+      target: new THREE.Vector3(1.83, 5.58, -3.46)
+    },
+    books: {
+      position: new THREE.Vector3(-.6, 6.1, 1.5),
+      target: new THREE.Vector3(-.1, 6.1, -3.2)
     }
   };
 
@@ -94,36 +109,37 @@ if (host && viewport && supportsWebGL) {
   function currentOverviewPose() {
     if (host.clientWidth < 600) {
       return {
-        position: new THREE.Vector3(14.2, 12.2, 21.5),
+        position: new THREE.Vector3(-11.0, 12.0, 24.0),
         target: overviewPose.target.clone()
       };
     }
     if (host.clientWidth < 900) {
       return {
-        position: new THREE.Vector3(12.2, 10.4, 18.4),
+        position: new THREE.Vector3(-10.0, 10.8, 19.0),
         target: overviewPose.target.clone()
       };
     }
     return { position: overviewPose.position.clone(), target: overviewPose.target.clone() };
   }
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 1.55);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 0.85);
   scene.add(hemi);
-  const keyLight = new THREE.DirectionalLight(0xfff8eb, 2.65);
-  keyLight.position.set(-7, 12, 10);
+  const keyLight = new THREE.DirectionalLight(0xfffbf3, 3.1);
+  keyLight.position.set(-3, 10.5, 5);
   keyLight.castShadow = true;
-  keyLight.shadow.mapSize.set(1024, 1024);
-  keyLight.shadow.camera.left = -15;
-  keyLight.shadow.camera.right = 15;
-  keyLight.shadow.camera.top = 15;
-  keyLight.shadow.camera.bottom = -15;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -9;
+  keyLight.shadow.camera.right = 9;
+  keyLight.shadow.camera.top = 9;
+  keyLight.shadow.camera.bottom = -9;
+  keyLight.shadow.normalBias = .012;
   keyLight.shadow.bias = -0.0002;
   scene.add(keyLight);
-  const fillLight = new THREE.PointLight(0xe8edf0, 8, 24, 2);
+  const fillLight = new THREE.PointLight(0xe8edf0, 3, 24, 2);
   fillLight.position.set(7, 6, 9);
   scene.add(fillLight);
   const lampLight = new THREE.PointLight(0xffb66d, 0, 9, 2);
-  lampLight.position.set(-3.2, 5.0, -0.6);
+  lampLight.position.set(-2.55, 3.85, -1.43);
   scene.add(lampLight);
 
   const raycaster = new THREE.Raycaster();
@@ -137,6 +153,7 @@ if (host && viewport && supportsWebGL) {
     writing: "Research notes",
     lamp: "Switch light",
     whale: "A tiny secret"
+    , paper: "Open full CV", books: "Notes & reading", chair: "Swivel chair", guitar: "Electric guitar"
   };
   let interactiveMeshes = [];
   let hovered = null;
@@ -154,6 +171,14 @@ if (host && viewport && supportsWebGL) {
   let controlsActive = false;
   let renderQueued = false;
   let focusToken = 0;
+  let panelOpen = false;
+  let boardTexture = null;
+  let boardMesh = null;
+  let labelMaterial = null;
+  let recordRequested = false;
+  let cameraAnimating = false;
+  let chairPivot = null;
+  const chairParts = [];
 
   const nameMatchers = [
     [/(macbook|screen|terminal)/i, "cv"],
@@ -194,6 +219,7 @@ if (host && viewport && supportsWebGL) {
   }
 
   function hitTargetFor(object) {
+    if (object.userData.interaction) return object.userData.interaction;
     const match = hitTargetMatchers.find(([matcher]) => matcher.test(object.name || ""));
     return match ? match[1] : null;
   }
@@ -265,6 +291,7 @@ if (host && viewport && supportsWebGL) {
     const startTarget = controls.target.clone();
     const startPosition = camera.position.clone();
     const token = ++focusToken;
+    cameraAnimating = true;
     const duration = reducedMotionQuery.matches
       ? 0
       : (durationOverride || 560);
@@ -276,8 +303,17 @@ if (host && viewport && supportsWebGL) {
       const eased = 1 - Math.pow(1 - progress, 3);
       controls.target.lerpVectors(startTarget, pose.target, eased);
       camera.position.lerpVectors(startPosition, pose.position, eased);
+      camera.lookAt(controls.target);
       renderer.render(scene, camera);
       if (progress < 1) requestAnimationFrame((next) => step(next, startedAt));
+      else {
+        cameraAnimating = false;
+        const damping = controls.enableDamping;
+        controls.enableDamping = false;
+        if (!panelOpen) controls.update();
+        controls.enableDamping = damping;
+        requestRender();
+      }
     }
 
     requestAnimationFrame((startedAt) => step(startedAt, startedAt));
@@ -291,12 +327,13 @@ if (host && viewport && supportsWebGL) {
 
   function setTimeOfDay(night) {
     isNight = night;
+    scene.environmentIntensity = night ? 0.10 : 0.32;
     scene.background.setHex(night ? 0x171a1d : 0xe8e6df);
-    hemi.intensity = night ? 0.38 : 1.55;
-    keyLight.intensity = night ? 0.55 : 2.65;
+    hemi.intensity = night ? 0.24 : 0.85;
+    keyLight.intensity = night ? 0.35 : 3.1;
     keyLight.color.setHex(night ? 0xa9c1de : 0xfff8eb);
-    fillLight.intensity = night ? 2.8 : 8;
-    renderer.toneMappingExposure = night ? 0.9 : 1.08;
+    fillLight.intensity = night ? 1.8 : 3;
+    renderer.toneMappingExposure = night ? 0.78 : 0.92;
     setLamp(lampOn);
     requestRender();
   }
@@ -335,8 +372,8 @@ if (host && viewport && supportsWebGL) {
     renderQueued = false;
     const delta = lastRenderTime ? Math.min((now - lastRenderTime) / 1000, 0.05) : 0;
     lastRenderTime = now;
-    if (recordSpinning && recordPivot) recordPivot.rotation.y += delta * 0.78;
-    const cameraChanged = controls.update();
+    if (recordSpinning && recordPivot) recordPivot.rotation.y += delta * 3.49;
+    const cameraChanged = cameraAnimating ? false : controls.update();
     renderer.render(scene, camera);
     if (cameraChanged || controlsActive || recordSpinning) requestRender();
   }
@@ -352,8 +389,8 @@ if (host && viewport && supportsWebGL) {
 
   controls.addEventListener("start", () => {
     focusToken += 1;
+    cameraAnimating = false;
     controlsActive = true;
-    draggedSincePointerDown = true;
     setRenderQuality(draggingPixelRatio);
     clearHover();
     requestRender();
@@ -395,12 +432,30 @@ if (host && viewport && supportsWebGL) {
   });
 
   renderer.domElement.addEventListener("click", (event) => {
-    if (draggedSincePointerDown) return;
+    if (draggedSincePointerDown || panelOpen) return;
     const picked = pick(event);
     const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
     if (interaction === "lamp") {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
+      return;
+    }
+    if (interaction === "paper") { window.location.assign("/"); return; }
+    if (interaction === "chair" && chairPivot) {
+      const start = chairPivot.rotation.y;
+      const began = performance.now();
+      function swivel(now) {
+        const t = reducedMotionQuery.matches ? 1 : Math.min((now-began)/900,1);
+        chairPivot.rotation.y = start + Math.PI*.5*(1-Math.pow(1-t,3));
+        renderer.shadowMap.needsUpdate = true;
+        requestRender();
+        if(t<1) requestAnimationFrame(swivel);
+      }
+      requestAnimationFrame(swivel);
+      return;
+    }
+    if (interaction === "guitar") {
+      animateCamera(responsivePose(fallbackPose(picked.object)));
       return;
     }
     animateCamera(responsivePose(cameraPoses[interaction] || fallbackPose(picked.object)));
@@ -421,20 +476,48 @@ if (host && viewport && supportsWebGL) {
   });
   document.addEventListener("qianyu-room:panel-changed", (event) => {
     const detail = event.detail || {};
-    recordSpinning = Boolean(detail.open && detail.name === "music" && !reducedMotionQuery.matches);
+    panelOpen = Boolean(detail.open);
+    controls.enabled = !panelOpen;
+    requestRender();
+  });
+  document.addEventListener("qianyu-room:record-selected", event => {
+    recordRequested = Boolean(event.detail.spinning);
+    recordSpinning = recordRequested && !reducedMotionQuery.matches;
+    if (labelMaterial) labelMaterial.color.setHex(event.detail.color);
+    requestRender();
+  });
+  reducedMotionQuery.addEventListener("change", () => {
+    recordSpinning = recordRequested && !reducedMotionQuery.matches;
+    requestRender();
+  });
+  document.addEventListener("qianyu-room:board-updated", event => {
+    if (!boardMesh) return;
+    if (!boardTexture) {
+      boardTexture = new THREE.CanvasTexture(event.detail.canvas);
+      boardTexture.colorSpace = THREE.SRGBColorSpace;
+      boardTexture.flipY = false;
+      boardMesh.material.map = boardTexture;
+      boardMesh.material.color.setHex(0xffffff);
+      boardMesh.material.needsUpdate = true;
+    }
+    boardTexture.needsUpdate = true;
     requestRender();
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb",
+    "/assets/room3d/qianyu-room.glb?v=20260907",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {
+        if (object.userData.room_group === "chair") chairParts.push(object);
         if (/^vinyl$/i.test(object.name || "")) vinyl = object;
         if (/^vinyl(?:_label(?:_mark)?|_groove(?:\.\d+)?)?$/i.test(object.name || "")) recordParts.push(object);
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
+        materialList(object).forEach(material => {
+          if (material.transparent) { object.castShadow = false; material.depthWrite = false; }
+        });
         if (hitTargetFor(object)) {
           // Interactive surfaces get their own material instance so a hover
           // highlight never alters visually similar, non-interactive details.
@@ -443,8 +526,17 @@ if (host && viewport && supportsWebGL) {
             : object.material.clone();
           interactiveMeshes.push(object);
         }
+        if (object.name === "whiteboard_paper") boardMesh = object;
+        if (object.name === "vinyl_label") labelMaterial = object.material;
       });
       scene.add(model);
+      if (chairParts.length) {
+        chairPivot = new THREE.Group();
+        chairPivot.position.set(1.25, 0, 1.60);
+        model.add(chairPivot);
+        model.updateMatrixWorld(true);
+        chairParts.forEach(part => chairPivot.attach(part));
+      }
       if (vinyl && recordParts.length) {
         model.updateMatrixWorld(true);
         const pivotPosition = vinyl.position.clone();
@@ -458,6 +550,7 @@ if (host && viewport && supportsWebGL) {
       renderer.shadowMap.needsUpdate = true;
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
+      document.dispatchEvent(new CustomEvent("qianyu-room:ready"));
       viewport.tabIndex = -1;
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("role", "application");

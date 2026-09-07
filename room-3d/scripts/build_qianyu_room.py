@@ -29,10 +29,10 @@ PREVIEW.mkdir(parents=True, exist_ok=True)
 
 
 PALETTE = {
-    "wall": (0.84, 0.83, 0.79, 1),
+    "wall": (0.72, 0.715, 0.69, 1),
     "space": (0.92, 0.91, 0.87, 1),
     "wall_dark": (0.14, 0.14, 0.13, 1),
-    "floor": (0.88, 0.87, 0.83, 1),
+    "floor": (0.74, 0.735, 0.71, 1),
     "wood": (0.42, 0.25, 0.14, 1),
     "wood_light": (0.60, 0.39, 0.22, 1),
     "cream": (0.91, 0.89, 0.84, 1),
@@ -149,7 +149,8 @@ def add_cone(name, location, radius_bottom, radius_top, depth, mat, vertices=48,
 
 
 def add_uv_sphere(name, location, scale, mat, interaction=None, group="environment"):
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, location=location)
+    tiny = max(scale) < .04
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=8 if tiny else 24, ring_count=4 if tiny else 12, location=location)
     obj = bpy.context.object
     obj.name = name
     obj.scale = scale
@@ -160,7 +161,7 @@ def add_uv_sphere(name, location, scale, mat, interaction=None, group="environme
 
 
 def add_torus(name, location, major_radius, minor_radius, mat, interaction=None, group="environment"):
-    bpy.ops.mesh.primitive_torus_add(major_radius=major_radius, minor_radius=minor_radius, major_segments=48, minor_segments=10, location=location)
+    bpy.ops.mesh.primitive_torus_add(major_radius=major_radius, minor_radius=minor_radius, major_segments=48, minor_segments=6, location=location)
     obj = bpy.context.object
     obj.name = name
     obj.data.materials.append(mat)
@@ -505,7 +506,7 @@ def lighting_and_camera():
     scene.world = world
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.88, 0.87, 0.83, 1)
-    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.50
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.28
 
     def area(name, location, energy, size, color, target):
         data = bpy.data.lights.new(name, "AREA")
@@ -521,19 +522,18 @@ def lighting_and_camera():
 
     # The broad key supplies the large soft wall/floor shadow. Neutral fill
     # keeps black objects readable without introducing decorative colour.
-    area("studio_key", (-5.5, -4.5, 11.5), 1450, 6.5, (1.0, 0.96, 0.88), (0.0, 1.6, 2.3))
-    area("studio_fill", (7.5, -2.0, 7.0), 390, 5.5, (0.90, 0.92, 0.93), (0.0, 1.8, 2.7))
-    area("studio_rim", (-4.0, 4.0, 8.0), 260, 4.5, (0.78, 0.83, 0.84), (-1.0, 2.5, 3.0))
+    area("studio_key", ( -3.0, -5.0, 10.5), 1250, 1.3, (1.0, 0.985, 0.955), (0.0, 1.6, 2.3))
+    area("studio_fill", (5.5, -3.0, 6.0), 110, 6.0, (0.92, 0.95, 1.0), (0.0, 1.8, 2.7))
 
-    bpy.ops.object.camera_add(location=(11.0, -16.8, 10.2))
+    bpy.ops.object.camera_add(location=(-9.0, -16.8, 10.0))
     camera = bpy.context.object
     camera.name = "room_camera"
     camera.data.lens = 52
     camera.data.sensor_width = 36
-    look_at(camera, (0.0, 2.0, 3.15))
+    look_at(camera, (0.0, 1.25, 3.50))
     scene.camera = camera
     camera["initial_position"] = list(camera.location)
-    camera["initial_target"] = [0.0, 2.0, 3.15]
+    camera["initial_target"] = [0.0, 1.25, 3.50]
 
     scene.render.engine = "BLENDER_EEVEE"
     scene.render.resolution_x = 1440
@@ -572,7 +572,7 @@ def batch_static_meshes():
     """
     buckets = {}
     for obj in list(bpy.context.scene.objects):
-        if obj.type != "MESH" or obj.name in ("studio_floor", "studio_wall", "studio_baseboard") or obj.get("interaction"):
+        if obj.type != "MESH" or obj.name in ("studio_floor", "studio_wall", "studio_baseboard") or obj.get("interaction") or obj.get("preserve_uv"):
             continue
         if len(obj.data.materials) != 1 or obj.data.materials[0] is None:
             continue
@@ -585,7 +585,10 @@ def batch_static_meshes():
                 bpy.ops.object.modifier_apply(modifier=modifier.name)
             except RuntimeError:
                 pass
-        buckets.setdefault(obj.data.materials[0].name, []).append(obj)
+        batch_key = obj.data.materials[0].name
+        if obj.get('room_group') == 'chair':
+            batch_key += '_chair'
+        buckets.setdefault(batch_key, []).append(obj)
 
     for material_name, objects in buckets.items():
         if len(objects) < 2:
@@ -599,6 +602,8 @@ def batch_static_meshes():
         combined.name = "static_" + material_name.lower().replace(" ", "_")
         combined["room_group"] = "static"
         combined["static_batch"] = material_name
+        if material_name.endswith('_chair'):
+            combined['room_group'] = 'chair'
 
 
 def bake_static_ao():
@@ -631,11 +636,11 @@ def bake_static_ao():
             nodes = baked.node_tree.nodes
             links = baked.node_tree.links
             bsdf = nodes.get("Principled BSDF")
-            if not bsdf or bsdf.inputs["Base Color"].is_linked:
+            if not bsdf:
                 continue
 
             safe_name = obj.name.lower().replace(".", "_").replace(" ", "_")
-            size = 256
+            size = 512
             bake_image = bpy.data.images.new("ao_" + safe_name, width=size, height=size, alpha=False)
             bake_image.colorspace_settings.name = "Non-Color"
             bake_node = nodes.new("ShaderNodeTexImage")
@@ -646,19 +651,25 @@ def bake_static_ao():
             bpy.ops.object.select_all(action="DESELECT")
             obj.select_set(True)
             bpy.context.view_layer.objects.active = obj
+            # Bake procedural colour first, then combine AO into actual pixels.
+            # glTF cannot export the previous arbitrary MixRGB shader graph.
+            import numpy as np
+            scene.render.bake.use_pass_direct = False
+            scene.render.bake.use_pass_indirect = False
+            scene.render.bake.use_pass_color = True
+            bpy.ops.object.bake(type="DIFFUSE", margin=8, use_clear=True)
+            color_pixels = np.array(bake_image.pixels[:], dtype=np.float32).reshape(-1, 4)
             bpy.ops.object.bake(type="AO", margin=8, use_clear=True)
+            ao_pixels = np.array(bake_image.pixels[:], dtype=np.float32).reshape(-1, 4)
+            color_pixels[:, :3] *= .55 + .45 * ao_pixels[:, :3]
+            color_pixels[:, 3] = 1
+            bake_image.pixels.foreach_set(color_pixels.ravel())
 
             bake_image.filepath_raw = str(TEXTURES / ("ao_" + safe_name + ".png"))
             bake_image.file_format = "PNG"
             bake_image.save()
 
-            multiply = nodes.new("ShaderNodeMixRGB")
-            multiply.name = "Baked AO Multiply"
-            multiply.blend_type = "MULTIPLY"
-            multiply.inputs[0].default_value = 0.45
-            multiply.inputs[1].default_value = bsdf.inputs["Base Color"].default_value
-            links.new(bake_node.outputs["Color"], multiply.inputs[2])
-            links.new(multiply.outputs["Color"], bsdf.inputs["Base Color"])
+            links.new(bake_node.outputs["Color"], bsdf.inputs["Base Color"])
             obj["ao_baked"] = True
     finally:
         scene.render.engine = previous_engine
@@ -685,9 +696,9 @@ def export_scene():
 
 clear_scene()
 M = initialize_materials()
-room_shell()
-desk_and_computer()
-open_studio_furnishings()
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from reference_scene import build
+build(globals())
 lighting_and_camera()
 batch_static_meshes()
 prepare_uvs()
