@@ -106,4 +106,44 @@
  .room-rebuilt .frame-content { grid-template-columns:1fr;gap:15px;padding:15px 20px 30px; }
  .room-rebuilt .frame-content img { max-height:35vh; }
 }
+/* Readable window typography, independent of the scene's camera scale. */
+.room-rebuilt .studio-window { font-size:16px;line-height:1.7; }
+.room-rebuilt .studio-titlebar { height:auto;min-height:60px;flex-wrap:wrap;padding:8px 20px; }
+.room-rebuilt .studio-titlebar h2 { font-size:15px;line-height:1.4;letter-spacing:.1em; }
+.room-rebuilt .studio-titlebar>span { font-size:12px;color:#969b8b; }
+.room-rebuilt .room-panel-close { width:44px;height:44px;flex-shrink:0;font-size:30px; }
+.room-rebuilt .studio-status { flex-wrap:wrap;gap:8px;font-size:12px;letter-spacing:.06em;color:#a3a992; }
+.room-rebuilt .board-tools button { width:32px;height:32px; }
+.room-rebuilt .board-tools .board-tool { width:36px;height:36px;font-size:22px; }
+.room-rebuilt .studio-terminal { font-size:16px;padding-top:54px; }
+.room-rebuilt .film-albums button { font-size:14px;min-height:44px;color:#a5ac96; }
+.room-rebuilt .film-frame figcaption { font-size:16px;flex-wrap:wrap;line-height:1.4; }
+.room-rebuilt .film-frame figcaption span { font-size:14px; }
+.room-rebuilt .film-frame figcaption small,.room-rebuilt .film-edge { font-size:12px;color:#aaa375;letter-spacing:.08em; }
+.room-rebuilt .vinyl-browser { grid-template-columns:280px minmax(0,1fr); }
+.room-rebuilt .vinyl-albums button { font-size:16px; }
+.room-rebuilt .vinyl-albums small { font-size:13px;color:#9da58e; }
+.room-rebuilt .vinyl-details { min-width:0;overflow-wrap:anywhere; }
+.room-rebuilt .vinyl-details h3 { font-size:24px; }
+.room-rebuilt .record-subtitle { font-size:13px;color:#a1aa90; }
+.room-rebuilt .record-table { font-size:14px;color:#a7b096; }
+.room-rebuilt .record-note { font-size:16px;color:#aab29f; }
+.room-rebuilt .record-action { font-size:14px;line-height:1.5;min-height:44px; }
+.room-rebuilt #record-listen { font-size:14px;color:#b0b99e; }
+.room-rebuilt .frame-content p { font-size:18px; }
+.room-rebuilt .frame-content small { font-size:14px; }
+@media(max-width:700px) {
+ .room-rebuilt .studio-titlebar { padding:8px 12px; }
+ .room-rebuilt .studio-titlebar h2 { font-size:14px; }
+ .room-rebuilt .studio-board .board-tools { order:2;width:100%;justify-content:center;padding:6px 0; }
+ .room-rebuilt .board-workspace { height:min(45vh,450px); }
+ .room-rebuilt .studio-terminal { font-size:16px;padding:54px 14px 24px; }
+ .room-rebuilt .terminal-output .terminal-logo { font-size:7px; } /* Decorative ASCII, not body copy. */
+ .room-rebuilt .terminal-prompt { flex-wrap:wrap; }
+ .room-rebuilt .terminal-prompt input { flex-basis:100%;min-height:44px; }
+ .room-rebuilt .vinyl-browser { grid-template-columns:minmax(0,1fr); }
+ .room-rebuilt .vinyl-albums button { font-size:14px; }
+ .room-rebuilt .studio-status { padding:12px; }
+ .room-rebuilt .shelf-notes { padding:24px; }
+}
 @media(prefers-reduced-motion:reduce) { .room-rebuilt * { scroll-behavior:auto!important;transition:none!important;animation:none!important; } }

@@ -505,7 +505,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb?v=20260907",
+    "/assets/room3d/qianyu-room.glb?v=20260908",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {

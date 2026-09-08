@@ -26351,7 +26351,7 @@ if (It && lr && lh) {
   }), document.addEventListener("qianyu-room:board-updated", (F) => {
     Ze && (je || (je = new Xu(F.detail.canvas), je.colorSpace = vt, je.flipY = !1, Ze.material.map = je, Ze.material.color.setHex(16777215), Ze.material.needsUpdate = !0), je.needsUpdate = !0, Z());
   }), new P_().load(
-    "/assets/room3d/qianyu-room.glb?v=20260907",
+    "/assets/room3d/qianyu-room.glb?v=20260908",
     (F) => {
       if (X = F.scene, X.traverse((K) => {
         K.userData.room_group === "chair" && we.push(K), /^vinyl$/i.test(K.name || "") && (w = K), /^vinyl(?:_label(?:_mark)?|_groove(?:\.\d+)?)?$/i.test(K.name || "") && V.push(K), K.isMesh && (K.castShadow = !0, K.receiveShadow = !0, C(K).forEach((W) => {
