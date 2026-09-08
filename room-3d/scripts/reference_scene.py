@@ -19,6 +19,9 @@ def build(api):
     M['chrome'] = make('chrome', (.48, .49, .50, 1), .23, .85)
     M['lens'] = make('lens', (.008, .026, .022, 1), .12, .48)
     M['oak'] = make('oak', (.36, .20, .095, 1), .62)
+    M['studio_glass'] = make('studio_glass', (.56, .62, .63, 1), .18, .22)
+    M['studio_glass'].node_tree.nodes.get('Principled BSDF').inputs['Alpha'].default_value = .16
+    M['studio_glass'].surface_render_method = 'DITHERED'
     # Very subtle procedural grain is baked below, rather than shipped as an unsupported shader.
     oak = M['oak'].node_tree
     tex = oak.nodes.new('ShaderNodeTexNoise'); tex.inputs['Scale'].default_value = 5
@@ -58,9 +61,9 @@ def mesh(name, vertices, faces, material, group, interaction=None):
 
 
 def room(api):
-    box('studio_floor', (0, 0, -.09), (100, 100, .16), M['floor'], bevel=0)
-    # Open studio: an invisible wall must not occlude objects or cast shadows.
-    # Keep the floor as the receiving surface and the wall objects in place.
+    box('studio_floor', (0, 0, -.09), (200, 200, .16), M['floor'], bevel=0)
+    # A thin, tinted glass plane, not an opaque room enclosure.
+    api['add_image_plane']('studio_glass_wall', (0, 3.70, 4), 15, 8, M['studio_glass'], group='environment')
 
 
 def desk():
@@ -144,7 +147,7 @@ def record_player():
     cyl('vinyl',(cx,cy,3.289),.575,.010,M['vinyl'],vertices=96,interaction='music',group='record')
     cyl('vinyl_label',(cx,cy,3.296),.19,.003,M['red'],vertices=48,interaction='music',group='record')
     box('vinyl_label_mark',(cx+.05,cy,3.299),(.14,.018,.002),M['paper'],bevel=0,interaction='music',group='record')
-    for i in range(26): torus('vinyl_groove',(cx,cy,3.295),.235+i*.012,.0012,M['anodized'],interaction='music',group='record')
+    for i in range(26): torus('vinyl_groove',(cx,cy,3.295),.235+i*.012,.0012,M['anodized'],group='record')
     cyl('turntable_spindle',(cx,cy,3.32),.017,.06,M['chrome'],vertices=20,group='music')
     cyl('tonearm_base',(x+.73,y+.44,3.29),.115,.14,M['anodized'],vertices=32,group='music')
     rod('tonearm_counterweight',(x+.74,y+.38,3.40),(x+.80,y+.65,3.40),.069,M['metal'],'music')
@@ -204,9 +207,10 @@ def lamps():
         for offset in (-.024,.024): rod('lamp_'+name,(p[0],p[1]+offset,p[2]),(q[0],q[1]+offset,q[2]),.015,M['anodized'],'lamp','lamp' if name=='stem' else None)
     for p in (b,c,d): cyl('lamp_pivot',p,.043,.075,M['metal'],vertices=24,rotation=(math.pi/2,0,0),group='lamp')
     shade=cone('lamp_shade',(d[0]+.09,y,3.99),.19,.065,.28,M['anodized'],vertices=48,rotation=(0,-.5,0),interaction='lamp',group='lamp')
-    cyl('lamp_inner',(d[0]+.16,y,3.86),.16,.008,M['paper'],vertices=40,rotation=(0,-.5,0),group='lamp')
+    inner=cyl('lamp_inner',(d[0]+.16,y,3.86),.16,.008,M['paper'],vertices=40,rotation=(0,-.5,0),group='lamp')
+    inner['preserve_uv']=True
     # Open cylindrical fabric floor shade with visible inside rim.
-    x,y=-4.42,.15
+    x,y=-5.12,.15
     cyl('floor_lamp_base',(x,y,.075),.25,.075,M['anodized'],vertices=48,group='lamp')
     cyl('floor_lamp_stem',(x,y,1.85),.021,3.52,M['metal'],vertices=20,interaction='lamp',group='lamp')
     vs=[]; fs=[]
@@ -215,12 +219,13 @@ def lamps():
     for ring in range(4):
         for i in range(64): fs.append((ring*64+i,ring*64+(i+1)%64,((ring+1)%4)*64+(i+1)%64,((ring+1)%4)*64+i))
     mesh('floor_lamp_shade',vs,fs,M['cream'],'lamp','lamp')
-    sphere('floor_lamp_bulb',(x,y,3.64),(.07,.07,.10),M['paper'],group='lamp')
+    bulb=sphere('floor_lamp_bulb',(x,y,3.64),(.07,.07,.10),M['paper'],group='lamp')
+    bulb['preserve_uv']=True
 
 
 def guitar():
     # Double-cut electric guitar profile, not the former pair of acoustic ellipsoids.
-    x,y,z=-3.90,.48,.72
+    x,y,z=-4.35,.48,.72
     outline=[(-.06,.31),(-.13,.54),(-.21,.56),(-.20,.28),(-.35,.12),(-.39,-.16),(-.31,-.37),(-.10,-.43),(.16,-.41),(.35,-.26),(.37,-.05),(.28,.20),(.23,.50),(.14,.48),(.10,.29)]
     verts=[(x+px,y+depth,z+pz) for depth in (-.10,.10) for px,pz in outline]
     n=len(outline); faces=[tuple(range(n-1,-1,-1)),tuple(range(n,2*n))]

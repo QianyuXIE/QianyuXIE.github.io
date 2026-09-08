@@ -28,27 +28,26 @@ if (host && viewport && !supportsWebGL && loadingScreen) {
 if (host && viewport && supportsWebGL) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-  const pixelRatioCap = window.matchMedia("(max-width: 720px)").matches ? 1.25 : 1.5;
+  const pixelRatioCap = window.matchMedia("(max-width: 720px)").matches ? 1 : 1.25;
   const devicePixelRatio = window.devicePixelRatio || 1;
   const restingPixelRatio = Math.min(devicePixelRatio, pixelRatioCap);
-  const draggingPixelRatio = Math.min(devicePixelRatio, 1);
   renderer.setPixelRatio(restingPixelRatio);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.92;
+  renderer.toneMappingExposure = 0.82;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xe8e6df);
+  scene.background = new THREE.Color(0xb8b7b1);
   // Metal needs reflected studio illumination as well as direct light.
   const environmentRoom = new RoomEnvironment();
   const pmrem = new THREE.PMREMGenerator(renderer);
   const environmentMap = pmrem.fromScene(environmentRoom, 0.04);
   scene.environment = environmentMap.texture;
-  scene.environmentIntensity = 0.32;
+  scene.environmentIntensity = 0.20;
   environmentRoom.dispose();
   pmrem.dispose();
 
@@ -56,7 +55,14 @@ if (host && viewport && supportsWebGL) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.11;
-  controls.enablePan = false;
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
+  controls.panSpeed = 0.8;
+  controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+  controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+  controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+  controls.touches.ONE = THREE.TOUCH.ROTATE;
+  controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
   controls.minDistance = 2;
   controls.maxDistance = 25;
   controls.minPolarAngle = Math.PI * 0.20;
@@ -122,10 +128,12 @@ if (host && viewport && supportsWebGL) {
     return { position: overviewPose.position.clone(), target: overviewPose.target.clone() };
   }
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0xd6d2ca, 0.85);
+  const hemi = new THREE.HemisphereLight(0xe6eaf0, 0x82786c, 0.38);
   scene.add(hemi);
-  const keyLight = new THREE.DirectionalLight(0xfffbf3, 3.1);
-  keyLight.position.set(-3, 10.5, 5);
+  const keyLight = new THREE.DirectionalLight(0xfff2dc, 2.8);
+  keyLight.position.set(-6, 8.5, 4);
+  keyLight.target.position.set(0, 2.3, -1.6);
+  scene.add(keyLight.target);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(2048, 2048);
   keyLight.shadow.camera.left = -9;
@@ -135,12 +143,21 @@ if (host && viewport && supportsWebGL) {
   keyLight.shadow.normalBias = .012;
   keyLight.shadow.bias = -0.0002;
   scene.add(keyLight);
-  const fillLight = new THREE.PointLight(0xe8edf0, 3, 24, 2);
+  const fillLight = new THREE.PointLight(0xe8edf0, 1.5, 24, 2);
   fillLight.position.set(7, 6, 9);
   scene.add(fillLight);
   const lampLight = new THREE.PointLight(0xffb66d, 0, 9, 2);
   lampLight.position.set(-2.55, 3.85, -1.43);
   scene.add(lampLight);
+  // Warm fabric and downward spill, without six-face point-light shadow maps.
+  const floorLampLight = new THREE.PointLight(0xffd69a, 0, 6, 2);
+  floorLampLight.position.set(-5.12, 3.68, -.15);
+  scene.add(floorLampLight);
+  const floorLampPool = new THREE.SpotLight(0xffd29a, 0, 8, .72, .75, 2);
+  floorLampPool.position.set(-5.12, 3.46, -.15);
+  floorLampPool.target.position.set(-5.12, 0, -.15);
+  scene.add(floorLampPool, floorLampPool.target);
+  const lampSurfaces = [];
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -304,7 +321,7 @@ if (host && viewport && supportsWebGL) {
       controls.target.lerpVectors(startTarget, pose.target, eased);
       camera.position.lerpVectors(startPosition, pose.position, eased);
       camera.lookAt(controls.target);
-      renderer.render(scene, camera);
+      requestRender();
       if (progress < 1) requestAnimationFrame((next) => step(next, startedAt));
       else {
         cameraAnimating = false;
@@ -322,24 +339,32 @@ if (host && viewport && supportsWebGL) {
   function setLamp(next) {
     lampOn = next;
     lampLight.intensity = lampOn ? (isNight ? 28 : 16) : 0;
+    floorLampLight.intensity = lampOn ? (isNight ? 13 : 9) : 0;
+    floorLampPool.intensity = lampOn ? (isNight ? 65 : 48) : 0;
+    lampSurfaces.forEach(({ material, strength }) => {
+      material.emissive.setHex(0xffcf88);
+      material.emissiveIntensity = lampOn ? strength : 0;
+      delete material.userData.roomHighlightOriginal;
+    });
     requestRender();
   }
 
   function setTimeOfDay(night) {
     isNight = night;
-    scene.environmentIntensity = night ? 0.10 : 0.32;
-    scene.background.setHex(night ? 0x171a1d : 0xe8e6df);
-    hemi.intensity = night ? 0.24 : 0.85;
-    keyLight.intensity = night ? 0.35 : 3.1;
-    keyLight.color.setHex(night ? 0xa9c1de : 0xfff8eb);
-    fillLight.intensity = night ? 1.8 : 3;
-    renderer.toneMappingExposure = night ? 0.78 : 0.92;
+    scene.environmentIntensity = night ? 0.08 : 0.20;
+    scene.background.setHex(night ? 0x282d35 : 0xb8b7b1);
+    hemi.intensity = night ? 0.16 : 0.38;
+    keyLight.intensity = night ? 0.28 : 2.8;
+    keyLight.color.setHex(night ? 0xa9c1de : 0xfff2dc);
+    fillLight.intensity = night ? .65 : 1.5;
+    renderer.toneMappingExposure = night ? 0.78 : 0.82;
     setLamp(lampOn);
     requestRender();
   }
 
   function nudgeCamera(key, fast) {
     focusToken += 1;
+    cameraAnimating = false;
     const offset = camera.position.clone().sub(controls.target);
     const spherical = new THREE.Spherical().setFromVector3(offset);
     const angleStep = fast ? 0.18 : 0.09;
@@ -352,12 +377,6 @@ if (host && viewport && supportsWebGL) {
     camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
     controls.update();
     requestRender();
-  }
-
-  function setRenderQuality(pixelRatio) {
-    if (renderer.getPixelRatio() === pixelRatio) return;
-    renderer.setPixelRatio(pixelRatio);
-    resize();
   }
 
   // A static scene should not occupy a GPU frame on every display refresh.
@@ -373,7 +392,7 @@ if (host && viewport && supportsWebGL) {
     const delta = lastRenderTime ? Math.min((now - lastRenderTime) / 1000, 0.05) : 0;
     lastRenderTime = now;
     if (recordSpinning && recordPivot) recordPivot.rotation.y += delta * 3.49;
-    const cameraChanged = cameraAnimating ? false : controls.update();
+    const cameraChanged = cameraAnimating || panelOpen ? false : controls.update();
     renderer.render(scene, camera);
     if (cameraChanged || controlsActive || recordSpinning) requestRender();
   }
@@ -391,19 +410,18 @@ if (host && viewport && supportsWebGL) {
     focusToken += 1;
     cameraAnimating = false;
     controlsActive = true;
-    setRenderQuality(draggingPixelRatio);
     clearHover();
     requestRender();
   });
 
   controls.addEventListener("end", () => {
     controlsActive = false;
-    setRenderQuality(restingPixelRatio);
     renderer.domElement.style.cursor = "grab";
     requestRender();
   });
 
   controls.addEventListener("change", requestRender);
+  renderer.domElement.addEventListener("contextmenu", (event) => event.preventDefault());
 
   renderer.domElement.addEventListener("pointerdown", (event) => {
     pointerDown = { x: event.clientX, y: event.clientY };
@@ -430,9 +448,15 @@ if (host && viewport && supportsWebGL) {
   renderer.domElement.addEventListener("pointerleave", () => {
     clearHover();
   });
+  renderer.domElement.addEventListener("pointercancel", () => {
+    pointerDown = null;
+    draggedSincePointerDown = true;
+    controlsActive = false;
+    clearHover();
+  });
 
   renderer.domElement.addEventListener("click", (event) => {
-    if (draggedSincePointerDown || panelOpen) return;
+    if (event.button !== 0 || draggedSincePointerDown || panelOpen) return;
     const picked = pick(event);
     const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
@@ -505,19 +529,40 @@ if (host && viewport && supportsWebGL) {
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb?v=20260908",
+    "/assets/room3d/qianyu-room.glb?v=20260908b",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {
         if (object.userData.room_group === "chair") chairParts.push(object);
         if (/^vinyl$/i.test(object.name || "")) vinyl = object;
-        if (/^vinyl(?:_label(?:_mark)?|_groove(?:\.\d+)?)?$/i.test(object.name || "")) recordParts.push(object);
+        if (object.userData.room_group === "record") recordParts.push(object);
         if (!object.isMesh) return;
         object.castShadow = true;
         object.receiveShadow = true;
         materialList(object).forEach(material => {
+          // Alpha + environment reflections avoid a full-scene transmission pass.
+          if (material.transmission > 0) { material.transmission = 0; material.needsUpdate = true; }
           if (material.transparent) { object.castShadow = false; material.depthWrite = false; }
         });
+        if (object.name === "studio_floor") {
+          object.material = object.material.clone();
+          object.material.color.setHex(0xaaa69d);
+          object.castShadow = false;
+        }
+        if (object.name === "studio_glass_wall") {
+          object.material.side = THREE.DoubleSide;
+          object.material.opacity = .16;
+          object.material.roughness = .18;
+          object.castShadow = false;
+          const wallShadow = new THREE.Mesh(object.geometry, new THREE.ShadowMaterial({ opacity: .22, side: THREE.DoubleSide, depthWrite: false }));
+          wallShadow.name = "glass_shadow_receiver";
+          wallShadow.position.copy(object.position);
+          wallShadow.quaternion.copy(object.quaternion);
+          wallShadow.scale.copy(object.scale);
+          wallShadow.position.z += .006;
+          wallShadow.receiveShadow = true;
+          scene.add(wallShadow);
+        }
         if (hitTargetFor(object)) {
           // Interactive surfaces get their own material instance so a hover
           // highlight never alters visually similar, non-interactive details.
@@ -528,6 +573,10 @@ if (host && viewport && supportsWebGL) {
         }
         if (object.name === "whiteboard_paper") boardMesh = object;
         if (object.name === "vinyl_label") labelMaterial = object.material;
+        if (["floor_lamp_shade", "floor_lamp_bulb", "lamp_inner"].includes(object.name)) {
+          object.material = object.material.clone();
+          lampSurfaces.push({ material: object.material, strength: object.name === "floor_lamp_bulb" ? 2.2 : .65 });
+        }
       });
       scene.add(model);
       if (chairParts.length) {
@@ -548,17 +597,21 @@ if (host && viewport && supportsWebGL) {
         recordParts.forEach((part) => recordPivot.attach(part));
       }
       renderer.shadowMap.needsUpdate = true;
+      // Static mesh transforms stay cached; animated parent pivots still update.
+      model.traverse(object => { if (object.isMesh) { object.updateMatrix(); object.matrixAutoUpdate = false; } });
+      setLamp(lampOn);
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
       document.dispatchEvent(new CustomEvent("qianyu-room:ready"));
       viewport.tabIndex = -1;
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("role", "application");
-      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。方向键旋转，加减号缩放，数字 1 到 5 打开 CV、研究、摄影、音乐和 About，L 开关灯，N 切换昼夜，0 返回总览。");
+      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。左键旋转，右键平移，滚轮缩放。方向键旋转，加减号缩放，数字 1 到 5 打开 CV、研究、摄影、音乐和 About，L 开关灯，N 切换昼夜，0 返回总览。");
+      renderer.domElement.title = "左键旋转 · 右键平移 · 滚轮缩放 · 0 回到总览";
       setLoadingProgress(100);
       if (loadingLabel) loadingLabel.textContent = "room ready";
       requestRender();
-      host.setAttribute("aria-label", "可旋转和缩放的浅羽 3D 工作室。点击物件查看内容。");
+      host.setAttribute("aria-label", "可旋转、平移和缩放的浅羽 3D 工作室。点击物件查看内容。");
 
       if (loadingScreen) {
         requestAnimationFrame(() => {

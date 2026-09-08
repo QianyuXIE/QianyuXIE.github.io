@@ -506,7 +506,7 @@ def lighting_and_camera():
     scene.world = world
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.88, 0.87, 0.83, 1)
-    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.28
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.16
 
     def area(name, location, energy, size, color, target):
         data = bpy.data.lights.new(name, "AREA")
@@ -522,7 +522,7 @@ def lighting_and_camera():
 
     # The broad key supplies the large soft wall/floor shadow. Neutral fill
     # keeps black objects readable without introducing decorative colour.
-    area("studio_key", ( -3.0, -5.0, 10.5), 1250, 1.3, (1.0, 0.985, 0.955), (0.0, 1.6, 2.3))
+    area("studio_key", ( -6.0, -4.0, 8.5), 1150, 1.0, (1.0, 0.965, 0.91), (0.0, 1.6, 2.3))
     area("studio_fill", (5.5, -3.0, 6.0), 110, 6.0, (0.92, 0.95, 1.0), (0.0, 1.8, 2.7))
 
     bpy.ops.object.camera_add(location=(-9.0, -16.8, 10.0))
@@ -588,6 +588,8 @@ def batch_static_meshes():
         batch_key = obj.data.materials[0].name
         if obj.get('room_group') == 'chair':
             batch_key += '_chair'
+        if obj.get('room_group') == 'record':
+            batch_key += '_record'
         buckets.setdefault(batch_key, []).append(obj)
 
     for material_name, objects in buckets.items():
@@ -604,6 +606,8 @@ def batch_static_meshes():
         combined["static_batch"] = material_name
         if material_name.endswith('_chair'):
             combined['room_group'] = 'chair'
+        if material_name.endswith('_record'):
+            combined['room_group'] = 'record'
 
 
 def bake_static_ao():
