@@ -5,6 +5,8 @@ const root = path.resolve(__dirname, '../..');
 const bytes = fs.readFileSync(path.join(root, 'assets/room3d/qianyu-room.glb'));
 const gltf = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)));
 const targets = gltf.nodes.filter(n => n.extras?.interaction);
+assert(!gltf.nodes.some(n => n.name === 'studio_wall'), 'Open studio must not contain an opaque wall');
+assert.equal(gltf.nodes.filter(n => /^about_image/.test(n.name)).length, 1, 'Exactly one wall photograph');
 for (const key of ['cv', 'photos', 'music', 'research', 'paper', 'books', 'about', 'lamp']) {
   assert(targets.some(n => n.extras.interaction === key), `Missing click target: ${key}`);
 }

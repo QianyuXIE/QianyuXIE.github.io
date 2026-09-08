@@ -59,7 +59,8 @@ def mesh(name, vertices, faces, material, group, interaction=None):
 
 def room(api):
     box('studio_floor', (0, 0, -.09), (100, 100, .16), M['floor'], bevel=0)
-    box('studio_wall', (0, 3.65, 25), (100, .15, 50), M['wall'], bevel=0)
+    # Open studio: an invisible wall must not occlude objects or cast shadows.
+    # Keep the floor as the receiving surface and the wall objects in place.
 
 
 def desk():
@@ -276,10 +277,11 @@ def wall(api):
         box('book_spine',(bx,2.972,5.85+h/2),(w+.023,.018,h),M[color],bevel=.006,group='books')
         for dz in (-.20,.18): box('book_spine_rule',(bx,2.960,5.85+h/2+dz),(w*.65,.002,.009),M['gold'],bevel=0,group='books')
     x=1.83
-    box('about_frame',(x,3.46,5.58),(1.48,.08,2.23),M['ink'],bevel=.012,interaction='about',group='about')
-    box('poster_mat',(x,3.41,5.58),(1.38,.012,2.13),M['paper'],bevel=0,group='about')
-    api['add_image_plane']('about_image_upper',(x,3.399,6.0),1.27,1.16,M['photo_sea'],group='about')
-    api['add_image_plane']('about_image_lower',(x,3.398,5.01),1.27,.76,M['photo_snow'],group='about')
+    photo_width = 1.62
+    photo_height = photo_width * 1279 / 1706
+    box('about_frame',(x,3.46,5.58),(photo_width+.21,.08,photo_height+.21),M['ink'],bevel=.012,interaction='about',group='about')
+    box('poster_mat',(x,3.41,5.58),(photo_width+.11,.012,photo_height+.11),M['paper'],bevel=0,group='about')
+    api['add_image_plane']('about_image',(x,3.399,5.58),photo_width,photo_height,M['photo_sea'],group='about')
     for i,(z,color) in enumerate(((6.31,'gold'),(5.16,'blue'),(4.01,'red'))):
         cyl('wall_record_%02d'%i,(3.78,3.45,z),.45,.025,M['vinyl'],vertices=64,rotation=(math.pi/2,0,0),interaction='music',group='music')
         cyl('wall_record_label_%02d'%i,(3.78,3.432,z),.145,.005,M[color],vertices=40,rotation=(math.pi/2,0,0),group='music')

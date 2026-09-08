@@ -26,6 +26,8 @@ The video does not expose original source geometry, UV maps, exact typefaces, ev
 
 ## Validation
 
+2026-09-08: room dialogs use 16px body copy on desktop and mobile, 12–14px secondary labels, and 44px close buttons. Whiteboard tools wrap on narrow screens. A single landscape Me8 photograph retains its native aspect ratio. The opaque studio wall is omitted rather than made into an invisible shadow caster; floor shadows and mounted objects remain. Vite, Liquid/DOM regression tests and GLB assertions pass (one photo, no wall, all interaction targets). Blender preview inspected; browser discovery returned no available instances, so viewport-level visual QA remains unverified.
+
 Blender preview versus 6s composition; detail views; GLB interaction metadata and material checks; Vite/Jekyll builds; browser checks when available; GitHub Pages and live version checks after publishing.
 
 2026-09-07: rebuilt export contains 119,884 triangles, 81 meshes, 16 embedded images and all 10 interaction types. Size: 6,592,716 bytes. Vite build and Liquid/DOM behavior checks pass. `check-interfaces.cjs` covers terminal commands, input safety, photo filtering, whiteboard tools, selected-record persistence, Escape/close, switches and canceled transitions. This does not test WebGL rendering or pointer behavior in a real browser. The browser connection reports no available instances; local Jekyll is blocked by Windows application control loading Ruby `strscan.so`. GitHub Pages deployment is the full Jekyll build check.
