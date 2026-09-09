@@ -4,6 +4,8 @@ All furniture silhouettes are authored here, independently of the earlier blocko
 Reusable primitive/UV/export helpers live in build_qianyu_room.py.
 """
 import math
+import json
+from pathlib import Path
 import bpy
 from mathutils import Vector
 
@@ -17,6 +19,8 @@ def build(api):
     M['anodized'] = make('anodized', (.035, .039, .040, 1), .32, .65)
     M['rubber'] = make('rubber', (.009, .010, .011, 1), .83)
     M['chrome'] = make('chrome', (.48, .49, .50, 1), .23, .85)
+    M['air_silver'] = make('air_silver', (.57, .60, .63, 1), .30, .80)
+    M['air_trackpad'] = make('air_trackpad', (.47, .50, .53, 1), .38, .55)
     M['lens'] = make('lens', (.008, .026, .022, 1), .12, .48)
     M['oak'] = make('oak', (.36, .20, .095, 1), .62)
     M['studio_glass'] = make('studio_glass', (.56, .62, .63, 1), .18, .22)
@@ -42,6 +46,13 @@ def build(api):
     lamps()
     guitar()
     wall(api)
+    # One authored surface per action; never infer clicks from a part's name.
+    targets = json.loads((Path(__file__).resolve().parent.parent / 'interaction-targets.json').read_text())
+    for obj in bpy.context.scene.objects:
+        if 'interaction' in obj:
+            del obj['interaction']
+        if obj.name in targets:
+            obj['interaction'] = targets[obj.name]
 
 
 def rod(name, a, b, radius, material, group='detail', interaction=None):
@@ -84,30 +95,37 @@ def desk():
 
 
 def laptop():
+    # 13-inch Air (M2 shell): 304:215 chassis, 2560:1664 display.
+    # Thin silver unibody; no Pro-style side speaker grilles or surplus ports.
     x,y,z=.05,.88,3.038
-    box('macbook_air_base',(x,y,z),(1.50,1.01,.039),M['anodized'],bevel=.021,interaction='cv',group='computer')
-    box('macbook_air_deck',(x,y,z+.022),(1.44,.95,.011),M['anodized'],bevel=.012,group='computer')
-    box('macbook_air_trackpad',(x,y-.26,z+.030),(.56,.30,.0025),M['metal'],bevel=.013,group='computer')
+    box('macbook_air_base',(x,y,z),(1.50,1.061,.037),M['air_silver'],bevel=.019,group='computer')
+    box('macbook_air_deck',(x,y,z+.019),(1.467,1.035,.005),M['air_silver'],bevel=.012,group='computer')
+    box('macbook_air_trackpad',(x,y-.29,z+.023),(.60,.35,.0018),M['air_trackpad'],bevel=.017,group='computer')
+    box('keyboard_well',(x,y+.18,z+.022),(1.32,.51,.002),M['ink'],bevel=.010,group='computer')
     for row in range(5):
         for col in range(13):
-            box('key', (x-.59+col*.098,y+.04+row*.092,z+.033),(.075,.069,.008),M['rubber'],bevel=.007,group='computer')
-    box('spacebar',(x,y-.044,z+.033),(.40,.064,.008),M['rubber'],bevel=.008,group='computer')
-    for side in (-1,1):
-        for i in range(12):
-            box('speaker_slot',(x+side*.682,y+.04+i*.029,z+.029),(.018,.008,.002),M['ink'],bevel=0,group='computer')
-        for i in range(2):
-            box('usb_port',(x+side*.751,y+.16+i*.14,z),(.003,.075,.012),M['ink'],bevel=.004,group='computer')
-    rod('macbook_air_hinge',(-.60,1.36,3.07),(.70,1.36,3.07),.023,M['rubber'],'computer')
-    # Lid layers share the same local transform, preventing floating screen decorations.
-    angle=math.radians(-12)
-    origin=Vector((x,1.36,3.08))
-    def lid(name, w, h, depth, forward, mat, interaction=None):
-        loc=origin+Vector((0,math.sin(-angle)*h/2+forward,math.cos(angle)*h/2))
-        return box(name,loc,(w,depth,h),mat,bevel=.014,interaction=interaction,group='computer',rotation=(angle,0,0))
-    lid('macbook_air_lid',1.49,.97,.024,0,M['anodized'],'cv')
-    lid('macbook_air_bezel',1.435,.925,.009,-.018,M['rubber'])
-    lid('macbook_air_screen',1.37,.846,.003,-.025,M['screen'],'cv')
-    box('webcam',(.05,1.523,3.980),(.023,.006,.008),M['lens'],bevel=.003,group='computer')
+            box('key', (x-.60+col*.10,y+.017+row*.091,z+.028),(.083,.073,.006),M['rubber'],bevel=.006,group='computer')
+    for dx,w in ((-.60,.085),(-.50,.085),(-.39,.11),(0,.53),(.39,.11),(.51,.085),(.61,.075)):
+        box('modifier_key',(x+dx,y-.075,z+.028),(w,.065,.006),M['rubber'],bevel=.006,group='computer')
+    cyl('touch_id',(x+.60,y+.381,z+.033),.028,.002,M['ink'],vertices=24,group='computer')
+    for yy in (.14,.29):
+        box('air_usb_c',(x-.752,y+yy,z),(.003,.043,.014),M['ink'],bevel=.005,group='computer')
+    box('air_magsafe',(x-.752,y+.42,z),(.003,.073,.011),M['ink'],bevel=.004,group='computer')
+    cyl('air_audio_jack',(x+.752,y+.36,z),.009,.003,M['ink'],vertices=20,rotation=(0,math.pi/2,0),group='computer')
+    box('air_front_lip',(x,y-.532,z+.012),(.22,.008,.009),M['air_trackpad'],bevel=.005,group='computer')
+    rod('macbook_air_hinge',(-.61,1.40,3.069),(.71,1.40,3.069),.017,M['rubber'],'computer')
+    angle=math.radians(-13)
+    origin=Vector((x,1.40,3.075))
+    from mathutils import Matrix
+    rotation=Matrix.Rotation(angle,3,'X')
+    def lid(name,w,h,depth,forward,mat,center=.516):
+        loc=origin+rotation@Vector((0,forward,center))
+        return box(name,loc,(w,depth,h),mat,bevel=.010,group='computer',rotation=(angle,0,0))
+    lid('macbook_air_lid',1.50,1.033,.016,0,M['air_silver'])
+    lid('macbook_air_bezel',1.467,1.000,.003,-.009,M['rubber'])
+    lid('macbook_air_screen',1.405,.913,.001,-.011,M['screen'],.548)
+    lid('air_camera_notch',.155,.050,.002,-.013,M['rubber'],.980)
+    lid('air_camera_lens',.015,.012,.002,-.015,M['lens'],.980)
 
 
 def camera():
@@ -218,7 +236,8 @@ def lamps():
         for i in range(64): vs.append((x+r*math.cos(i*math.tau/64),y+r*math.sin(i*math.tau/64),z))
     for ring in range(4):
         for i in range(64): fs.append((ring*64+i,ring*64+(i+1)%64,((ring+1)%4)*64+(i+1)%64,((ring+1)%4)*64+i))
-    mesh('floor_lamp_shade',vs,fs,M['cream'],'lamp','lamp')
+    floor_shade=mesh('floor_lamp_shade',vs,fs,M['cream'],'lamp','lamp')
+    floor_shade['preserve_uv']=True
     bulb=sphere('floor_lamp_bulb',(x,y,3.64),(.07,.07,.10),M['paper'],group='lamp')
     bulb['preserve_uv']=True
 
@@ -282,11 +301,14 @@ def wall(api):
         box('book_spine',(bx,2.972,5.85+h/2),(w+.023,.018,h),M[color],bevel=.006,group='books')
         for dz in (-.20,.18): box('book_spine_rule',(bx,2.960,5.85+h/2+dz),(w*.65,.002,.009),M['gold'],bevel=0,group='books')
     x=1.83
-    photo_width = 1.62
-    photo_height = photo_width * 1279 / 1706
+    poster_path = api['TEXTURES'] / 'chungking-express.jpg'
+    M['film_poster'] = api['image_material']('chungking_express_poster', poster_path)
+    poster_image = next(n.image for n in M['film_poster'].node_tree.nodes if n.type == 'TEX_IMAGE')
+    photo_height = 2.12
+    photo_width = photo_height * poster_image.size[0] / poster_image.size[1]
     box('about_frame',(x,3.46,5.58),(photo_width+.21,.08,photo_height+.21),M['ink'],bevel=.012,interaction='about',group='about')
     box('poster_mat',(x,3.41,5.58),(photo_width+.11,.012,photo_height+.11),M['paper'],bevel=0,group='about')
-    api['add_image_plane']('about_image',(x,3.399,5.58),photo_width,photo_height,M['photo_sea'],group='about')
+    api['add_image_plane']('about_image',(x,3.399,5.58),photo_width,photo_height,M['film_poster'],group='about')
     for i,(z,color) in enumerate(((6.31,'gold'),(5.16,'blue'),(4.01,'red'))):
         cyl('wall_record_%02d'%i,(3.78,3.45,z),.45,.025,M['vinyl'],vertices=64,rotation=(math.pi/2,0,0),interaction='music',group='music')
         cyl('wall_record_label_%02d'%i,(3.78,3.432,z),.145,.005,M[color],vertices=40,rotation=(math.pi/2,0,0),group='music')

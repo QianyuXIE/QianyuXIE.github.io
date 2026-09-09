@@ -572,7 +572,7 @@ def batch_static_meshes():
     """
     buckets = {}
     for obj in list(bpy.context.scene.objects):
-        if obj.type != "MESH" or obj.name in ("studio_floor", "studio_wall", "studio_baseboard") or obj.get("interaction") or obj.get("preserve_uv"):
+        if obj.type != "MESH" or obj.name in ("studio_floor", "studio_wall", "studio_baseboard", "vinyl", "vinyl_label", "vinyl_label_mark") or obj.get("interaction") or obj.get("preserve_uv"):
             continue
         if len(obj.data.materials) != 1 or obj.data.materials[0] is None:
             continue
@@ -588,7 +588,7 @@ def batch_static_meshes():
         batch_key = obj.data.materials[0].name
         if obj.get('room_group') == 'chair':
             batch_key += '_chair'
-        if obj.get('room_group') == 'record':
+        if obj.get('room_group') == 'record' and obj.name not in ('vinyl', 'vinyl_label', 'vinyl_label_mark'):
             batch_key += '_record'
         buckets.setdefault(batch_key, []).append(obj)
 
@@ -661,7 +661,14 @@ def bake_static_ao():
             scene.render.bake.use_pass_direct = False
             scene.render.bake.use_pass_indirect = False
             scene.render.bake.use_pass_color = True
-            bpy.ops.object.bake(type="DIFFUSE", margin=8, use_clear=True)
+            # Diffuse baking attenuates metallic base colours. Bake albedo as
+            # non-metal, then restore the actual metal shader for export.
+            metalness = bsdf.inputs['Metallic'].default_value
+            bsdf.inputs['Metallic'].default_value = 0
+            try:
+                bpy.ops.object.bake(type="DIFFUSE", margin=8, use_clear=True)
+            finally:
+                bsdf.inputs['Metallic'].default_value = metalness
             color_pixels = np.array(bake_image.pixels[:], dtype=np.float32).reshape(-1, 4)
             bpy.ops.object.bake(type="AO", margin=8, use_clear=True)
             ao_pixels = np.array(bake_image.pixels[:], dtype=np.float32).reshape(-1, 4)

@@ -18,6 +18,10 @@ const root = path.resolve(__dirname, '../..');
   w.HTMLElement.prototype.setPointerCapture = w.HTMLElement.prototype.releasePointerCapture = () => {};
   Object.defineProperty(w.HTMLElement.prototype, 'clientWidth', { get:()=>1440 });
   Object.defineProperty(w.HTMLElement.prototype, 'clientHeight', { get:()=>900 });
+  w.HTMLElement.prototype.getBoundingClientRect=()=>({left:0,top:0,width:1440,height:900});
+  const targets=JSON.parse(fs.readFileSync(path.join(root,'room-3d/interaction-targets.json'),'utf8'));
+  let hitCandidates=[];
+  class Picker extends three.Raycaster { intersectObjects(objects){hitCandidates=objects;return [];} }
   let renderer, controls, ready, ticks=0;
   const frames=[];
   class Renderer {
@@ -28,12 +32,13 @@ const root = path.resolve(__dirname, '../..');
     render(scene,camera){ this.scene=scene; this.camera=camera; this.renders++; scene.updateMatrixWorld(); camera.updateMatrixWorld(); }
   }
   class Controls extends OrbitControls { constructor(...args){ super(...args); controls=this; } }
-  class Loader { load(url, fn){ assert(url.includes('20260908b')); ready=fn; } }
+  class Loader { load(url, fn){ assert(url.includes('20260909')); ready=fn; } }
   class Environment extends three.Group { dispose(){} }
   class PMREM { fromScene(){ return {texture:new three.Texture()}; } dispose(){} }
   const context=vm.createContext({window:w,document:d,console,performance,CustomEvent:w.CustomEvent,ResizeObserver:class{observe(){}},requestAnimationFrame:fn=>frames.push(fn)});
   const dependencies={
-    three:{...three,WebGLRenderer:Renderer,PMREMGenerator:PMREM},
+    '../../interaction-targets.json':{default:JSON.parse(fs.readFileSync(path.join(root,'room-3d/interaction-targets.json'),'utf8'))},
+    three:{...three,WebGLRenderer:Renderer,PMREMGenerator:PMREM,Raycaster:Picker},
     'three/examples/jsm/controls/OrbitControls.js':{OrbitControls:Controls},
     'three/examples/jsm/loaders/GLTFLoader.js':{GLTFLoader:Loader},
     'three/examples/jsm/environments/RoomEnvironment.js':{RoomEnvironment:Environment}
@@ -45,13 +50,16 @@ const root = path.resolve(__dirname, '../..');
   });
   await source.evaluate();
   const model=new three.Group();
-  for(const name of ['studio_floor','studio_glass_wall','floor_lamp_shade','floor_lamp_bulb','lamp_inner','turntable_dust_lid']){
+  for(const name of [...Object.keys(targets),'macbook_air_base','macbook_air_trackpad','studio_floor','studio_glass_wall','floor_lamp_shade','floor_lamp_bulb','lamp_inner','turntable_dust_lid']){
     const mat=new three.MeshPhysicalMaterial({transparent:name.includes('glass')||name.includes('lid'),transmission:name.includes('lid')?.38:0});
     const mesh=new three.Mesh(new three.BoxGeometry(1,1,1),mat);mesh.name=name;model.add(mesh);
   }
   ready({scene:model});
   function settle(){ for(let i=0;frames.length&&i<200;i++){ const batch=frames.splice(0); batch.forEach(fn=>fn(ticks+=16.67)); } assert.equal(frames.length,0,'Idle scene must stop requesting frames'); }
   settle();
+  renderer.domElement.dispatchEvent(new w.MouseEvent('pointermove',{clientX:400,clientY:300}));
+  assert.deepEqual(Array.from(hitCandidates,o=>o.name).sort(),Object.keys(targets).sort(),'Only seven authored surfaces enter raycasting');
+  assert.equal(hitCandidates.filter(o=>o.name.startsWith('macbook')).length,1,'Computer has one click surface');
   assert.equal(controls.mouseButtons.LEFT,three.MOUSE.ROTATE);
   assert.equal(controls.mouseButtons.RIGHT,three.MOUSE.PAN);
   const sizes=renderer.sizes;
@@ -83,6 +91,6 @@ const root = path.resolve(__dirname, '../..');
   assert.equal(model.getObjectByName('studio_glass_wall').castShadow,false);
   dispatch('panel-changed',{open:true});assert.equal(controls.enabled,false);
   dispatch('panel-changed',{open:false});assert.equal(controls.enabled,true);settle();
-  console.log('PASS: real OrbitControls left rotation/right pan; no drag framebuffer resize; idle loop stops; context menu; lamp emission/light pool; glass fast path; panel control lock. GPU performance unmeasured.');
+  console.log('PASS: seven exact hotspots / one laptop entry; real OrbitControls left rotation/right pan; no drag framebuffer resize; idle loop stops; context menu; lamp emission/light pool; glass fast path; panel control lock. GPU performance unmeasured.');
   controls.dispose();dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1;});

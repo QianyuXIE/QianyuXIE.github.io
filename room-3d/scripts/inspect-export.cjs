@@ -14,9 +14,14 @@ assert(glassMaterial.pbrMetallicRoughness.baseColorFactor[3] < .25, 'Wall must s
 assert(gltf.nodes.some(n => n.name === 'floor_lamp_bulb'), 'Bulb must remain independently controllable');
 assert(gltf.nodes.filter(n => n.extras?.room_group === 'record').length <= 4, 'Record grooves must be batched');
 assert.equal(gltf.nodes.filter(n => /^about_image/.test(n.name)).length, 1, 'Exactly one wall photograph');
-for (const key of ['cv', 'photos', 'music', 'research', 'paper', 'books', 'about', 'lamp']) {
+const expectedTargets = JSON.parse(fs.readFileSync(path.join(root, 'room-3d/interaction-targets.json'), 'utf8'));
+assert.equal(targets.length, Object.keys(expectedTargets).length, 'Exactly seven intentional click surfaces');
+for (const target of targets) assert.equal(target.extras.interaction, expectedTargets[target.name], `Unapproved hotspot ${target.name}`);
+for (const key of ['cv', 'photos', 'music', 'research', 'paper', 'about', 'lamp']) {
   assert(targets.some(n => n.extras.interaction === key), `Missing click target: ${key}`);
+  assert.equal(targets.filter(n => n.extras.interaction === key).length, 1, `Duplicate entry for ${key}`);
 }
+assert(gltf.images.some(i => /chungking/.test(i.name)), 'Official film poster must be embedded');
 const sheet = gltf.nodes.find(n => n.name === 'whiteboard_paper');
 assert(gltf.meshes[sheet.mesh].primitives[0].attributes.TEXCOORD_0 !== undefined, 'Whiteboard needs UVs');
 const images = gltf.images.map(i => ({name: i.name, bytes: gltf.bufferViews[i.bufferView].byteLength}));
