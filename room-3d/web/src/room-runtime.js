@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import interactionTargets from "../../interaction-targets.json";
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");
@@ -162,11 +163,11 @@ if (host && viewport && supportsWebGL) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const labels = {
-    cv: "Open CV",
+    cv: "Terminal / Qianyu",
     research: "Research notes",
     photos: "Photography",
     music: "Currently listening",
-    about: "About me",
+    about: "Cinema / Chungking Express",
     writing: "Research notes",
     lamp: "Switch light",
     whale: "A tiny secret"
@@ -197,48 +198,17 @@ if (host && viewport && supportsWebGL) {
   let chairPivot = null;
   const chairParts = [];
 
-  const nameMatchers = [
-    [/(macbook|screen|terminal)/i, "cv"],
-    [/(whiteboard|paper|pen|research)/i, "research"],
-    [/(turntable|vinyl|headphones|wall_record)/i, "music"],
-    [/(camera|film|polaroid)/i, "photos"],
-    [/(about_frame)/i, "about"],
-    [/(lamp)/i, "lamp"],
-    [/(whale)/i, "whale"]
-  ];
-
-  // Only the broad, intentional surfaces participate in raycasting.  The
-  // scene contains many visual details (individual keys, books and grooves),
-  // but they should not turn every pointer move into dozens of mesh tests.
-  const hitTargetMatchers = [
-    [/^macbook_air_(base|deck|lid|screen|trackpad)$/i, "cv"],
-    [/^(whiteboard_(paper|top_rail)|research_paper_00)$/i, "research"],
-    [/^(turntable_body|turntable_dust_lid|vinyl|headphones_band|wall_record_\d+)$/i, "music"],
-    [/^camera_body$/i, "photos"],
-    [/^about_frame$/i, "about"],
-    [/^(lamp_(shade|stem|stand)|floor_lamp_(shade|stem)|wall_switch_(plate|rocker))$/i, "lamp"]
-  ];
-
   const tooltip = document.createElement("span");
   tooltip.className = "room-webgl-tooltip";
   tooltip.hidden = true;
   host.appendChild(tooltip);
 
   function interactionFor(object) {
-    let current = object;
-    while (current) {
-      if (current.userData && current.userData.interaction) return current.userData.interaction;
-      const match = nameMatchers.find(([matcher]) => matcher.test(current.name || ""));
-      if (match) return match[1];
-      current = current.parent;
-    }
-    return null;
+    return interactionTargets[object.name] || null;
   }
 
   function hitTargetFor(object) {
-    if (object.userData.interaction) return object.userData.interaction;
-    const match = hitTargetMatchers.find(([matcher]) => matcher.test(object.name || ""));
-    return match ? match[1] : null;
+    return interactionFor(object);
   }
 
   function setPointer(event) {
@@ -529,7 +499,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb?v=20260908b",
+    "/assets/room3d/qianyu-room.glb?v=20260909",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {
@@ -606,7 +576,7 @@ if (host && viewport && supportsWebGL) {
       viewport.tabIndex = -1;
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("role", "application");
-      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。左键旋转，右键平移，滚轮缩放。方向键旋转，加减号缩放，数字 1 到 5 打开 CV、研究、摄影、音乐和 About，L 开关灯，N 切换昼夜，0 返回总览。");
+      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。左键旋转，右键平移，滚轮缩放。方向键旋转，加减号缩放，数字 1 到 5 打开终端、白板、摄影、音乐和电影海报，L 开关灯，N 切换昼夜，0 返回总览。");
       renderer.domElement.title = "左键旋转 · 右键平移 · 滚轮缩放 · 0 回到总览";
       setLoadingProgress(100);
       if (loadingLabel) loadingLabel.textContent = "room ready";
