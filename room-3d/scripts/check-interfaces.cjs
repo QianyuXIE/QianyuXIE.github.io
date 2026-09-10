@@ -48,7 +48,16 @@ function command(value){$('#terminal-input').value=value;$('#terminal-form').dis
   let record;d.addEventListener('qianyu-room:record-selected',e=>record=e.detail);
   await open('music');$('[data-record="1"]').click();$('#record-select').click();assert.equal($('#mini-title').textContent,'吴青峰');assert.equal(record.color,0xa38c60);assert.equal(record.spinning,true);
   await open('music');$('[data-record="0"]').click();close();$('#mini-spin').click();assert.equal(record.color,0xa38c60);assert.equal(record.spinning,false);
-  await open('about');close();await open('books');close();
+  await open('about');close();await open('books');assert.equal(d.querySelectorAll('.reading-card').length,page.desk_books.length);assert(d.querySelector('.reading-intro').textContent.includes('非已读'));close();
+  await open('music');
+  assert.equal(d.querySelectorAll('[data-record]').length,page.desk_playlist.length+2);
+  for(let i=0;i<page.desk_playlist.length;i++){
+    $('[data-record="'+(i+2)+'"]').click();
+    assert.equal($('#record-title').textContent,page.desk_playlist[i]);
+    assert.equal($('#record-artist').textContent,'苏打绿');
+    assert(decodeURIComponent($('#record-listen').href).includes(page.desk_playlist[i]));
+  }
+  $('#record-select').click();assert.equal($('#mini-title').textContent,page.desk_playlist.at(-1));close();
   $('#room-lamp-toggle').click();assert.equal($('#room-lamp-toggle').getAttribute('aria-checked'),'true');
   $('#room-time-toggle').click();assert.equal($('#room-time-toggle').getAttribute('aria-checked'),'true');
   // A rapid open-close cannot leave a delayed dialog behind.

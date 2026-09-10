@@ -178,12 +178,6 @@ def record_player():
     # Clear cover with three thin folded edges, rather than an opaque plate.
     box('turntable_dust_lid',(x,y+.88,3.95),(2.06,.013,1.43),M['glass'],bevel=.006,interaction='music',group='music',rotation=(-.15,0,0))
     for dx in (-1.025,1.025): box('lid_edge',(x+dx,y+.84,3.95),(.012,.09,1.42),M['glass'],bevel=.004,group='music',rotation=(-.15,0,0))
-    # Headphones lying in front of the deck.
-    hx,hy=1.27,-.15
-    curve('headphones_band',[(hx-.29,hy,3.10),(hx-.28,hy-.27,3.16),(hx,hy-.36,3.17),(hx+.28,hy-.22,3.16),(hx+.29,hy,3.10)],.036,M['anodized'],interaction='music',group='music')
-    for dx in (-.27,.27):
-        obj=cyl('headphone_cushion',(hx+dx,hy,3.10),.126,.095,M['rubber'],vertices=40,group='music',rotation=(0,.30 if dx<0 else -.30,0))
-        torus('headphone_cushion_seam',(hx+dx,hy,3.15),.102,.009,M['ink'],group='music')
 
 
 def chair():

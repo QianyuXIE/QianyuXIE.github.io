@@ -32,7 +32,7 @@ const root = path.resolve(__dirname, '../..');
     render(scene,camera){ this.scene=scene; this.camera=camera; this.renders++; scene.updateMatrixWorld(); camera.updateMatrixWorld(); }
   }
   class Controls extends OrbitControls { constructor(...args){ super(...args); controls=this; } }
-  class Loader { load(url, fn){ assert(url.includes('20260909')); ready=fn; } }
+  class Loader { load(url, fn){ assert(url.includes('20260910')); ready=fn; } }
   class Environment extends three.Group { dispose(){} }
   class PMREM { fromScene(){ return {texture:new three.Texture()}; } dispose(){} }
   const context=vm.createContext({window:w,document:d,console,performance,CustomEvent:w.CustomEvent,ResizeObserver:class{observe(){}},requestAnimationFrame:fn=>frames.push(fn)});
@@ -91,6 +91,6 @@ const root = path.resolve(__dirname, '../..');
   assert.equal(model.getObjectByName('studio_glass_wall').castShadow,false);
   dispatch('panel-changed',{open:true});assert.equal(controls.enabled,false);
   dispatch('panel-changed',{open:false});assert.equal(controls.enabled,true);settle();
-  console.log('PASS: seven exact hotspots / one laptop entry; real OrbitControls left rotation/right pan; no drag framebuffer resize; idle loop stops; context menu; lamp emission/light pool; glass fast path; panel control lock. GPU performance unmeasured.');
+  console.log('PASS: configured hotspots / one laptop entry; real OrbitControls left rotation/right pan; no drag framebuffer resize; idle loop stops; context menu; lamp emission/light pool; glass fast path; panel control lock. GPU performance unmeasured.');
   controls.dispose();dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1;});

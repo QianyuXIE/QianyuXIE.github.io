@@ -51,6 +51,26 @@ The video does not expose original source geometry, UV maps, exact typefaces, ev
 
 ## Validation
 
+2026-09-10: removed desktop headphones from the active Blender builder and inspected
+the regenerated preview. Shelf now has one `books` hotspot (eight actions total).
+Ten individually selectable Sodagreen songs supplement the existing Aimer/Wu Qingfeng
+artist entries. Selecting changes the title, artist, external YouTube search destination
+and mini-record title; no audio is downloaded, embedded or automatically played.
+Playlist and six provisional literature recommendations live in `room.html` front matter.
+Reading cards are explicitly labeled recommendations, not the owner's completed reading.
+Vite, runtime controls tests and all-song/reading-card Liquid DOM tests pass; actual
+browser layout and frame rate remain unverified.
+
+Playlist discovery sources:
+- https://music.apple.com/us/artist/sodagreen/345954909
+- https://music.apple.com/tw/playlist/蘇打綠-非主打好歌/pl.e1eb657145134c5abc5213fc65e62324
+- https://music.apple.com/tw/playlist/蘇打綠-情歌精選/pl.12e428a42b5447bf934a9db6e7aeac40
+
+Reading reference examples:
+- https://book.douban.com/subject/3270617/ (Shi Tiesheng)
+- https://www.penguinrandomhouse.com/books/193881/to-the-lighthouse-by-virginia-woolf-introduction-by-susan-choi/
+- https://www.penguinrandomhouse.com/books/23477/the-stranger-by-albert-camus-translated-by-matthew-ward-introduction-by-keith-gore/
+
 2026-09-09: final GLB has 42 meshes, 121,608 triangles and exactly seven tagged click
 surfaces (one per action). Size 7,418,976 bytes. Official poster is 197,254 bytes.
 Reviewed the Blender preview after repairing dark metallic albedo. Vite build,
