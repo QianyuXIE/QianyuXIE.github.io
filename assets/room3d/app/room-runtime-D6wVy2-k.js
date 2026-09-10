@@ -26130,14 +26130,15 @@ function Ii(s) {
     emissiveIntensity: s
   });
 }
-const A0 = "cv", w0 = "research", R0 = "photos", C0 = "music", P0 = "paper", L0 = "about", I0 = "lamp", D0 = {
+const A0 = "cv", w0 = "research", R0 = "photos", C0 = "music", P0 = "paper", L0 = "about", I0 = "lamp", D0 = "books", N0 = {
   macbook_air_screen: A0,
   whiteboard_paper: w0,
   camera_body: R0,
   turntable_body: C0,
   research_paper_00: P0,
   about_image: L0,
-  wall_switch_rocker: I0
+  wall_switch_rocker: I0,
+  wall_shelf: D0
 }, It = document.getElementById("room-webgl"), cr = document.getElementById("room-viewport"), ci = document.getElementById("room-loading"), Di = document.getElementById("room-loading-label"), pc = document.getElementById("room-loading-progress"), qi = document.getElementById("room-loading-value"), mc = document.createElement("canvas"), ch = !!(mc.getContext("webgl2") || mc.getContext("webgl"));
 function gc(s) {
   const e = Math.min(Math.max(Math.round(s), 0), 100);
@@ -26158,7 +26159,7 @@ if (It && cr && ch) {
       target: d.target.clone()
     } : { position: d.position.clone(), target: d.target.clone() };
   }, qe = function(N) {
-    return D0[N.name] || null;
+    return N0[N.name] || null;
   }, Ze = function(N) {
     return qe(N);
   }, Fe = function(N) {
@@ -26234,7 +26235,7 @@ if (It && cr && ch) {
     }
     l.aspect = N / V, l.fov = N < 600 ? 40 : N < 900 ? 35 : 32, l.updateProjectionMatrix(), e.setSize(N, V, !1), W();
   };
-  var N0 = f, U0 = g, F0 = qe, O0 = Ze, B0 = Fe, k0 = lt, z0 = P, V0 = ct, H0 = Ye, G0 = $e, W0 = _e, X0 = T, q0 = _, Y0 = D, K0 = W, j0 = J, Z0 = K, $0 = Me;
+  var U0 = f, F0 = g, O0 = qe, B0 = Ze, k0 = Fe, z0 = lt, V0 = P, H0 = ct, G0 = Ye, W0 = $e, X0 = _e, q0 = T, Y0 = _, K0 = D, j0 = W, Z0 = J, $0 = K, J0 = Me;
   const s = window.matchMedia("(prefers-reduced-motion: reduce)"), e = new C_({ antialias: !0, alpha: !1, powerPreference: "high-performance" }), t = window.matchMedia("(max-width: 720px)").matches ? 1 : 1.25, n = window.devicePixelRatio || 1, i = Math.min(n, t);
   e.setPixelRatio(i), e.outputColorSpace = vt, e.toneMapping = co, e.toneMappingExposure = 0.82, e.shadowMap.enabled = !0, e.shadowMap.type = _c, e.shadowMap.autoUpdate = !1, It.replaceChildren(e.domElement);
   const r = new Oc();
@@ -26358,7 +26359,7 @@ if (It && cr && ch) {
   }), document.addEventListener("qianyu-room:board-updated", (N) => {
     se && (Z || (Z = new qu(N.detail.canvas), Z.colorSpace = vt, Z.flipY = !1, se.material.map = Z, se.material.color.setHex(16777215), se.material.needsUpdate = !0), Z.needsUpdate = !0, W());
   }), new L_().load(
-    "/assets/room3d/qianyu-room.glb?v=20260909",
+    "/assets/room3d/qianyu-room.glb?v=20260910",
     (N) => {
       if (O = N.scene, O.traverse((V) => {
         if (V.userData.room_group === "chair" && dt.push(V), /^vinyl$/i.test(V.name || "") && (H = V), V.userData.room_group === "record" && z.push(V), !!V.isMesh) {

@@ -15,9 +15,9 @@ assert(gltf.nodes.some(n => n.name === 'floor_lamp_bulb'), 'Bulb must remain ind
 assert(gltf.nodes.filter(n => n.extras?.room_group === 'record').length <= 4, 'Record grooves must be batched');
 assert.equal(gltf.nodes.filter(n => /^about_image/.test(n.name)).length, 1, 'Exactly one wall photograph');
 const expectedTargets = JSON.parse(fs.readFileSync(path.join(root, 'room-3d/interaction-targets.json'), 'utf8'));
-assert.equal(targets.length, Object.keys(expectedTargets).length, 'Exactly seven intentional click surfaces');
+assert.equal(targets.length, Object.keys(expectedTargets).length, 'One intentional surface per configured action');
 for (const target of targets) assert.equal(target.extras.interaction, expectedTargets[target.name], `Unapproved hotspot ${target.name}`);
-for (const key of ['cv', 'photos', 'music', 'research', 'paper', 'about', 'lamp']) {
+for (const key of ['cv', 'photos', 'music', 'research', 'paper', 'about', 'lamp', 'books']) {
   assert(targets.some(n => n.extras.interaction === key), `Missing click target: ${key}`);
   assert.equal(targets.filter(n => n.extras.interaction === key).length, 1, `Duplicate entry for ${key}`);
 }

@@ -157,4 +157,14 @@
 .room-rebuilt .studio-cinema .cinema-english { font:italic 20px/1.5 Georgia,serif;margin:0;color:#c8b583; }
 .room-rebuilt .studio-cinema .cinema-credit { color:#a9aa9d;font-size:12px; }
 @media(max-width:700px) { .room-rebuilt .studio-cinema .frame-content { grid-template-columns:minmax(0,1fr);gap:24px; } .room-rebuilt .studio-cinema img { max-height:40vh; } }
+.room-rebuilt .vinyl-albums { max-height:58vh;overflow-y:auto; }
+.room-rebuilt .playlist-label { font-size:13px;color:#b7c1a4;padding:18px 10px 4px; }
+.room-rebuilt .reading-intro { margin:8px 28px 24px;color:#bbc1ad;font-size:14px; }
+.room-rebuilt .reading-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:0 28px 30px; }
+.room-rebuilt .reading-card { padding:24px;background:#e7dfcb;color:#35392e;border-left:5px solid #788063;border-radius:2px; }
+.room-rebuilt .reading-card h3 { margin:14px 0 8px;font:24px/1.4 Georgia,'Songti SC',serif; }
+.room-rebuilt .reading-card p { font-size:15px;line-height:1.8; }
+.room-rebuilt .reading-number,.room-rebuilt .reading-status { font-size:12px;color:#656a57; }
+.room-rebuilt .reading-author { color:#63654e; }
+@media(max-width:700px) { .room-rebuilt .vinyl-albums { display:block;max-height:30vh; } .room-rebuilt .reading-grid { grid-template-columns:minmax(0,1fr);padding:0 16px 24px; } }
 @media(prefers-reduced-motion:reduce) { .room-rebuilt * { scroll-behavior:auto!important;transition:none!important;animation:none!important; } }

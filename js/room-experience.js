@@ -89,7 +89,7 @@
       return;
     }
     if (!root.contains(document.activeElement)) return;
-    const map = {1:"cv",2:"research",3:"photos",4:"music",5:"about"};
+    const map = {1:"cv",2:"research",3:"photos",4:"music",5:"about",6:"books"};
     if (map[e.key]) { e.preventDefault(); emit("focus-request", {name:map[e.key]}); open(map[e.key]); }
     else if (e.key.toLowerCase() === "l") toggleLamp();
     else if (e.key.toLowerCase() === "n") toggleNight();
@@ -150,14 +150,14 @@
     if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();reel.scrollBy({left:(e.key==="ArrowRight"?1:-1)*reel.clientWidth*.7,behavior:reduced.matches?"instant":"smooth"});}
   });
 
-  const records=[{name:"Aimer",color:0x727952},{name:"吴青峰",color:0xa38c60}];
+  const records=all('[data-record]').map(b=>({name:b.dataset.title,artist:b.dataset.artist,color:Number(b.dataset.color)}));
   let selectedRecord=0, playingRecord=0, spinning=false;
   all("[data-record]").forEach(b=>b.addEventListener("click",()=>{
     selectedRecord=Number(b.dataset.record);
     all("[data-record]").forEach(c=>c.setAttribute("aria-pressed",String(c===b)));
     $("#record-title").textContent=records[selectedRecord].name;
-    $("#record-artist").textContent=records[selectedRecord].name;
-    $("#record-listen").href="https://www.youtube.com/results?search_query="+encodeURIComponent(records[selectedRecord].name);
+    $("#record-artist").textContent=records[selectedRecord].artist;
+    $("#record-listen").href="https://www.youtube.com/results?search_query="+encodeURIComponent(records[selectedRecord].artist+' '+records[selectedRecord].name+' official');
   }));
   function setSpin(value){
     spinning=value;
