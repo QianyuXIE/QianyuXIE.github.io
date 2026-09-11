@@ -167,4 +167,18 @@
 .room-rebuilt .reading-number,.room-rebuilt .reading-status { font-size:12px;color:#656a57; }
 .room-rebuilt .reading-author { color:#63654e; }
 @media(max-width:700px) { .room-rebuilt .vinyl-albums { display:block;max-height:30vh; } .room-rebuilt .reading-grid { grid-template-columns:minmax(0,1fr);padding:0 16px 24px; } }
+.room-rebuilt .studio-cinema { width:min(1180px,100%); }
+.room-rebuilt .cinema-toolbar { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 24px 16px; }
+.room-rebuilt .cinema-toolbar p { font-size:15px;margin:0;color:#cbc5b5; }
+.room-rebuilt .cinema-toolbar>div { display:flex;gap:8px; }
+.room-rebuilt .cinema-toolbar button { width:44px;height:44px;background:#ffffff08;color:#e8dfc5;border:1px solid #ffffff25;border-radius:50%;cursor:pointer;font-size:22px; }
+.room-rebuilt .cinema-reel { display:flex;gap:24px;overflow-x:auto;padding:4px 24px 24px;scroll-snap-type:x mandatory;scrollbar-color:#b2a582 #171914;overscroll-behavior-x:contain; }
+.room-rebuilt .cinema-card { flex:0 0 clamp(190px,24vw,255px);margin:0;scroll-snap-align:start; }
+.room-rebuilt .cinema-card img,.room-rebuilt .cinema-pending { display:block;width:100%;height:auto;aspect-ratio:2/3;max-height:none;object-fit:contain;background:#131512;box-shadow:0 8px 20px #0005; }
+.room-rebuilt .cinema-pending { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:linear-gradient(140deg,#313a40,#171b20);color:#bebbac; }
+.room-rebuilt .cinema-pending strong { font:30px/1.4 Georgia,serif; }
+.room-rebuilt .cinema-index { display:block;margin-top:18px;font-size:11px;color:#929780;letter-spacing:.12em; }
+.room-rebuilt .cinema-card h3 { font:22px/1.5 Georgia,'Songti SC',serif;letter-spacing:0;margin:8px 0;color:#ede2c6; }
+.room-rebuilt .cinema-card p,.room-rebuilt .cinema-card a { font-size:13px;line-height:1.6;color:#b7bda8; }
+@media(max-width:700px) { .room-rebuilt .cinema-toolbar { padding:0 16px 14px; } .room-rebuilt .cinema-reel { padding:4px 16px 20px;gap:16px; } .room-rebuilt .cinema-card { flex-basis:66vw;max-width:255px; } }
 @media(prefers-reduced-motion:reduce) { .room-rebuilt * { scroll-behavior:auto!important;transition:none!important;animation:none!important; } }

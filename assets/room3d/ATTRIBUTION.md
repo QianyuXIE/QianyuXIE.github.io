@@ -1,5 +1,25 @@
 # Third-party artwork
 
+## Cinema gallery additions (2026-09-11)
+
+The following small theatrical posters were retrieved from the corresponding
+Wikipedia film articles. Copyright remains with the artwork's rights holders;
+hosting on Wikipedia does not grant a general reuse license. These images are
+not covered by this repository's code license. Source links also appear in the gallery.
+
+- `posters/interstellar.jpg`: https://en.wikipedia.org/wiki/Interstellar_(film)
+- `posters/happy-together.jpg`: https://en.wikipedia.org/wiki/Happy_Together_(1997_film)
+- `posters/blue-gate.jpg`: https://en.wikipedia.org/wiki/Blue_Gate_Crossing
+- `posters/theory-of-everything.jpg`: https://en.wikipedia.org/wiki/The_Theory_of_Everything_(2014_film)
+- `posters/portrait-lady.jpg`: https://en.wikipedia.org/wiki/Portrait_of_a_Lady_on_Fire
+
+The Odyssey entry intentionally has no poster until its film version is confirmed.
+The open chess book uses independently typeset study material, not a scan of
+Modern Chess Openings. Its displayed game is a legally validated illustrative
+Najdorf sequence stored in `room-3d/chess-position.json`, not an attributed game.
+
+## Existing room artwork
+
 `textures/chungking-express.jpg` is a reduced-size, uncropped copy of the official
 Chungking Express theatrical artwork made available in the Janus Films press downloads.
 It is also embedded in `qianyu-room.glb` as the wall-poster texture.

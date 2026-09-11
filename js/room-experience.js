@@ -150,6 +150,12 @@
     if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();reel.scrollBy({left:(e.key==="ArrowRight"?1:-1)*reel.clientWidth*.7,behavior:reduced.matches?"instant":"smooth"});}
   });
 
+  const cinema=$("#cinema-reel");
+  function scrollCinema(direction){cinema.scrollBy({left:direction*cinema.clientWidth*.75,behavior:reduced.matches?'instant':'smooth'});}
+  all('[data-cinema-step]').forEach(b=>b.addEventListener('click',()=>scrollCinema(Number(b.dataset.cinemaStep))));
+  cinema.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();scrollCinema(e.key==='ArrowLeft'?-1:1);}});
+  cinema.addEventListener('wheel',e=>{if(!e.ctrlKey&&Math.abs(e.deltaY)>Math.abs(e.deltaX)&&cinema.scrollWidth>cinema.clientWidth){e.preventDefault();cinema.scrollLeft+=e.deltaY;}},{passive:false});
+
   const records=all('[data-record]').map(b=>({name:b.dataset.title,artist:b.dataset.artist,color:Number(b.dataset.color)}));
   let selectedRecord=0, playingRecord=0, spinning=false;
   all("[data-record]").forEach(b=>b.addEventListener("click",()=>{

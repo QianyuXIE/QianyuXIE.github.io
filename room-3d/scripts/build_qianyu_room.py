@@ -525,15 +525,15 @@ def lighting_and_camera():
     area("studio_key", ( -6.0, -4.0, 8.5), 1150, 1.0, (1.0, 0.965, 0.91), (0.0, 1.6, 2.3))
     area("studio_fill", (5.5, -3.0, 6.0), 110, 6.0, (0.92, 0.95, 1.0), (0.0, 1.8, 2.7))
 
-    bpy.ops.object.camera_add(location=(-9.0, -16.8, 10.0))
+    bpy.ops.object.camera_add(location=(-10.8, -21.3, 11.2))
     camera = bpy.context.object
     camera.name = "room_camera"
     camera.data.lens = 52
     camera.data.sensor_width = 36
-    look_at(camera, (0.0, 1.25, 3.50))
+    look_at(camera, (1.0, .8, 3.0))
     scene.camera = camera
     camera["initial_position"] = list(camera.location)
-    camera["initial_target"] = [0.0, 1.25, 3.50]
+    camera["initial_target"] = [1.0, .8, 3.0]
 
     scene.render.engine = "BLENDER_EEVEE"
     scene.render.resolution_x = 1440

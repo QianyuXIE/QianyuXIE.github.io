@@ -46,6 +46,8 @@ def build(api):
     lamps()
     guitar()
     wall(api)
+    from chess_corner import build as build_chess
+    build_chess(api)
     # One authored surface per action; never infer clicks from a part's name.
     targets = json.loads((Path(__file__).resolve().parent.parent / 'interaction-targets.json').read_text())
     for obj in bpy.context.scene.objects:
@@ -288,8 +290,8 @@ def wall(api):
     box('wall_shelf',(-.10,3.22,5.78),(2.18,.56,.11),M['oak'],bevel=.012,interaction='books',group='books')
     rod('shelf_picture_rail',(-1.2,3.48,6.83),(1.0,3.48,6.83),.026,M['ink'],'books')
     for xleg in (-.80,.6): box('shelf_bracket',(xleg,3.37,5.68),(.10,.25,.14),M['oak'],bevel=.007,group='books')
-    for i,(w,h,color) in enumerate(((.13,.72,'ink'),(.11,.80,'rubber'),(.085,.70,'paper'),(.105,.73,'cream'),(.08,.69,'metal'),(.11,.61,'gold'),(.14,.78,'blue'))):
-        bx=-.78+i*.18
+    for i,(w,h,color) in enumerate(((.19,.77,'gold'),(.22,.83,'ink'),(.17,.70,'paper'),(.18,.73,'blue'),(.21,.80,'rubber'))):
+        bx=-.68+i*.29
         box('book_pages',(bx,3.13,5.85+h/2),(w,.29,h-.035),M['paper'],bevel=.003,group='books')
         for side in (-1,1): box('book_cover',(bx+side*(w/2+.008),3.13,5.85+h/2),(.016,.32,h),M[color],bevel=.003,group='books')
         box('book_spine',(bx,2.972,5.85+h/2),(w+.023,.018,h),M[color],bevel=.006,group='books')

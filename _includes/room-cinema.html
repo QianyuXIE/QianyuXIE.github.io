@@ -1,0 +1,11 @@
+<article class="room-panel studio-window studio-cinema" data-panel-name="about" role="dialog" aria-modal="true" aria-labelledby="cinema-title" hidden>
+  <header class="studio-titlebar"><h2 id="cinema-title">▮ CINEMA / WATCHED FILMS</h2><button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭电影集">×</button></header>
+  <div class="cinema-toolbar"><p>看过的电影，留在这面墙上。</p><div><button type="button" data-cinema-step="-1" aria-label="向左浏览电影海报" aria-controls="cinema-reel">←</button><button type="button" data-cinema-step="1" aria-label="向右浏览电影海报" aria-controls="cinema-reel">→</button></div></div>
+  <div class="cinema-reel" id="cinema-reel" tabindex="0" aria-label="已看电影海报集，可横向滚动或使用左右方向键">
+    {% for film in page.desk_movies %}<figure class="cinema-card">
+      {% if film.poster %}<img data-src="{{ film.poster | relative_url }}" alt="{{ film.title | escape }}电影海报" loading="lazy" decoding="async">{% else %}<div class="cinema-pending" role="img" aria-label="{{ film.title | escape }}：版本待确认，暂不展示海报"><span>ODYSSEY</span><strong>{{ film.title }}</strong><small>版本待确认</small></div>{% endif %}
+      <figcaption><span class="cinema-index">{{ forloop.index }} / PERSONAL CINEMA</span><h3>{{ film.title }}</h3><p>{{ film.detail }}</p>{% if film.source %}<a href="{{ film.source }}" target="_blank" rel="noopener noreferrer">海报资料 ↗</a>{% endif %}</figcaption>
+    </figure>{% endfor %}
+  </div>
+  <footer class="studio-status">横向滚动浏览 · 海报版权归原权利人所有</footer>
+</article>
