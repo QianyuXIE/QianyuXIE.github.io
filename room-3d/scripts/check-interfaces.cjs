@@ -8,7 +8,7 @@ const { Liquid } = require('liquidjs');
 const YAML = require('yaml');
 const root = path.resolve(__dirname, '../..');
 const read = p => fs.readFileSync(path.join(root,p),'utf8');
-const engine = new Liquid({strictFilters:true});
+const engine = new Liquid({strictFilters:true,root:path.join(root,'_includes'),dynamicPartials:false});
 engine.registerFilter('relative_url', v=>v);
 const page = YAML.parse(read('room.html').split('---')[1]);
 const markup = engine.parseAndRenderSync(read('_includes/room-experience.html'),{page});
@@ -48,7 +48,15 @@ function command(value){$('#terminal-input').value=value;$('#terminal-form').dis
   let record;d.addEventListener('qianyu-room:record-selected',e=>record=e.detail);
   await open('music');$('[data-record="1"]').click();$('#record-select').click();assert.equal($('#mini-title').textContent,'吴青峰');assert.equal(record.color,0xa38c60);assert.equal(record.spinning,true);
   await open('music');$('[data-record="0"]').click();close();$('#mini-spin').click();assert.equal(record.color,0xa38c60);assert.equal(record.spinning,false);
-  await open('about');close();await open('books');assert.equal(d.querySelectorAll('.reading-card').length,page.desk_books.length);assert(d.querySelector('.reading-intro').textContent.includes('非已读'));close();
+  await open('about');
+  assert.equal(d.querySelectorAll('.cinema-card').length,page.desk_movies.length);
+  let cinemaScroll;const cinema=$('#cinema-reel');cinema.scrollBy=options=>{cinemaScroll=options.left;};
+  Object.defineProperty(cinema,'clientWidth',{value:600});Object.defineProperty(cinema,'scrollWidth',{value:2000});
+  $('[data-cinema-step="1"]').click();assert(cinemaScroll>0);
+  $('[data-cinema-step="-1"]').click();assert(cinemaScroll<0);
+  cinema.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));assert(cinemaScroll>0);
+  cinema.dispatchEvent(new w.WheelEvent('wheel',{deltaY:90,cancelable:true}));assert.equal(cinema.scrollLeft,90);
+  close();await open('books');assert.equal(d.querySelectorAll('.reading-card').length,5);assert(d.querySelector('.reading-intro').textContent.includes('五本书'));close();
   await open('music');
   assert.equal(d.querySelectorAll('[data-record]').length,page.desk_playlist.length+2);
   for(let i=0;i<page.desk_playlist.length;i++){

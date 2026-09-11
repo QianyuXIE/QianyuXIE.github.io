@@ -65,20 +65,20 @@ if (host && viewport && supportsWebGL) {
   controls.touches.ONE = THREE.TOUCH.ROTATE;
   controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
   controls.minDistance = 2;
-  controls.maxDistance = 25;
+  controls.maxDistance = 36;
   controls.minPolarAngle = Math.PI * 0.20;
   controls.maxPolarAngle = Math.PI * 0.43;
   controls.minAzimuthAngle = -Math.PI * 0.40;
   controls.maxAzimuthAngle = Math.PI * 0.40;
   controls.rotateSpeed = 0.52;
   controls.zoomSpeed = 0.65;
-  controls.target.set(0, 3.50, -1.25);
-  camera.position.set(-9.0, 10.0, 16.8);
+  controls.target.set(1, 3.0, -.8);
+  camera.position.set(-10.8, 11.2, 21.3);
   controls.update();
 
   const overviewPose = {
-    position: new THREE.Vector3(-9.0, 10.0, 16.8),
-    target: new THREE.Vector3(0, 3.50, -1.25)
+    position: new THREE.Vector3(-10.8, 11.2, 21.3),
+    target: new THREE.Vector3(1, 3.0, -.8)
   };
   const cameraPoses = {
     cv: {
@@ -116,13 +116,13 @@ if (host && viewport && supportsWebGL) {
   function currentOverviewPose() {
     if (host.clientWidth < 600) {
       return {
-        position: new THREE.Vector3(-11.0, 12.0, 24.0),
+        position: new THREE.Vector3(-13.0, 13.5, 29.0),
         target: overviewPose.target.clone()
       };
     }
     if (host.clientWidth < 900) {
       return {
-        position: new THREE.Vector3(-10.0, 10.8, 19.0),
+        position: new THREE.Vector3(-11.0, 12.0, 24.0),
         target: overviewPose.target.clone()
       };
     }
@@ -167,7 +167,7 @@ if (host && viewport && supportsWebGL) {
     research: "Research notes",
     photos: "Photography",
     music: "Currently listening",
-    about: "Cinema / Chungking Express",
+    about: "Cinema / Watched films",
     writing: "Research notes",
     lamp: "Switch light",
     whale: "A tiny secret"
@@ -499,7 +499,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb?v=20260910",
+    "/assets/room3d/qianyu-room.glb?v=20260911",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {

@@ -26152,10 +26152,10 @@ if (It && cr && ch) {
     return { position: N.target.clone().add(V), target: N.target.clone() };
   }, g = function() {
     return It.clientWidth < 600 ? {
-      position: new L(-11, 12, 24),
+      position: new L(-13, 13.5, 29),
       target: d.target.clone()
     } : It.clientWidth < 900 ? {
-      position: new L(-10, 10.8, 19),
+      position: new L(-11, 12, 24),
       target: d.target.clone()
     } : { position: d.position.clone(), target: d.target.clone() };
   }, qe = function(N) {
@@ -26243,10 +26243,10 @@ if (It && cr && ch) {
   const a = new b0(), o = new io(e), c = o.fromScene(a, 0.04);
   r.environment = c.texture, r.environmentIntensity = 0.2, a.dispose(), o.dispose();
   const l = new Nt(32, 1, 0.1, 100), h = new d0(l, e.domElement);
-  h.enableDamping = !0, h.dampingFactor = 0.11, h.enablePan = !0, h.screenSpacePanning = !0, h.panSpeed = 0.8, h.mouseButtons.LEFT = Dn.ROTATE, h.mouseButtons.MIDDLE = Dn.DOLLY, h.mouseButtons.RIGHT = Dn.PAN, h.touches.ONE = Zn.ROTATE, h.touches.TWO = Zn.DOLLY_PAN, h.minDistance = 2, h.maxDistance = 25, h.minPolarAngle = Math.PI * 0.2, h.maxPolarAngle = Math.PI * 0.43, h.minAzimuthAngle = -Math.PI * 0.4, h.maxAzimuthAngle = Math.PI * 0.4, h.rotateSpeed = 0.52, h.zoomSpeed = 0.65, h.target.set(0, 3.5, -1.25), l.position.set(-9, 10, 16.8), h.update();
+  h.enableDamping = !0, h.dampingFactor = 0.11, h.enablePan = !0, h.screenSpacePanning = !0, h.panSpeed = 0.8, h.mouseButtons.LEFT = Dn.ROTATE, h.mouseButtons.MIDDLE = Dn.DOLLY, h.mouseButtons.RIGHT = Dn.PAN, h.touches.ONE = Zn.ROTATE, h.touches.TWO = Zn.DOLLY_PAN, h.minDistance = 2, h.maxDistance = 36, h.minPolarAngle = Math.PI * 0.2, h.maxPolarAngle = Math.PI * 0.43, h.minAzimuthAngle = -Math.PI * 0.4, h.maxAzimuthAngle = Math.PI * 0.4, h.rotateSpeed = 0.52, h.zoomSpeed = 0.65, h.target.set(1, 3, -0.8), l.position.set(-10.8, 11.2, 21.3), h.update();
   const d = {
-    position: new L(-9, 10, 16.8),
-    target: new L(0, 3.5, -1.25)
+    position: new L(-10.8, 11.2, 21.3),
+    target: new L(1, 3, -0.8)
   }, u = {
     cv: {
       position: new L(0.05, 3.8, 1.45),
@@ -26289,7 +26289,7 @@ if (It && cr && ch) {
     research: "Research notes",
     photos: "Photography",
     music: "Currently listening",
-    about: "Cinema / Chungking Express",
+    about: "Cinema / Watched films",
     writing: "Research notes",
     lamp: "Switch light",
     whale: "A tiny secret",
@@ -26359,7 +26359,7 @@ if (It && cr && ch) {
   }), document.addEventListener("qianyu-room:board-updated", (N) => {
     se && (Z || (Z = new qu(N.detail.canvas), Z.colorSpace = vt, Z.flipY = !1, se.material.map = Z, se.material.color.setHex(16777215), se.material.needsUpdate = !0), Z.needsUpdate = !0, W());
   }), new L_().load(
-    "/assets/room3d/qianyu-room.glb?v=20260910",
+    "/assets/room3d/qianyu-room.glb?v=20260911",
     (N) => {
       if (O = N.scene, O.traverse((V) => {
         if (V.userData.room_group === "chair" && dt.push(V), /^vinyl$/i.test(V.name || "") && (H = V), V.userData.room_group === "record" && z.push(V), !!V.isMesh) {

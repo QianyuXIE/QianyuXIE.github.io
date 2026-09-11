@@ -32,7 +32,7 @@ const root = path.resolve(__dirname, '../..');
     render(scene,camera){ this.scene=scene; this.camera=camera; this.renders++; scene.updateMatrixWorld(); camera.updateMatrixWorld(); }
   }
   class Controls extends OrbitControls { constructor(...args){ super(...args); controls=this; } }
-  class Loader { load(url, fn){ assert(url.includes('20260910')); ready=fn; } }
+  class Loader { load(url, fn){ assert(url.includes('20260911')); ready=fn; } }
   class Environment extends three.Group { dispose(){} }
   class PMREM { fromScene(){ return {texture:new three.Texture()}; } dispose(){} }
   const context=vm.createContext({window:w,document:d,console,performance,CustomEvent:w.CustomEvent,ResizeObserver:class{observe(){}},requestAnimationFrame:fn=>frames.push(fn)});
