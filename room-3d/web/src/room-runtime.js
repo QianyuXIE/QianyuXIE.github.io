@@ -42,7 +42,7 @@ if (host && viewport && supportsWebGL) {
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xb8b7b1);
+  scene.background = new THREE.Color(0xffffff);
   // Metal needs reflected studio illumination as well as direct light.
   const environmentRoom = new RoomEnvironment();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -322,7 +322,7 @@ if (host && viewport && supportsWebGL) {
   function setTimeOfDay(night) {
     isNight = night;
     scene.environmentIntensity = night ? 0.08 : 0.20;
-    scene.background.setHex(night ? 0x282d35 : 0xb8b7b1);
+    scene.background.setHex(night ? 0x282d35 : 0xffffff);
     hemi.intensity = night ? 0.16 : 0.38;
     keyLight.intensity = night ? 0.28 : 2.8;
     keyLight.color.setHex(night ? 0xa9c1de : 0xfff2dc);

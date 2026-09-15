@@ -5,7 +5,7 @@
   z-index: 9;
   display: grid;
   color: #202120;
-  background: #e8e6df;
+  background: #fff;
   opacity: 1;
   place-items: center;
   transition: opacity 380ms ease, visibility 380ms ease;
@@ -73,7 +73,7 @@
   z-index: 8;
   overflow: hidden;
   opacity: 0;
-  background: #e8e6df;
+  background: #fff;
   transition: opacity 420ms ease;
 }
 
