@@ -26212,7 +26212,7 @@ if (It && cr && ch) {
       V.emissive.setHex(16764808), V.emissiveIntensity = G ? Q : 0, delete V.userData.roomHighlightOriginal;
     }), W();
   }, _ = function(N) {
-    F = N, r.environmentIntensity = N ? 0.08 : 0.2, r.background.setHex(N ? 2633013 : 12105649), v.intensity = N ? 0.16 : 0.38, p.intensity = N ? 0.28 : 2.8, p.color.setHex(N ? 11125214 : 16773852), m.intensity = N ? 0.65 : 1.5, e.toneMappingExposure = N ? 0.78 : 0.82, T(G), W();
+    F = N, r.environmentIntensity = N ? 0.08 : 0.2, r.background.setHex(N ? 2633013 : 16777215), v.intensity = N ? 0.16 : 0.38, p.intensity = N ? 0.28 : 2.8, p.color.setHex(N ? 11125214 : 16773852), m.intensity = N ? 0.65 : 1.5, e.toneMappingExposure = N ? 0.78 : 0.82, T(G), W();
   }, D = function(N, V) {
     Je += 1, we = !1;
     const Q = l.position.clone().sub(h.target), $ = new no().setFromVector3(Q), te = V ? 0.18 : 0.09;
@@ -26239,7 +26239,7 @@ if (It && cr && ch) {
   const s = window.matchMedia("(prefers-reduced-motion: reduce)"), e = new C_({ antialias: !0, alpha: !1, powerPreference: "high-performance" }), t = window.matchMedia("(max-width: 720px)").matches ? 1 : 1.25, n = window.devicePixelRatio || 1, i = Math.min(n, t);
   e.setPixelRatio(i), e.outputColorSpace = vt, e.toneMapping = co, e.toneMappingExposure = 0.82, e.shadowMap.enabled = !0, e.shadowMap.type = _c, e.shadowMap.autoUpdate = !1, It.replaceChildren(e.domElement);
   const r = new Oc();
-  r.background = new Pe(12105649);
+  r.background = new Pe(16777215);
   const a = new b0(), o = new io(e), c = o.fromScene(a, 0.04);
   r.environment = c.texture, r.environmentIntensity = 0.2, a.dispose(), o.dispose();
   const l = new Nt(32, 1, 0.1, 100), h = new d0(l, e.domElement);
