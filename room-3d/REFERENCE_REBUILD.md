@@ -30,8 +30,8 @@ grooves, wall records, book spines, chair and guitar are decorative. Keyboard an
 shortcuts remain available for accessibility. This intentionally differs from interactions
 not clearly evidenced in the recording, per the request to reduce duplicated entry points.
 
-The official Janus Films poster is preserved uncropped at 810 × 1200; see
-`assets/room3d/ATTRIBUTION.md`. It is copyrighted artwork, not an open-source asset.
+The official Janus Films poster is preserved uncropped at 810 × 1200.
+Its source and the cinema gallery poster sources are recorded below.
 Fixed metallic albedo baking: diffuse-only bakes had attenuated metal colours, so
 metalness is now temporarily zero while baking colour and restored for export.
 Non-terminal panels now retain the focused room behind a translucent dark surface.
@@ -85,3 +85,23 @@ appearance and frame rate remain unverified. Root CV and other page routes are u
 Blender preview versus 6s composition; detail views; GLB interaction metadata and material checks; Vite/Jekyll builds; browser checks when available; GitHub Pages and live version checks after publishing.
 
 2026-09-07: rebuilt export contains 119,884 triangles, 81 meshes, 16 embedded images and all 10 interaction types. Size: 6,592,716 bytes. Vite build and Liquid/DOM behavior checks pass. `check-interfaces.cjs` covers terminal commands, input safety, photo filtering, whiteboard tools, selected-record persistence, Escape/close, switches and canceled transitions. This does not test WebGL rendering or pointer behavior in a real browser. The browser connection reports no available instances; local Jekyll is blocked by Windows application control loading Ruby `strscan.so`. GitHub Pages deployment is the full Jekyll build check.
+
+## Visual asset sources
+
+The wall poster for *Chungking Express* was downloaded from the [Janus Films
+press package](https://s3.amazonaws.com/criterion-production/janus_promo_packages/451-/WKW_Poster_ChungkingExpress_original.jpg)
+on 2026-09-09. It is embedded in the room model. The five small film posters
+added to the gallery on 2026-09-11 came from the corresponding Wikipedia film
+articles: [Interstellar](https://en.wikipedia.org/wiki/Interstellar_(film)),
+[Happy Together](https://en.wikipedia.org/wiki/Happy_Together_(1997_film)),
+[Blue Gate Crossing](https://en.wikipedia.org/wiki/Blue_Gate_Crossing),
+[The Theory of Everything](https://en.wikipedia.org/wiki/The_Theory_of_Everything_(2014_film))
+and [Portrait of a Lady on Fire](https://en.wikipedia.org/wiki/Portrait_of_a_Lady_on_Fire).
+The *Odyssey* card has no poster pending confirmation of the film version.
+
+The artwork remains copyrighted by its rights holders and is outside the
+repository's code license. The MacBook Air-inspired model was independently
+built using [Apple's public M2 Air announcement](https://www.apple.com/newsroom/2022/06/apple-unveils-all-new-macbook-air-supercharged-by-the-new-m2-chip/)
+as a design reference. The open chess book shows an independently typeset
+study layout and a legal illustrative Najdorf sequence from
+`room-3d/chess-position.json`, not a scan of *Modern Chess Openings*.
