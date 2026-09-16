@@ -39,6 +39,7 @@ def build(api):
         text('board_rank',str(i+1),(bx-.95,by+(i-3.5)*cell,board_z+.039),.055,ivory)
 
     def piece(kind,px,py,mat):
+        before=set(bpy.context.scene.objects)
         base=board_z+.049
         cyl('chess_piece_base',(px,py,base+.024),.077,.048,mat,vertices=24,group='chess')
         torus('chess_piece_bead',(px,py,base+.047),.062,.009,mat,group='chess')
@@ -71,6 +72,22 @@ def build(api):
                 sphere('chess_king_top',(px,py,base+h-.015),(.036,.036,.035),mat,group='chess')
                 box('chess_king_cross_v',(px,py,base+h+.045),(.019,.02,.09),mat,bevel=.003,group='chess')
                 box('chess_king_cross_h',(px,py,base+h+.06),(.067,.02,.018),mat,bevel=.003,group='chess')
+        parts=[obj for obj in bpy.context.scene.objects if obj not in before]
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in parts:
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active=obj
+            for modifier in list(obj.modifiers):
+                bpy.ops.object.modifier_apply(modifier=modifier.name)
+        bpy.context.view_layer.objects.active=parts[0]
+        bpy.ops.object.join()
+        obj=bpy.context.object
+        # One independently movable mesh per piece; never merge into static furniture.
+        obj.name='chess_piece_'+('w' if mat==ivory else 'b')+kind
+        obj['chess_piece']=('w' if mat==ivory else 'b')+kind
+        obj['preserve_uv']=True
+        bpy.context.scene.cursor.location=(px,py,base)
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
 
     data=json.loads((Path(__file__).resolve().parent.parent/'chess-position.json').read_text())
     count=0
@@ -88,18 +105,24 @@ def build(api):
     book_x,book_y=6.91,-.75
     box('chess_book_cover',(book_x,book_y,z+.087),(1.36,1.68,.04),green,bevel=.016,group='chess')
     for side in (-1,1):
-        box('chess_book_pages',(book_x+side*.34,book_y,z+.13),(.65,1.60,.045),M['paper'],bevel=.012,group='chess')
+        box('chess_book_page_block',(book_x+side*.34,book_y,z+.13),(.65,1.60,.045),M['paper'],bevel=.012,group='chess')
         for line in range(4):
             box('chess_book_page_edge',(book_x+side*.34,book_y-.801,z+.115+line*.008),(.63,.002,.0015),ivory,bevel=0,group='chess')
     box('chess_book_gutter',(book_x,book_y,z+.156),(.012,1.59,.004),ivory,bevel=0,group='chess')
-    for i,line in enumerate(('MODERN','CHESS','OPENINGS')):
-        text('chess_book_title',line,(book_x-.34,book_y+.48-i*.13,z+.156),.083)
-    text('chess_book_author','Nick de Firmian',(book_x-.34,book_y-.08,z+.156),.045)
-    text('chess_book_caption','SICILIAN DEFENCE',(book_x+.34,book_y+.59,z+.156),.044)
-    # Small schematic board diagram on the right-hand page.
-    for rank in range(8):
-        for file in range(8):
-            box('chess_book_diagram',(book_x+.34+(file-3.5)*.06,book_y+.1+(rank-3.5)*.06,z+.157),(.06,.06,.001),M['paper'] if (rank+file)%2 else ivory,bevel=0,group='chess')
-    for i,line in enumerate(('1. e4 c5  2. Nf3 d6','3. d4 cxd4  4. Nxd4 Nf6','5. Nc3 a6  6. Be3 e5','NAJDORF / 15...Bc4')):
-        text('chess_book_moves',line,(book_x+.34,book_y-.31-i*.093,z+.157),.029)
-    text('chess_book_note','Study layout / not a book scan',(book_x,book_y-.73,z+.16),.032)
+    # UV-mapped curved leaves get live opening diagrams in Three.js.
+    for side,name in ((-1,'left'),(1,'right')):
+        vertices=[];faces=[];segments=20
+        for j in range(2):
+            for i in range(segments+1):
+                u=i/segments
+                vertices.append((book_x+side*(.012+u*.65),book_y+(.8 if j else -.8),z+.16+.035*math.sin(u*math.pi)))
+        for i in range(segments):
+            faces.append((i,i+1,segments+2+i,segments+1+i))
+        mesh=bpy.data.meshes.new('book_leaf_'+name);mesh.from_pydata(vertices,[],faces);mesh.update()
+        obj=bpy.data.objects.new('chess_book_'+name+'_page',mesh);bpy.context.collection.objects.link(obj)
+        obj.data.materials.append(M['paper']);obj['preserve_uv']=True;obj['room_group']='chess'
+        uv=mesh.uv_layers.new(name='UVMap')
+        for poly in mesh.polygons:
+            for index in poly.loop_indices:
+                v=mesh.loops[index].vertex_index;i=v%(segments+1);j=v//(segments+1)
+                uv.data[index].uv=(i/segments if side==1 else 1-i/segments,j)

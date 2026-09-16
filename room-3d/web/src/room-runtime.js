@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import interactionTargets from "../../interaction-targets.json";
+import { createChessCorner } from "./chess-corner.js";
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");
@@ -101,6 +102,14 @@ if (host && viewport && supportsWebGL) {
       position: new THREE.Vector3(1.83, 5.70, 1.5),
       target: new THREE.Vector3(1.83, 5.58, -3.46)
     },
+    chess: {
+      position: new THREE.Vector3(5.12, 6.7, 2.7),
+      target: new THREE.Vector3(5.12, 2.36, .75)
+    },
+    chessbook: {
+      position: new THREE.Vector3(6.91, 5.4, 2.3),
+      target: new THREE.Vector3(6.91, 2.36, .75)
+    },
     books: {
       position: new THREE.Vector3(-.6, 6.1, 1.5),
       target: new THREE.Vector3(-.1, 6.1, -3.2)
@@ -129,9 +138,9 @@ if (host && viewport && supportsWebGL) {
     return { position: overviewPose.position.clone(), target: overviewPose.target.clone() };
   }
 
-  const hemi = new THREE.HemisphereLight(0xe6eaf0, 0x82786c, 0.38);
+  const hemi = new THREE.HemisphereLight(0xf2f5ff, 0x93999e, 0.38);
   scene.add(hemi);
-  const keyLight = new THREE.DirectionalLight(0xfff2dc, 2.8);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
   keyLight.position.set(-6, 8.5, 4);
   keyLight.target.position.set(0, 2.3, -1.6);
   scene.add(keyLight.target);
@@ -143,6 +152,7 @@ if (host && viewport && supportsWebGL) {
   keyLight.shadow.camera.bottom = -9;
   keyLight.shadow.normalBias = .012;
   keyLight.shadow.bias = -0.0002;
+  keyLight.shadow.radius = 2.2;
   scene.add(keyLight);
   const fillLight = new THREE.PointLight(0xe8edf0, 1.5, 24, 2);
   fillLight.position.set(7, 6, 9);
@@ -158,6 +168,23 @@ if (host && viewport && supportsWebGL) {
   floorLampPool.position.set(-5.12, 3.46, -.15);
   floorLampPool.target.position.set(-5.12, 0, -.15);
   scene.add(floorLampPool, floorLampPool.target);
+  // A soft local spill remains visible on the unlit white cyclorama.
+  const lampSpillMaterial = new THREE.ShaderMaterial({
+    transparent:true,depthWrite:false,toneMapped:false,
+    uniforms:{strength:{value:0},color:{value:new THREE.Color(0xffd6a4)}},
+    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader:`
+      varying vec2 vUv;
+      uniform float strength;
+      uniform vec3 color;
+      void main(){
+        float glow=1.0-smoothstep(0.08,0.5,length(vUv-0.5));
+        gl_FragColor=vec4(color,strength*glow);
+        #include <colorspace_fragment>
+      }`
+  });
+  const lampSpill = new THREE.Mesh(new THREE.PlaneGeometry(3.6,3.6),lampSpillMaterial);
+  lampSpill.name='floor_lamp_spill';lampSpill.rotation.x=-Math.PI/2;lampSpill.position.set(-5.12,-.005,-.15);scene.add(lampSpill);
   const lampSurfaces = [];
 
   const raycaster = new THREE.Raycaster();
@@ -171,7 +198,7 @@ if (host && viewport && supportsWebGL) {
     writing: "Research notes",
     lamp: "Switch light",
     whale: "A tiny secret"
-    , paper: "Open full CV", books: "Notes & reading", chair: "Swivel chair", guitar: "Electric guitar"
+    , paper: "Open full CV", books: "Notes & reading", chess: "Chess / 拉近棋盘", chessbook: "Opening book / 翻阅开局", chair: "Swivel chair", guitar: "Electric guitar"
   };
   let interactiveMeshes = [];
   let hovered = null;
@@ -196,6 +223,9 @@ if (host && viewport && supportsWebGL) {
   let recordRequested = false;
   let cameraAnimating = false;
   let chairPivot = null;
+  let chess = null;
+  let floorMaterial = null;
+  let focusEffect = null, focusLoading = false;
   const chairParts = [];
 
   const tooltip = document.createElement("span");
@@ -311,6 +341,7 @@ if (host && viewport && supportsWebGL) {
     lampLight.intensity = lampOn ? (isNight ? 28 : 16) : 0;
     floorLampLight.intensity = lampOn ? (isNight ? 13 : 9) : 0;
     floorLampPool.intensity = lampOn ? (isNight ? 65 : 48) : 0;
+    lampSpillMaterial.uniforms.strength.value = lampOn ? (isNight ? .35 : .13) : 0;
     lampSurfaces.forEach(({ material, strength }) => {
       material.emissive.setHex(0xffcf88);
       material.emissiveIntensity = lampOn ? strength : 0;
@@ -325,7 +356,8 @@ if (host && viewport && supportsWebGL) {
     scene.background.setHex(night ? 0x282d35 : 0xffffff);
     hemi.intensity = night ? 0.16 : 0.38;
     keyLight.intensity = night ? 0.28 : 2.8;
-    keyLight.color.setHex(night ? 0xa9c1de : 0xfff2dc);
+    keyLight.color.setHex(night ? 0xa9c1de : 0xffffff);
+    if (floorMaterial) floorMaterial.color.setHex(night ? 0x282d35 : 0xffffff);
     fillLight.intensity = night ? .65 : 1.5;
     renderer.toneMappingExposure = night ? 0.78 : 0.82;
     setLamp(lampOn);
@@ -363,7 +395,9 @@ if (host && viewport && supportsWebGL) {
     lastRenderTime = now;
     if (recordSpinning && recordPivot) recordPivot.rotation.y += delta * 3.49;
     const cameraChanged = cameraAnimating || panelOpen ? false : controls.update();
-    renderer.render(scene, camera);
+    const depthRequested = document.getElementById('chess-depth')?.checked;
+    if (chess?.active && depthRequested && focusEffect && host.clientWidth > 800 && !chess.dragging && !controlsActive && !cameraAnimating) focusEffect.render(controls.target);
+    else renderer.render(scene, camera);
     if (cameraChanged || controlsActive || recordSpinning) requestRender();
   }
 
@@ -430,6 +464,9 @@ if (host && viewport && supportsWebGL) {
     const picked = pick(event);
     const interaction = picked ? picked.interaction : null;
     if (!interaction) return;
+    if (interaction === 'chess' || interaction === 'chessbook') {
+      clearHover();chess?.open(interaction === 'chessbook');return;
+    }
     if (interaction === "lamp") {
       document.dispatchEvent(new CustomEvent("qianyu-room:lamp-toggle"));
       return;
@@ -458,19 +495,20 @@ if (host && viewport && supportsWebGL) {
 
   document.addEventListener("qianyu-room:lamp-changed", (event) => setLamp(Boolean(event.detail && event.detail.on)));
   document.addEventListener("qianyu-room:time-changed", (event) => setTimeOfDay(Boolean(event.detail && event.detail.night)));
-  document.addEventListener("qianyu-room:camera-reset", () => animateCamera(currentOverviewPose(), 620));
+  document.addEventListener("qianyu-room:camera-reset", () => { chess?.close(false);animateCamera(currentOverviewPose(), 620); });
   document.addEventListener("qianyu-room:focus-request", (event) => {
     const interaction = event.detail && event.detail.name;
     if (interaction && cameraPoses[interaction]) animateCamera(responsivePose(cameraPoses[interaction]));
   });
   document.addEventListener("qianyu-room:camera-key", (event) => {
     const detail = event.detail || {};
-    if (detail.key === "0") animateCamera(currentOverviewPose(), 620);
+    if (detail.key === "0") { chess?.close(false);animateCamera(currentOverviewPose(), 620); }
     else nudgeCamera(detail.key, Boolean(detail.fast));
   });
   document.addEventListener("qianyu-room:panel-changed", (event) => {
     const detail = event.detail || {};
     panelOpen = Boolean(detail.open);
+    if (panelOpen) chess?.close(false);
     controls.enabled = !panelOpen;
     requestRender();
   });
@@ -499,7 +537,7 @@ if (host && viewport && supportsWebGL) {
   });
 
   new GLTFLoader().load(
-    "/assets/room3d/qianyu-room.glb?v=20260911",
+    "/assets/room3d/qianyu-room.glb?v=20260916",
     (gltf) => {
       model = gltf.scene;
       model.traverse((object) => {
@@ -515,13 +553,20 @@ if (host && viewport && supportsWebGL) {
           if (material.transparent) { object.castShadow = false; material.depthWrite = false; }
         });
         if (object.name === "studio_floor") {
-          object.material = object.material.clone();
-          object.material.color.setHex(0xaaa69d);
+          // The old grey/yellow floor covered the white canvas. A white,
+          // unlit studio surface keeps the infinite backdrop truly neutral;
+          // a separate receiver supplies real object shadows on top.
+          floorMaterial = new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false});
+          object.material = floorMaterial;
           object.castShadow = false;
+          const shadow = new THREE.Mesh(object.geometry,new THREE.ShadowMaterial({opacity:.30,depthWrite:false}));
+          shadow.position.copy(object.position);shadow.quaternion.copy(object.quaternion);shadow.scale.copy(object.scale);
+          shadow.position.y += .002;shadow.receiveShadow=true;shadow.name='studio_floor_shadows';scene.add(shadow);
         }
         if (object.name === "studio_glass_wall") {
           object.material.side = THREE.DoubleSide;
           object.material.opacity = .16;
+          object.material.color.setHex(0xdde4e9);
           object.material.roughness = .18;
           object.castShadow = false;
           const wallShadow = new THREE.Mesh(object.geometry, new THREE.ShadowMaterial({ opacity: .22, side: THREE.DoubleSide, depthWrite: false }));
@@ -569,14 +614,34 @@ if (host && viewport && supportsWebGL) {
       renderer.shadowMap.needsUpdate = true;
       // Static mesh transforms stay cached; animated parent pivots still update.
       model.traverse(object => { if (object.isMesh) { object.updateMatrix(); object.matrixAutoUpdate = false; } });
-      setLamp(lampOn);
+      try {
+        chess = createChessCorner({scene,model,camera,controls,canvas:renderer.domElement,requestRender,
+          markShadows:()=>{renderer.shadowMap.needsUpdate=true;},
+          onFocus:(name)=>{resize();animateCamera(cameraPoses[name],680);},
+          onExit:(reset)=>{resize();if(reset)animateCamera(currentOverviewPose(),620);}
+        });
+      } catch(error) {
+        console.error('Chess corner could not initialize',error);
+        const trigger=document.getElementById('room-chess-trigger');
+        if(trigger){trigger.disabled=true;trigger.textContent='棋桌暂不可用';}
+      }
+      document.getElementById('chess-depth')?.addEventListener('change',async event=>{
+        if(event.target.checked&&!focusEffect&&!focusLoading){
+          focusLoading=true;
+          try {const {createFocus}=await import('./room-focus.js');focusEffect=createFocus(renderer,scene,camera);focusEffect.resize(host.clientWidth,host.clientHeight);}
+          catch(error){event.target.checked=false;console.warn('Depth of field unavailable',error);}
+          finally {focusLoading=false;}
+        }
+        requestRender();
+      });
+      setTimeOfDay(isNight);
       viewport.classList.add("room-viewport--webgl");
       host.classList.add("is-ready");
       document.dispatchEvent(new CustomEvent("qianyu-room:ready"));
       viewport.tabIndex = -1;
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute("role", "application");
-      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。左键旋转，右键平移，滚轮缩放。方向键旋转，加减号缩放，数字 1 到 5 打开终端、白板、摄影、音乐和电影海报，L 开关灯，N 切换昼夜，0 返回总览。");
+      renderer.domElement.setAttribute("aria-label", "浅羽的三维工作室。左键旋转，右键平移，滚轮缩放。数字 1 到 6 打开终端、白板、摄影、音乐、电影和书单，7 打开棋桌。棋桌内点选或拖动棋子，Escape 退出，L 开关灯，N 切换昼夜，0 返回总览。");
       renderer.domElement.title = "左键旋转 · 右键平移 · 滚轮缩放 · 0 回到总览";
       setLoadingProgress(100);
       if (loadingLabel) loadingLabel.textContent = "room ready";
@@ -619,6 +684,9 @@ if (host && viewport && supportsWebGL) {
     camera.fov = width < 600 ? 40 : width < 900 ? 35 : 32;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    focusEffect?.resize(width,height);
+    const depthControl=document.getElementById('chess-depth');
+    if(depthControl)depthControl.disabled=width<=800;
     requestRender();
   }
 

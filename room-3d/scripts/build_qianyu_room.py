@@ -32,7 +32,7 @@ PALETTE = {
     "wall": (0.72, 0.715, 0.69, 1),
     "space": (0.92, 0.91, 0.87, 1),
     "wall_dark": (0.14, 0.14, 0.13, 1),
-    "floor": (0.74, 0.735, 0.71, 1),
+    "floor": (1, 1, 1, 1),
     "wood": (0.42, 0.25, 0.14, 1),
     "wood_light": (0.60, 0.39, 0.22, 1),
     "cream": (0.91, 0.89, 0.84, 1),
@@ -505,7 +505,7 @@ def lighting_and_camera():
     world = bpy.data.worlds.new("Qianyu Room World") if not bpy.data.worlds else bpy.data.worlds[0]
     scene.world = world
     world.use_nodes = True
-    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.88, 0.87, 0.83, 1)
+    world.node_tree.nodes["Background"].inputs["Color"].default_value = (1, 1, 1, 1)
     world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.16
 
     def area(name, location, energy, size, color, target):
@@ -522,7 +522,7 @@ def lighting_and_camera():
 
     # The broad key supplies the large soft wall/floor shadow. Neutral fill
     # keeps black objects readable without introducing decorative colour.
-    area("studio_key", ( -6.0, -4.0, 8.5), 1150, 1.0, (1.0, 0.965, 0.91), (0.0, 1.6, 2.3))
+    area("studio_key", ( -6.0, -4.0, 8.5), 1150, 1.4, (1.0, 1.0, 1.0), (0.0, 1.6, 2.3))
     area("studio_fill", (5.5, -3.0, 6.0), 110, 6.0, (0.92, 0.95, 1.0), (0.0, 1.8, 2.7))
 
     bpy.ops.object.camera_add(location=(-10.8, -21.3, 11.2))

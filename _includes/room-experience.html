@@ -9,6 +9,7 @@
       <button id="room-time-toggle" type="button" role="switch" aria-checked="false" aria-label="夜间模式"><span aria-hidden="true">☾</span><i></i><span aria-hidden="true">☀</span></button>
       <button id="room-reset" class="studio-home" type="button" aria-label="回到房间总览">↺</button>
       <button type="button" data-open="books" aria-label="打开文学书单">书单</button>
+      <button type="button" id="room-chess-trigger" disabled aria-label="拉近国际象棋桌">棋桌</button>
     </div>
     <div class="studio-shortcuts" aria-label="房间快捷入口"><button data-open="cv">01 Terminal</button><button data-open="research">02 Whiteboard</button><button data-open="film">03 Film</button><button data-open="music">04 Vinyl</button><button data-open="about">05 Cinema</button></div>
     <div class="studio-mini" id="studio-mini" hidden><span class="mini-record" aria-hidden="true"></span><span id="mini-title">Aimer</span><button type="button" id="mini-spin" aria-label="暂停唱片旋转" aria-pressed="true">Ⅱ</button><button type="button" data-open="music" aria-label="打开唱片收藏">↗</button></div>
@@ -43,5 +44,6 @@
       {% include room-cinema.html %}
       <article class="room-panel studio-window studio-frame" data-panel-name="books" role="dialog" aria-modal="true" aria-label="文学书单" hidden><header class="studio-titlebar"><h2>▮ READING ROOM</h2><button class="room-panel-close" type="button" data-room-panel-close aria-label="关闭书单">×</button></header><p class="reading-intro">书架上的五本书 · Qianyu's bookshelf</p><div class="reading-grid">{% for book in page.desk_books %}<article class="reading-card"><span class="reading-number">{{ forloop.index }} / {{ book.genre }}</span><h3>{{ book.title | escape }}</h3><p class="reading-author">{{ book.author | escape }}</p><p>{{ book.note | escape }}</p><span class="reading-status">书架收藏</span></article>{% endfor %}</div></article>
     </div>
+    {% include room-chess.html %}
   </div>
 </section>

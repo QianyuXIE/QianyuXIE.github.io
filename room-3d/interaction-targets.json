@@ -6,5 +6,7 @@
   "research_paper_00": "paper",
   "about_image": "about",
   "wall_switch_rocker": "lamp",
-  "wall_shelf": "books"
+  "wall_shelf": "books",
+  "chess_board": "chess",
+  "chess_book_cover": "chessbook"
 }
