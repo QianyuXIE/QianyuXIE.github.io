@@ -1,2 +1,2 @@
-const e = () => import("./room-runtime-BN9-PJ0o.js");
+const e = () => import("./room-runtime-C-ANmOwU.js").then((t) => t.r);
 "requestIdleCallback" in window ? window.requestIdleCallback(e, { timeout: 900 }) : window.setTimeout(e, 0);

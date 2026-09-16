@@ -9,6 +9,13 @@ const chess = gltf.nodes.find(n=>n.name==='chess_board');
 assert(chess,'Missing chess table board');
 assert.equal(chess.extras.chess_fen,JSON.parse(fs.readFileSync(path.join(root,'room-3d/chess-position.json'),'utf8')).fen);
 assert.equal(chess.extras.piece_count,30,'Two pawns have been exchanged in the selected middlegame');
+const pieces=gltf.nodes.filter(n=>n.extras?.chess_piece);
+assert.equal(pieces.length,30,'Pieces must remain separate, movable meshes');
+assert.equal(new Set(pieces.map(n=>n.extras.chess_piece)).size,12,'Every color/type needs a reusable prototype');
+for(const side of ['left','right']) {
+  const page=gltf.nodes.find(n=>n.name===`chess_book_${side}_page`);
+  assert(page&&gltf.meshes[page.mesh].primitives[0].attributes.TEXCOORD_0!==undefined,'Live book page requires UVs');
+}
 assert(!gltf.nodes.some(n => n.name === 'studio_wall'), 'Open studio must not contain an opaque wall');
 const glassWall = gltf.nodes.find(n => n.name === 'studio_glass_wall');
 assert(glassWall, 'Glass backdrop is required');

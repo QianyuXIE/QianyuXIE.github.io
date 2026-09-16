@@ -51,6 +51,22 @@ The video does not expose original source geometry, UV maps, exact typefaces, ev
 
 ## Validation
 
+2026-09-16: the floor, not only the canvas clear color, is now neutral white.
+An unlit white floor plus a separate shadow receiver preserves the continuous
+studio background, directional contact shadows and a soft local lamp spill.
+Daylight no longer has a yellow key or brown hemisphere fill.
+The glass wall remains translucent. Desktop chess closeups offer opt-in subtle
+depth of field; it is skipped during orbit gestures and on narrow viewports.
+
+The chess table now exports 30 separate movable meshes (12 color/type templates)
+and UV-mapped curved book leaves. Runtime chess.js rules drive dragging, click
+moves, promotions, undo and seven original opening studies. The book and board
+have separate intentional click targets. Keyboard and plane-board controls
+provide the same game state. Chess rule/raycast/DOM tests cover all seven lines,
+castling, en passant, underpromotion, canceled dragging and mesh-square alignment.
+The rebuilt GLB is 9,652,848 bytes with 189,152 triangles. Blender preview checked;
+browser discovery remains empty, so real-browser appearance/FPS are unverified.
+
 2026-09-10: removed desktop headphones from the active Blender builder and inspected
 the regenerated preview. Shelf now has one `books` hotspot (eight actions total).
 Ten individually selectable Sodagreen songs supplement the existing Aimer/Wu Qingfeng

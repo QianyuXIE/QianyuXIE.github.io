@@ -1,0 +1,20 @@
+<aside class="chess-study" id="chess-study" aria-label="国际象棋研习" hidden>
+  <header class="chess-study-heading"><div><small>THE CHESS CORNER</small><h2>棋桌上的一局</h2></div><button type="button" id="chess-exit" aria-label="退出棋桌">×</button></header>
+  <p class="chess-hint">点选棋子和落点，或直接拖动棋子。你可以轮流执白、执黑，探索自己的变化。</p>
+  <p id="chess-status" role="status" aria-live="polite"></p>
+  <div class="chess-actions"><button type="button" id="chess-undo">悔棋</button><button type="button" id="chess-reset">重置棋局</button><button type="button" id="chess-book-toggle" aria-expanded="true" aria-controls="chess-opening-book">开局书</button></div>
+  <section class="chess-opening-book" id="chess-opening-book" aria-label="可翻页的开局书">
+    <div class="chess-book-masthead">MODERN CHESS OPENINGS <span>学习札记</span></div>
+    <div id="chess-book-page" class="chess-book-page">
+      <small id="chess-opening-code"></small><h3 id="chess-opening-title"></h3><p class="chess-opening-english" id="chess-opening-english"></p>
+      <p id="chess-opening-note"></p><div id="chess-opening-diagram" class="chess-diagram" aria-label="开局示意棋盘"></div>
+      <p id="chess-opening-pgn" class="chess-score"></p>
+    </div>
+    <nav class="chess-pages" aria-label="翻阅开局"><button type="button" id="chess-prev" aria-label="上一页开局">←</button><span id="chess-page-number"></span><button type="button" id="chess-next" aria-label="下一页开局">→</button></nav>
+    <button class="chess-apply" type="button" id="chess-apply">把这个开局摆到棋盘</button>
+  </section>
+  <div class="chess-replay"><p id="chess-line-label"></p><div class="chess-actions"><button type="button" id="chess-start">起始局面</button><button type="button" id="chess-step-back">上一步</button><button type="button" id="chess-step-next">下一步</button></div></div>
+  <label class="chess-promotion">兵升变为 <select id="chess-promotion"><option value="q">后</option><option value="r">车</option><option value="b">象</option><option value="n">马</option></select></label>
+  <label class="chess-promotion"><input type="checkbox" id="chess-depth"> 轻微景深（桌面大屏）</label>
+  <details class="chess-accessible"><summary>展开平面棋盘 / 键盘操作</summary><p>方向键选择格子，Enter 选择棋子或落点。</p><div id="chess-keyboard-board" class="chess-diagram" role="grid" aria-label="可操作棋盘"></div></details>
+</aside>

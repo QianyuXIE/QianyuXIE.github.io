@@ -32,11 +32,12 @@ const root = path.resolve(__dirname, '../..');
     render(scene,camera){ this.scene=scene; this.camera=camera; this.renders++; scene.updateMatrixWorld(); camera.updateMatrixWorld(); }
   }
   class Controls extends OrbitControls { constructor(...args){ super(...args); controls=this; } }
-  class Loader { load(url, fn){ assert(url.includes('20260911')); ready=fn; } }
+  class Loader { load(url, fn){ assert(url.includes('20260916')); ready=fn; } }
   class Environment extends three.Group { dispose(){} }
   class PMREM { fromScene(){ return {texture:new three.Texture()}; } dispose(){} }
   const context=vm.createContext({window:w,document:d,console,performance,CustomEvent:w.CustomEvent,ResizeObserver:class{observe(){}},requestAnimationFrame:fn=>frames.push(fn)});
   const dependencies={
+    './chess-corner.js':{createChessCorner:()=>null},
     '../../interaction-targets.json':{default:JSON.parse(fs.readFileSync(path.join(root,'room-3d/interaction-targets.json'),'utf8'))},
     three:{...three,WebGLRenderer:Renderer,PMREMGenerator:PMREM,Raycaster:Picker},
     'three/examples/jsm/controls/OrbitControls.js':{OrbitControls:Controls},
@@ -57,6 +58,9 @@ const root = path.resolve(__dirname, '../..');
   ready({scene:model});
   function settle(){ for(let i=0;frames.length&&i<200;i++){ const batch=frames.splice(0); batch.forEach(fn=>fn(ticks+=16.67)); } assert.equal(frames.length,0,'Idle scene must stop requesting frames'); }
   settle();
+  assert.equal(model.getObjectByName('studio_floor').material.color.getHex(),0xffffff,'Visible floor, not only scene background, must be white');
+  assert.equal(model.getObjectByName('studio_floor').material.toneMapped,false);
+  assert(renderer.scene.getObjectByName('studio_floor_shadows').receiveShadow);
   renderer.domElement.dispatchEvent(new w.MouseEvent('pointermove',{clientX:400,clientY:300}));
   assert.deepEqual(Array.from(hitCandidates,o=>o.name).sort(),Object.keys(targets).sort(),'Only seven authored surfaces enter raycasting');
   assert.equal(hitCandidates.filter(o=>o.name.startsWith('macbook')).length,1,'Computer has one click surface');
@@ -83,6 +87,7 @@ const root = path.resolve(__dirname, '../..');
   const dispatch=(name,detail)=>d.dispatchEvent(new w.CustomEvent(`qianyu-room:${name}`,{detail}));
   dispatch('lamp-changed',{on:true});settle();
   assert(model.getObjectByName('floor_lamp_shade').material.emissiveIntensity>0);
+  assert(renderer.scene.getObjectByName('floor_lamp_spill').material.uniforms.strength.value>0);
   assert(renderer.scene.children.some(o=>o.isSpotLight&&o.intensity>0),'Floor lamp must illuminate the floor');
   dispatch('lamp-changed',{on:false});settle();
   assert.equal(model.getObjectByName('floor_lamp_shade').material.emissiveIntensity,0);

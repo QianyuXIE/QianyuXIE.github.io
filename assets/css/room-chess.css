@@ -1,0 +1,49 @@
+.room-rebuilt .chess-study { position:absolute;z-index:24;right:18px;top:78px;bottom:18px;width:340px;overflow:auto;padding:22px;background:rgba(255,255,255,.97);color:#25302e;border:1px solid #e0e5e3;border-radius:12px;box-shadow:0 14px 48px #18332818;font:15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;overscroll-behavior:contain; }
+.room-rebuilt .chess-study button { min-height:40px;border:1px solid #d3ded8;border-radius:5px;padding:7px 11px;background:#fff;color:#283c33;cursor:pointer;font:inherit; }
+.room-rebuilt .chess-study button:hover { background:#edf3ef; }
+.room-rebuilt .chess-study button:disabled { opacity:.4;cursor:default; }
+.room-rebuilt .chess-study button:focus-visible,.room-rebuilt .chess-study select:focus-visible { outline:3px solid #547d68;outline-offset:2px; }
+.room-rebuilt .chess-study-heading { display:flex;justify-content:space-between;align-items:center; }
+.room-rebuilt .chess-study-heading small { font:10px/1.4 monospace;letter-spacing:.16em;color:#75877d; }
+.room-rebuilt .chess-study-heading h2 { font:26px/1.4 Georgia,'Songti SC',serif;margin:4px 0 12px; }
+.room-rebuilt #chess-exit { align-self:flex-start;font-size:25px;border:0;min-width:44px; }
+.room-rebuilt .chess-hint { font-size:13px;color:#697b71; }
+.room-rebuilt #chess-status { padding:10px 12px;background:#edf3ef;border-radius:5px;min-height:48px;font-size:14px; }
+.room-rebuilt .chess-actions { display:flex;flex-wrap:wrap;gap:6px; }
+.room-rebuilt .chess-actions button { flex:1;white-space:nowrap;font-size:13px; }
+.room-rebuilt .chess-opening-book { margin-top:22px;border:1px solid #d9dfd8;border-left:6px solid #355445;border-radius:3px;background:#fff;box-shadow:2px 3px 0 #dce2dc,4px 6px 0 #edf0ed;perspective:700px; }
+.room-rebuilt .chess-book-masthead { padding:13px 15px;border-bottom:1px solid #e9ece7;font:10px/1.6 Georgia,serif;letter-spacing:.08em; }
+.room-rebuilt .chess-book-masthead span { display:block;font:11px/1.7 sans-serif;color:#819084; }
+.room-rebuilt .chess-book-page { padding:16px;transform-origin:left center; }
+.room-rebuilt .chess-book-page.is-turning { animation:chess-page-turn 340ms ease; }
+@keyframes chess-page-turn { from { transform:rotateY(-24deg);opacity:.4; } to { transform:rotateY(0);opacity:1; } }
+.room-rebuilt .chess-book-page h3 { margin:6px 0;font:25px/1.5 Georgia,'Songti SC',serif; }
+.room-rebuilt .chess-book-page small { font:11px/1.4 monospace;color:#64816d; }
+.room-rebuilt .chess-opening-english { font:italic 13px/1.5 Georgia,serif;color:#6a7b70; }
+.room-rebuilt #chess-opening-note { font-size:13px;line-height:1.9; }
+.room-rebuilt .chess-diagram { display:grid;grid-template-columns:repeat(8,minmax(0,1fr));aspect-ratio:1;border:5px solid #344e41;overflow:hidden; }
+.room-rebuilt .chess-diagram>span,.room-rebuilt .chess-diagram>button { display:grid;place-items:center;aspect-ratio:1;min-height:0;padding:0;border:0;border-radius:0;background:#f7f8f5;color:#17271e;font:clamp(18px,2vw,28px)/1 'Segoe UI Symbol','Arial Unicode MS',sans-serif; }
+.room-rebuilt .chess-diagram>.dark { background:#9db3a4; }
+.room-rebuilt .chess-diagram>.selected { box-shadow:inset 0 0 0 3px #b28126; }
+.room-rebuilt .chess-diagram>.legal { box-shadow:inset 0 0 0 3px #54835e; }
+.room-rebuilt .chess-score { margin:12px 0 0;font:11px/1.8 monospace;color:#5a6c60; }
+.room-rebuilt .chess-pages { display:flex;align-items:center;justify-content:space-between;padding:0 14px 12px;font:12px monospace; }
+.room-rebuilt button.chess-apply { display:block;width:calc(100% - 28px);margin:0 14px 14px;background:#315542;color:#fff;border:0;font-size:13px; }
+.room-rebuilt button.chess-apply:hover { background:#254634; }
+.room-rebuilt .chess-replay { margin-top:24px; }
+.room-rebuilt #chess-line-label { font-size:12px;color:#64766a; }
+.room-rebuilt .chess-promotion { display:flex;align-items:center;gap:12px;margin:20px 0;font-size:13px; }
+.room-rebuilt .chess-promotion select { padding:6px;border:1px solid #cbd8ce;background:white; }
+.room-rebuilt .chess-accessible summary { cursor:pointer;font-size:13px; }
+.room-rebuilt .chess-accessible p { font-size:12px; }
+.room-rebuilt.is-chess .room-webgl { right:376px; }
+.room-rebuilt.is-chess .studio-controls,.room-rebuilt.is-chess .studio-shortcuts,.room-rebuilt.is-chess .studio-mini { display:none; }
+@media(max-width:800px) {
+ .room-rebuilt.is-chess .room-webgl { right:0;bottom:40dvh; }
+ .room-rebuilt .chess-study { top:auto;left:0;right:0;bottom:0;width:auto;height:40dvh;padding:14px 18px;border-radius:16px 16px 0 0; }
+ .room-rebuilt .chess-study-heading h2 { font-size:22px; }
+ .room-rebuilt .chess-opening-book { max-width:440px;margin:18px auto; }
+ .room-rebuilt #chess-opening-diagram { max-width:220px;margin:auto; }
+ .room-rebuilt .chess-diagram>span,.room-rebuilt .chess-diagram>button { font-size:24px; }
+}
+@media(prefers-reduced-motion:reduce) { .room-rebuilt .chess-book-page.is-turning { animation:none; } }
