@@ -1,4 +1,4 @@
-import { M as T, O as M, B as S, F as v, S as f, U as h, V as g, W as m, H as _, N as b, T as P, C as D, a as C, b as A, R as U, c as w, d as E, e as y, L as R, f as N, g as F, A as B, h as O, i as I, j as k } from "./room-runtime-C-kcvy9_.js";
+import { M as T, O as M, B as S, F as v, S as f, U as h, V as g, W as m, H as _, N as b, T as P, C as D, a as C, b as A, R as U, c as w, d as E, e as y, L as R, f as N, g as F, A as B, h as O, i as I, j as k } from "./room-runtime-IFOxYmJ5.js";
 const G = {
   name: "CopyShader",
   uniforms: {

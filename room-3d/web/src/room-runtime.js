@@ -43,32 +43,32 @@ if (host && viewport && supportsWebGL) {
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xdde0e3);
-  scene.fog = new THREE.Fog(0xdde0e3, 38, 85);
-  // A real, light-reactive sweep rather than a flat white canvas. Its rounded
-  // foot sits behind the furniture; no enclosing side walls or visible edges.
+  scene.background = new THREE.Color(0xdededd);
+  scene.fog = new THREE.Fog(0xdededd, 32, 75);
+  // An open, horizonless stage: no rear wall, curved sweep or screen-space
+  // gradient. Physical shadows and broad world-space shade establish depth.
   const studioMaterial = new THREE.MeshStandardMaterial({
     color: 0xe8e9eb, roughness: .92, metalness: 0
   });
-  const sweepVertices = [], sweepIndices = [];
-  const sweepProfile = [];
-  for (let i = 0; i <= 24; i++) {
-    const angle = i / 24 * Math.PI / 2;
-    sweepProfile.push([.4 * (1 - Math.cos(angle)) - .01, -3.65 - .4 * Math.sin(angle)]);
-  }
-  sweepProfile.push([60, -4.05]);
-  sweepProfile.forEach(([y, z], i) => {
-    sweepVertices.push(-100, y, z, 100, y, z);
-    if (i) { const a = (i - 1) * 2; sweepIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
-  });
-  const sweepGeometry = new THREE.BufferGeometry();
-  sweepGeometry.setAttribute('position', new THREE.Float32BufferAttribute(sweepVertices, 3));
-  sweepGeometry.setIndex(sweepIndices);
-  sweepGeometry.computeVertexNormals();
-  const studioSweep = new THREE.Mesh(sweepGeometry, studioMaterial);
-  studioSweep.name = 'studio_backdrop';
-  studioSweep.receiveShadow = true;
-  scene.add(studioSweep);
+  studioMaterial.onBeforeCompile = (shader) => {
+    shader.vertexShader = 'varying vec3 studioWorldPosition;\n' + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `
+      #include <begin_vertex>
+      studioWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
+    `);
+    shader.fragmentShader = 'varying vec3 studioWorldPosition;\n' + shader.fragmentShader;
+    shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
+      #include <color_fragment>
+      // Broad, feathered scenic shade beyond the furniture. These are art-
+      // directed falloff fields, not additional sharp object shadows.
+      vec2 farShade = (studioWorldPosition.xz - vec2(-9.0, -13.0)) / vec2(12.0, 5.0);
+      vec2 sideShade = (studioWorldPosition.xz - vec2(15.0, -20.0)) / vec2(7.0, 14.0);
+      float shade = 0.19 * exp(-dot(farShade, farShade))
+                  + 0.11 * exp(-dot(sideShade, sideShade));
+      diffuseColor.rgb *= 1.0 - shade;
+    `);
+  };
+  studioMaterial.customProgramCacheKey = () => 'open-studio-ground-v1';
   // Metal needs reflected studio illumination as well as direct light.
   const environmentRoom = new RoomEnvironment();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -166,15 +166,15 @@ if (host && viewport && supportsWebGL) {
   const hemi = new THREE.HemisphereLight(0xf2f5ff, 0x93999e, 0.38);
   scene.add(hemi);
   const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-  keyLight.position.set(8, 9, 5);
+  keyLight.position.set(8, 7, 5);
   keyLight.target.position.set(0, 2.3, -1.6);
   scene.add(keyLight.target);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(2048, 2048);
-  keyLight.shadow.camera.left = -9;
-  keyLight.shadow.camera.right = 9;
-  keyLight.shadow.camera.top = 9;
-  keyLight.shadow.camera.bottom = -9;
+  keyLight.shadow.camera.left = -16;
+  keyLight.shadow.camera.right = 16;
+  keyLight.shadow.camera.top = 16;
+  keyLight.shadow.camera.bottom = -16;
   keyLight.shadow.normalBias = .012;
   keyLight.shadow.bias = -0.0002;
   keyLight.shadow.radius = 2.2;
@@ -360,7 +360,7 @@ if (host && viewport && supportsWebGL) {
   function setTimeOfDay(night) {
     isNight = night;
     scene.environmentIntensity = night ? 0.08 : 0.20;
-    scene.background.setHex(night ? 0x282d35 : 0xdde0e3);
+    scene.background.setHex(night ? 0x282d35 : 0xdededd);
     scene.fog.color.copy(scene.background);
     hemi.intensity = night ? 0.16 : 0.38;
     keyLight.intensity = night ? 0.28 : 2.8;
@@ -568,19 +568,10 @@ if (host && viewport && supportsWebGL) {
           object.receiveShadow = true;
         }
         if (object.name === "studio_glass_wall") {
-          object.material.side = THREE.DoubleSide;
-          object.material.opacity = .16;
-          object.material.color.setHex(0xdde4e9);
-          object.material.roughness = .18;
+          // Keep authored artwork/shelves, but remove the finite glass panel
+          // and its shadow catcher: both reveal a rectangular room boundary.
+          object.visible = false;
           object.castShadow = false;
-          const wallShadow = new THREE.Mesh(object.geometry, new THREE.ShadowMaterial({ opacity: .22, side: THREE.DoubleSide, depthWrite: false }));
-          wallShadow.name = "glass_shadow_receiver";
-          wallShadow.position.copy(object.position);
-          wallShadow.quaternion.copy(object.quaternion);
-          wallShadow.scale.copy(object.scale);
-          wallShadow.position.z += .006;
-          wallShadow.receiveShadow = true;
-          scene.add(wallShadow);
         }
         if (hitTargetFor(object)) {
           // Interactive surfaces get their own material instance so a hover
