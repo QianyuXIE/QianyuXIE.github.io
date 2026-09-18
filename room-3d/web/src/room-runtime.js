@@ -43,7 +43,32 @@ if (host && viewport && supportsWebGL) {
   host.replaceChildren(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
+  scene.background = new THREE.Color(0xdde0e3);
+  scene.fog = new THREE.Fog(0xdde0e3, 38, 85);
+  // A real, light-reactive sweep rather than a flat white canvas. Its rounded
+  // foot sits behind the furniture; no enclosing side walls or visible edges.
+  const studioMaterial = new THREE.MeshStandardMaterial({
+    color: 0xe8e9eb, roughness: .92, metalness: 0
+  });
+  const sweepVertices = [], sweepIndices = [];
+  const sweepProfile = [];
+  for (let i = 0; i <= 24; i++) {
+    const angle = i / 24 * Math.PI / 2;
+    sweepProfile.push([.4 * (1 - Math.cos(angle)) - .01, -3.65 - .4 * Math.sin(angle)]);
+  }
+  sweepProfile.push([60, -4.05]);
+  sweepProfile.forEach(([y, z], i) => {
+    sweepVertices.push(-100, y, z, 100, y, z);
+    if (i) { const a = (i - 1) * 2; sweepIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  });
+  const sweepGeometry = new THREE.BufferGeometry();
+  sweepGeometry.setAttribute('position', new THREE.Float32BufferAttribute(sweepVertices, 3));
+  sweepGeometry.setIndex(sweepIndices);
+  sweepGeometry.computeVertexNormals();
+  const studioSweep = new THREE.Mesh(sweepGeometry, studioMaterial);
+  studioSweep.name = 'studio_backdrop';
+  studioSweep.receiveShadow = true;
+  scene.add(studioSweep);
   // Metal needs reflected studio illumination as well as direct light.
   const environmentRoom = new RoomEnvironment();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -141,7 +166,7 @@ if (host && viewport && supportsWebGL) {
   const hemi = new THREE.HemisphereLight(0xf2f5ff, 0x93999e, 0.38);
   scene.add(hemi);
   const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-  keyLight.position.set(-6, 8.5, 4);
+  keyLight.position.set(8, 9, 5);
   keyLight.target.position.set(0, 2.3, -1.6);
   scene.add(keyLight.target);
   keyLight.castShadow = true;
@@ -168,23 +193,6 @@ if (host && viewport && supportsWebGL) {
   floorLampPool.position.set(-5.12, 3.46, -.15);
   floorLampPool.target.position.set(-5.12, 0, -.15);
   scene.add(floorLampPool, floorLampPool.target);
-  // A soft local spill remains visible on the unlit white cyclorama.
-  const lampSpillMaterial = new THREE.ShaderMaterial({
-    transparent:true,depthWrite:false,toneMapped:false,
-    uniforms:{strength:{value:0},color:{value:new THREE.Color(0xffd6a4)}},
-    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader:`
-      varying vec2 vUv;
-      uniform float strength;
-      uniform vec3 color;
-      void main(){
-        float glow=1.0-smoothstep(0.08,0.5,length(vUv-0.5));
-        gl_FragColor=vec4(color,strength*glow);
-        #include <colorspace_fragment>
-      }`
-  });
-  const lampSpill = new THREE.Mesh(new THREE.PlaneGeometry(3.6,3.6),lampSpillMaterial);
-  lampSpill.name='floor_lamp_spill';lampSpill.rotation.x=-Math.PI/2;lampSpill.position.set(-5.12,-.005,-.15);scene.add(lampSpill);
   const lampSurfaces = [];
 
   const raycaster = new THREE.Raycaster();
@@ -341,7 +349,6 @@ if (host && viewport && supportsWebGL) {
     lampLight.intensity = lampOn ? (isNight ? 28 : 16) : 0;
     floorLampLight.intensity = lampOn ? (isNight ? 13 : 9) : 0;
     floorLampPool.intensity = lampOn ? (isNight ? 65 : 48) : 0;
-    lampSpillMaterial.uniforms.strength.value = lampOn ? (isNight ? .35 : .13) : 0;
     lampSurfaces.forEach(({ material, strength }) => {
       material.emissive.setHex(0xffcf88);
       material.emissiveIntensity = lampOn ? strength : 0;
@@ -353,11 +360,13 @@ if (host && viewport && supportsWebGL) {
   function setTimeOfDay(night) {
     isNight = night;
     scene.environmentIntensity = night ? 0.08 : 0.20;
-    scene.background.setHex(night ? 0x282d35 : 0xffffff);
+    scene.background.setHex(night ? 0x282d35 : 0xdde0e3);
+    scene.fog.color.copy(scene.background);
     hemi.intensity = night ? 0.16 : 0.38;
     keyLight.intensity = night ? 0.28 : 2.8;
     keyLight.color.setHex(night ? 0xa9c1de : 0xffffff);
-    if (floorMaterial) floorMaterial.color.setHex(night ? 0x282d35 : 0xffffff);
+    // Keep the surface neutral: night is produced by the lighting, not by
+    // tinting an already dim material black and losing the lamp's light pool.
     fillLight.intensity = night ? .65 : 1.5;
     renderer.toneMappingExposure = night ? 0.78 : 0.82;
     setLamp(lampOn);
@@ -553,15 +562,10 @@ if (host && viewport && supportsWebGL) {
           if (material.transparent) { object.castShadow = false; material.depthWrite = false; }
         });
         if (object.name === "studio_floor") {
-          // The old grey/yellow floor covered the white canvas. A white,
-          // unlit studio surface keeps the infinite backdrop truly neutral;
-          // a separate receiver supplies real object shadows on top.
-          floorMaterial = new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false});
+          floorMaterial = studioMaterial;
           object.material = floorMaterial;
           object.castShadow = false;
-          const shadow = new THREE.Mesh(object.geometry,new THREE.ShadowMaterial({opacity:.30,depthWrite:false}));
-          shadow.position.copy(object.position);shadow.quaternion.copy(object.quaternion);shadow.scale.copy(object.scale);
-          shadow.position.y += .002;shadow.receiveShadow=true;shadow.name='studio_floor_shadows';scene.add(shadow);
+          object.receiveShadow = true;
         }
         if (object.name === "studio_glass_wall") {
           object.material.side = THREE.DoubleSide;
