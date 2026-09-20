@@ -29743,7 +29743,7 @@ function Ov(s) {
   function G(se) {
     se = Math.max(0, Math.min(se, 0.25)), W += se, k += se, W >= U[F].duration && (W -= U[F].duration, z.copy(f.position), F = (F + 1) % U.length);
     const Z = U[F], le = Z.kind === "walk", xe = Z.kind === "sleep", pe = Math.min(W / Z.duration, 1);
-    return le ? (f.position.set(ra.lerp(z.x, Z.x, pe), 0, ra.lerp(z.z, Z.z, pe)), f.rotation.y = Math.atan2(Z.x - z.x, Z.z - z.z)) : f.rotation.y = Z.kind === "sleep" ? 0.6 : Math.PI, d.position.y = xe ? -0.2 : Z.kind === "drink" ? -0.1 : Math.sin(k * 2) * 7e-3, d.rotation.x = Z.kind === "drink" ? 0.18 : 0, d.scale.y = xe ? 0.76 + Math.sin(k * 1.8) * 0.015 : 1, m.rotation.x = xe ? 0.18 : Z.kind === "drink" ? 0.65 + Math.sin(k * 9) * 0.045 : Z.kind === "play" ? 0.25 : 0, m.rotation.z = xe ? -0.2 : Math.sin(k * 0.8) * 0.035, x.forEach((Ne) => {
+    return le ? (f.position.set(ra.lerp(z.x, Z.x, pe), 0, ra.lerp(z.z, Z.z, pe)), f.rotation.y = Math.atan2(Z.x - z.x, Z.z - z.z)) : f.rotation.y = Z.kind === "sleep" ? 0.6 : Math.PI, d.position.y = xe ? -0.2 : Z.kind === "drink" ? -0.1 : Math.sin(k * 2) * 7e-3, d.rotation.x = Z.kind === "drink" ? 0.18 : 0, d.scale.y = xe ? 0.76 + Math.sin(k * 1.8) * 0.015 : 1, m.rotation.x = xe ? 0.18 : Z.kind === "drink" ? 0.65 + Math.sin(k * 9) * 0.045 : Z.kind === "play" ? 0.25 : 0, m.position.y = Z.kind === "drink" ? 0.56 : 0.79, m.rotation.z = xe ? -0.2 : Math.sin(k * 0.8) * 0.035, x.forEach((Ne) => {
       Ne.scale.y = xe ? 0.06 : Math.sin(k * 1.3) > 0.996 ? 0.12 : 1;
     }), g.forEach((Ne, nt) => {
       Ne.rotation.x = le ? Math.sin(k * 8 + (nt === 0 || nt === 3 ? 0 : Math.PI)) * 0.42 : xe ? -1.15 : 0, Ne.position.y = xe ? 0.17 : 0.39;
@@ -30104,7 +30104,7 @@ if (Pt && ea && Cu) {
         if (Y.target.checked && !Je && !We) {
           We = !0;
           try {
-            const { createFocus: $ } = await import("./room-focus-CROKkHEV.js");
+            const { createFocus: $ } = await import("./room-focus-BrnoaSrx.js");
             Je = $(e, r, u), Je.resize(Pt.clientWidth, Pt.clientHeight);
           } catch ($) {
             Y.target.checked = !1, console.warn("Depth of field unavailable", $);
