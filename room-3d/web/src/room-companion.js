@@ -110,6 +110,7 @@ export function createRoomCompanion(scene) {
     torso.rotation.x=state.kind==='drink'?.18:0;
     torso.scale.y=sleeping?.76+Math.sin(clock*1.8)*.015:1;
     head.rotation.x=sleeping?.18:state.kind==='drink'?.65+Math.sin(clock*9)*.045:state.kind==='play'?.25:0;
+    head.position.y=state.kind==='drink'?.56:.79;
     head.rotation.z=sleeping?-.2:Math.sin(clock*.8)*.035;
     eyes.forEach(eye=>{eye.scale.y=sleeping?.06:(Math.sin(clock*1.3)>.996?.12:1);});
     legs.forEach((leg,i)=>{
