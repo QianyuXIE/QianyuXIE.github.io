@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import interactionTargets from "../../interaction-targets.json";
 import { createChessCorner } from "./chess-corner.js";
-import { createRoomCompanion, createWallNote } from './room-companion.js';
+import { createWallNote } from './room-companion.js';
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");
@@ -591,29 +591,6 @@ if (host && viewport && supportsWebGL) {
       });
       scene.add(model);
       createWallNote(scene, document);
-      const companion = createRoomCompanion(scene);
-      const petToggle = document.createElement('button');
-      petToggle.type = 'button'; petToggle.className = 'room-cat-toggle';
-      let petPaused = reducedMotionQuery.matches;
-      const petStates = {sleep:'睡觉',walk:'散步',drink:'喝水',play:'玩球'};
-      function updatePetLabel() {
-        petToggle.textContent = petPaused ? '小猫 · 继续活动' : `小猫 · ${petStates[companion.state]} · 暂停`;
-        petToggle.setAttribute('aria-pressed', String(petPaused));
-        petToggle.setAttribute('aria-label', petPaused ? '继续小猫的自动活动' : '暂停小猫的自动活动');
-      }
-      updatePetLabel(); host.appendChild(petToggle);
-      petToggle.addEventListener('click',()=>{petPaused=!petPaused;updatePetLabel();requestRender();});
-      reducedMotionQuery.addEventListener('change',()=>{petPaused=reducedMotionQuery.matches;updatePetLabel();});
-      let petLast = performance.now();
-      // Independent 20 Hz activity, 4 Hz while sleeping. No full-room shadow
-      // redraws; pause offscreen, during manipulation, or while reading panels.
-      const petTimer = window.setInterval(()=>{
-        const now=performance.now(), dt=(now-petLast)/1000;
-        if(document.hidden || petPaused || panelOpen || chess?.active || controlsActive || cameraAnimating) {petLast=now;return;}
-        if(companion.state==='sleep' && dt<.25) return;
-        petLast=now;companion.update(dt);updatePetLabel();requestRender();
-      },50);
-      window.addEventListener('pagehide',event=>{if(!event.persisted)window.clearInterval(petTimer);});
       if (chairParts.length) {
         chairPivot = new THREE.Group();
         chairPivot.position.set(1.25, 0, 1.60);

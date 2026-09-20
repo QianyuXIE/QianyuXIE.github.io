@@ -37,7 +37,7 @@ const root = path.resolve(__dirname, '../..');
   class PMREM { fromScene(){ return {texture:new three.Texture()}; } dispose(){} }
   const context=vm.createContext({window:w,document:d,console,performance,CustomEvent:w.CustomEvent,ResizeObserver:class{observe(){}},requestAnimationFrame:fn=>frames.push(fn)});
   const dependencies={
-    './room-companion.js':{createWallNote:()=>null,createRoomCompanion:()=>({state:'sleep',update(){}})},
+    './room-companion.js':{createWallNote:()=>null},
     './chess-corner.js':{createChessCorner:()=>null},
     '../../interaction-targets.json':{default:JSON.parse(fs.readFileSync(path.join(root,'room-3d/interaction-targets.json'),'utf8'))},
     three:{...three,WebGLRenderer:Renderer,PMREMGenerator:PMREM,Raycaster:Picker},
