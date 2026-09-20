@@ -169,7 +169,7 @@ export function createChessCorner({scene,model,camera,controls,canvas,requestRen
   function close(reset=true){
     if(!active)return;cancelDrag();active=false;animation++;flipToken++;finishFlip();
     root.classList.remove('is-chess');panel.hidden=true;controls.enabled=true;controls.minDistance=2;controls.minPolarAngle=Math.PI*.20;
-    selection(null);syncPieces();onExit(reset);$('room-chess-trigger')?.focus({preventScroll:true});
+    selection(null);syncPieces();onExit(reset);canvas.focus({preventScroll:true});
   }
   $('chess-exit').addEventListener('click',()=>close());
   $('chess-book-toggle').addEventListener('click',()=>toggleBook());

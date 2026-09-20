@@ -93,23 +93,6 @@
   cursor: grabbing;
 }
 
-.room-webgl .room-cat-toggle {
-  position: absolute;
-  left: 16px;
-  bottom: 18px;
-  min-height: 44px;
-  padding: 10px 15px;
-  border: 1px solid rgba(74,65,57,.18);
-  border-radius: 22px;
-  background: rgba(250,248,243,.92);
-  color: #494139;
-  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  cursor: pointer;
-}
-.room-webgl .room-cat-toggle:focus-visible {
-  outline: 3px solid #5883a0;
-  outline-offset: 3px;
-}
 
 .room-webgl-tooltip {
   position: absolute;
