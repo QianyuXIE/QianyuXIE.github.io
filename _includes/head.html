@@ -61,6 +61,10 @@
     {% endif %}
 
     <!-- Custom Fonts -->
+    {% if page.layout == 'moments' %}
+    <link rel="stylesheet" href="{{ '/assets/css/moments.css' | relative_url }}?v=20260921">
+    {% endif %}
+
     <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
     <!-- Hux change font-awesome CDN to qiniu -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">

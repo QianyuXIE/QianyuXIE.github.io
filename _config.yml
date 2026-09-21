@@ -32,6 +32,10 @@ github_username:    QianyuXIE
 
 
 # Build settings
+collections:
+  moments:
+    output: false
+
 # from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
 permalink: pretty
 paginate: 10
