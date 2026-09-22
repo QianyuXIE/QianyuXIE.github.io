@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../web/node_modules/three/build/three.module.js';
-import {createWallNote} from '../web/src/room-companion.js';
+import {createWallNote} from '../web/src/room-note.js';
 const scene=new THREE.Scene();
 const text=[];
 const ctx=new Proxy({fillText:s=>text.push(s)},{get:(obj,key)=>obj[key]??(()=>{})});

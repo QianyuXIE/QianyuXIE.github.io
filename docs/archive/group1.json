@@ -1,0 +1,18 @@
+{
+  "title": "我的第一组照片",
+  "description": "这是一段描述，讲述了这一组照片的背景故事。",
+  "photos": [
+    {
+      "src": "images/photo1.jpg",
+      "alt": "第一张照片"
+    },
+    {
+      "src": "images/photo2.jpg",
+      "alt": "第二张照片"
+    },
+    {
+      "src": "images/photo3.jpg",
+      "alt": "第三张照片"
+    }
+  ]
+}
