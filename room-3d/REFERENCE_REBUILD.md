@@ -1,5 +1,9 @@
 # Video-led room reconstruction
 
+Historical implementation notes: dated validation sections below describe
+earlier versions. For the current scene and interactions, check
+`web/src/room-runtime.js` and `web/src/chess-corner.js`.
+
 Reference: user-supplied ScreenRecording_09-03-2026 14-41-27_1.mp4 (512 × 1108, 30 fps).
 The embedded website occupies approximately 484 × 400 pixels. Identity, photographs and CV remain Qianyu's.
 

@@ -1,5 +1,10 @@
 # Qianyu Room — Rebuild Guide
 
+This guide records the modelling workflow and earlier art direction. The current
+browser scene is defined by `web/src/room-runtime.js`: its floor is open and
+fades into the background, and it hides the exported glass wall. Rebuilds should
+be checked against that runtime before publishing a new GLB.
+
 This document is the source of truth for rebuilding the Room experience. It
 uses the supplied screen recording as a behavioural and art-direction
 reference while keeping all geometry, textures, copy, photographs and code

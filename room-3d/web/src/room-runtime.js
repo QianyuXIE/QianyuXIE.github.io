@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import interactionTargets from "../../interaction-targets.json";
 import { createChessCorner } from "./chess-corner.js";
-import { createWallNote } from './room-companion.js';
+import { createWallNote } from './room-note.js';
 
 const host = document.getElementById("room-webgl");
 const viewport = document.getElementById("room-viewport");

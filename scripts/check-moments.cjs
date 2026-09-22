@@ -1,7 +1,7 @@
 // DOM/Liquid regression checks; not a substitute for browser visual QA.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {Liquid}=require('liquidjs'),{JSDOM}=require('jsdom'),YAML=require('yaml');
-const root=path.resolve(__dirname,'../..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const liquid=new Liquid({strictFilters:true});
 liquid.registerFilter('relative_url',v=>'/test'+v);
 liquid.registerFilter('date_to_xmlschema',v=>new Date(v).toISOString());

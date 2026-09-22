@@ -6,27 +6,32 @@
 
 - `/`：学术简历与个人介绍
 - `/room/`：使用 Three.js 展示的互动 3D 房间
-- `/moment/`：文章与生活记录
+- `/moment/`：文件式生活动态与文章归档
 - `/about/`：摄影与个人页面
 
-主页、Moment、About 和文章页沿用原有的 Jekyll/Hux 页面结构。Room 使用独立布局和作用域样式，因此房间的视觉与交互不会修改其他页面。
+主页、Moment、About 和文章页都由 Jekyll 构建。Moment 有独立的九宫格布局；Room 的 Three.js 源码与构建产物分开存放。
 
 ## 目录结构
 
 ```text
 ├─ _includes/              Jekyll 页面组件
 ├─ _layouts/               页面布局
+├─ _moments/               每条动态一个 Markdown 文件
 ├─ _posts/                 文章
-├─ assets/css/             CV 与 Room 的页面样式
+├─ assets/css/             页面专用样式
 ├─ assets/room3d/          浏览器加载的模型、贴图和脚本
+├─ docs/archive/           未使用的旧界面及示例，构建时排除
 ├─ img/                    照片及网站图片
 ├─ js/                     页面交互脚本
 ├─ room-3d/                Blender 建模源码、Three.js 源码与检查脚本
+├─ scripts/                非 Room 页面的检查脚本
 ├─ index.md                CV 主页
 ├─ room.html               Room 内容配置
 ├─ moment.html             Moment 页面
 └─ _config.yml             Jekyll 网站配置
 ```
+
+`_site/`、`vendor/bundle/`、`room-3d/web/node_modules/` 和 `room-3d/preview/` 是本地构建或依赖目录，已被 Git 忽略。它们不需要上传，暂时保留可避免重新安装依赖。`_moments/` 中的 JSON 旧示例已移至 `docs/archive/`；发布动态请使用 Markdown 文件。
 
 ## 本地预览
 
