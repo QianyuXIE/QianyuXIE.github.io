@@ -39,6 +39,9 @@ _site/
 vendor/bundle/
 node_modules/
 room-3d/web/node_modules/
+services/**/node_modules/
+services/**/.wrangler/
+services/**/.dev.vars*
 room-3d/preview/
 *.blend1
 __pycache__/

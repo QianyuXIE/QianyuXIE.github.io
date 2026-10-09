@@ -1,9 +1,11 @@
 .moments-page { color:#303b39; padding:0 20px 64px; }
 .moments-page .moments-feed { max-width:720px; margin:0 auto; }
-.moments-page .moments-intro { margin:12px 0 38px; padding-bottom:25px; border-bottom:1px solid #e7ebe8; }
+.moments-page .moments-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin:12px 0 38px; padding-bottom:25px; border-bottom:1px solid #e7ebe8; }
 .moments-page .moments-eyebrow { font-size:10px; letter-spacing:.22em; color:#7d8a82; }
 .moments-page h2 { font-size:26px; font-weight:600; margin:12px 0; }
 .moments-page .moments-intro p { color:#7b847f; font-size:14px; margin:0; }
+.moments-page .moments-publish-link { flex:none; display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border:1px solid #ccd6d0; border-radius:999px; color:#49655a; font-size:14px; text-decoration:none; background:#fff; }
+.moments-page .moments-publish-link:hover { border-color:#779d8a; background:#f5f8f5; }
 .moments-page .moment-card { padding:0 0 32px; margin-bottom:32px; border-bottom:1px solid #e7ebe8; }
 .moments-page .moment-author { display:flex; align-items:center; gap:12px; margin-bottom:17px; }
 .moments-page .moment-author img { width:44px; height:44px; object-fit:cover; border-radius:12px; }
@@ -50,8 +52,56 @@
   .moments-page .moment-copy { font-size:15px; }
   .moments-page .moment-grid { gap:4px; }
   .moments-page .moment-author strong span { display:none; }
+  .moments-page .moments-intro { align-items:center; gap:12px; }
+  .moments-page .moments-publish-link { padding:9px 13px; }
   .moments-page .moments-lightbox { padding:8px; }
   .moments-page .moments-lightbox-stage { grid-template-columns:32px minmax(0,1fr) 32px; gap:0; }
   .moments-page .moments-lightbox-stage button { min-width:32px; padding:0; }
 }
 @media(prefers-reduced-motion:reduce) { .moments-page .moment-photo img { transition:none; } }
+
+.moments-page .moment-publisher { max-width:680px; margin:0 auto; padding:6px 0 40px; }
+.moments-page .publisher-heading { margin-bottom:30px; padding-bottom:24px; border-bottom:1px solid #e7ebe8; }
+.moments-page .publisher-heading h2 { margin-bottom:8px; }
+.moments-page .publisher-heading p:last-child { color:#7b847f; font-size:14px; }
+.moments-page .publisher-back { display:inline-block; margin-bottom:30px; color:#60766d; font-size:13px; }
+.moments-page .publisher-login,.moments-page .publisher-compose,.moments-page .publisher-setup { padding:24px; border:1px solid #dfe5e1; border-radius:18px; background:#fbfcfa; box-shadow:0 12px 36px rgba(48,59,57,.06); }
+.moments-page .publisher-setup h3 { margin-top:0; font-size:18px; }
+.moments-page .publisher-login label,.moments-page .publisher-compose>label { display:block; margin-bottom:9px; color:#53645d; font-size:13px; font-weight:600; }
+.moments-page .publisher-password-row { display:flex; gap:10px; }
+.moments-page .publisher-password-row input,.moments-page .publisher-fields input,.moments-page .publisher-compose textarea { width:100%; border:1px solid #ccd6d0; border-radius:12px; background:#fff; color:#303b39; font:inherit; }
+.moments-page .publisher-password-row input,.moments-page .publisher-fields input { min-height:46px; padding:9px 12px; }
+.moments-page .publisher-compose textarea { padding:13px; resize:vertical; line-height:1.7; }
+.moments-page .publisher-password-row button,.moments-page [data-publish-submit] { min-width:92px; border:0; border-radius:12px; background:#49655a; color:#fff; font-weight:600; }
+.moments-page .publisher-password-row button:disabled,.moments-page [data-publish-submit]:disabled { opacity:.55; }
+.moments-page .publisher-status { min-height:20px; margin:12px 0 0; color:#68766f; font-size:13px; }
+.moments-page .publisher-status.is-error { color:#a4433d; }
+.moments-page .publisher-status.is-success { color:#397057; }
+.moments-page .publisher-session-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; color:#65736c; font-size:12px; }
+.moments-page .publisher-session-row button { border:0; background:transparent; color:#6f8178; text-decoration:underline; }
+.moments-page .publisher-fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0 18px; }
+.moments-page .publisher-fields label { color:#68766f; font-size:12px; }
+.moments-page .publisher-fields input { display:block; margin-top:7px; }
+.moments-page .publisher-photo-field { display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+.moments-page .publisher-photo-picker { width:112px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px dashed #aebeb5; border-radius:10px; background:#f2f5f2; color:#586b62; }
+.moments-page .publisher-photo-picker span { font-size:28px; font-weight:300; line-height:1; }
+.moments-page .publisher-photo-picker strong { margin-top:7px; font-size:13px; }
+.moments-page .publisher-photo-picker small { margin-top:3px; color:#8b9690; font-weight:400; }
+.moments-page .publisher-previews { display:grid; grid-template-columns:repeat(3,92px); gap:8px; }
+.moments-page .publisher-preview { position:relative; width:92px; aspect-ratio:1; overflow:hidden; border-radius:9px; background:#e7ebe8; }
+.moments-page .publisher-preview img { width:100%; height:100%; object-fit:cover; }
+.moments-page .publisher-preview button { position:absolute; top:5px; right:5px; width:28px; height:28px; border:0; border-radius:50%; background:rgba(24,29,27,.78); color:#fff; font-size:18px; line-height:1; }
+.moments-page .publisher-submit-row { display:flex; align-items:center; justify-content:space-between; margin-top:24px; }
+.moments-page .publisher-submit-row span { color:#8b9690; font-size:12px; }
+.moments-page [data-publish-submit] { min-height:46px; padding:0 25px; }
+.moments-page [data-publish-progress] { width:100%; height:7px; margin-top:16px; accent-color:#5f8171; }
+.publisher-local-footer { padding:30px 20px 38px; border-top:1px solid #edf0eb; text-align:center; color:#919b95; font-size:12px; }
+.publisher-local-footer p { margin:0; }
+@media(max-width:600px) {
+  .moments-page .publisher-login,.moments-page .publisher-compose,.moments-page .publisher-setup { padding:18px; border-radius:14px; }
+  .moments-page .publisher-fields { grid-template-columns:1fr; }
+  .moments-page .publisher-photo-field { display:block; }
+  .moments-page .publisher-photo-picker { width:100%; aspect-ratio:auto; min-height:84px; }
+  .moments-page .publisher-previews { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:8px; }
+  .moments-page .publisher-preview { width:auto; }
+}
