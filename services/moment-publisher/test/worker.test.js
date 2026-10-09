@@ -30,7 +30,7 @@ test('allows only the configured site origin and password',async()=>{
 
   const wrong=await login('wrong password');
   assert.equal(wrong.response.status,401);
-  assert.equal(wrong.body.error,'??????');
+  assert.equal(wrong.body.error,'密码不正确。');
 
   const ok=await login();
   assert.equal(ok.response.status,200);
@@ -68,9 +68,9 @@ test('publishes Markdown and photos in one Git commit',async t=>{
 
   const {body:auth}=await login();
   const form=new FormData();
-  form.set('text','?????\n???');
-  form.set('title','??: ????');
-  form.set('location','??');
+  form.set('text','今天的文字\n第二行');
+  form.set('title','生活: “一页”');
+  form.set('location','深圳');
   form.append('photos',new File([new Uint8Array([0xff,0xd8,0xff,0xd9])],'one.jpg',{type:'image/jpeg'}));
   form.append('photos',new File([new Uint8Array([0xff,0xd8,1,2,0xff,0xd9])],'two.jpg',{type:'image/jpeg'}));
   const response=await worker.fetch(request('/publish',{method:'POST',token:auth.token,body:form}),env);
@@ -84,10 +84,10 @@ test('publishes Markdown and photos in one Git commit',async t=>{
   assert.deepEqual([...decoded[0]],[0xff,0xd8,0xff,0xd9]);
   assert.deepEqual([...decoded[1]],[0xff,0xd8,1,2,0xff,0xd9]);
   const markdown=decoded[2].toString('utf8');
-  assert.match(markdown,/title: "??: ????"/);
-  assert.match(markdown,/location: "??"/);
+  assert.match(markdown,/title: "生活: “一页”"/);
+  assert.match(markdown,/location: "深圳"/);
   assert.match(markdown,/images:\n  - \/img\/moments\/\d{4}-\d{2}-\d{2}\/.+-01\.jpg\n  - \/img\/moments\/\d{4}-\d{2}-\d{2}\/.+-02\.jpg/);
-  assert.match(markdown,/---\n\n?????\n???\n$/);
+  assert.match(markdown,/---\n\n今天的文字\n第二行\n$/);
 });
 
 test('validates empty posts, file type and photo count before GitHub',async()=>{
@@ -115,5 +115,5 @@ test('temporarily throttles repeated wrong passwords from one address',async()=>
   }
   const blocked=await worker.fetch(request('/login',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({password:env.PUBLISH_PASSWORD})}),env);
   assert.equal(blocked.status,429);
-  assert.match((await blocked.json()).error,/???/);
+  assert.match((await blocked.json()).error,/十分钟/);
 });

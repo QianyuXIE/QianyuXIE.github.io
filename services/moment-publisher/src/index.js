@@ -40,14 +40,14 @@ async function commitFiles(env,files,message){
 }
 async function publish(request,env){
   const contentLength=Number(request.headers.get('Content-Length')||0);
-  if(contentLength>28*1024*1024)return json({error:'?????????'},413);
+  if(contentLength>28*1024*1024)return json({error:'本次上传内容过大。'},413);
   const form=await request.formData(),text=String(form.get('text')||'').replace(/\r\n?/g,'\n').trim(),title=String(form.get('title')||'').replace(/\r\n?/g,' ').trim(),location=String(form.get('location')||'').replace(/\r\n?/g,' ').trim();
   const photos=form.getAll('photos').filter(value=>value instanceof File);
-  if(!text&&!photos.length)return json({error:'??????????'},400);
-  if(text.length>5000||title.length>80||location.length>80)return json({error:'?????????'},400);
-  if(photos.length>9)return json({error:'?????? 9 ????'},400);
-  let total=0;for(const photo of photos){total+=photo.size;if(photo.type!=='image/jpeg'||photo.size>3*1024*1024)return json({error:'????????? JPEG??????? 3 MB?'},400);}
-  if(total>24*1024*1024)return json({error:'????????? 24 MB?'},400);
+  if(!text&&!photos.length)return json({error:'请写文字或选择照片。'},400);
+  if(text.length>5000||title.length>80||location.length>80)return json({error:'文字超过长度限制。'},400);
+  if(photos.length>9)return json({error:'每条动态最多 9 张照片。'},400);
+  let total=0;for(const photo of photos){total+=photo.size;if(photo.type!=='image/jpeg'||photo.size>3*1024*1024)return json({error:'照片必须是压缩后的 JPEG，且每张不超过 3 MB。'},400);}
+  if(total>24*1024*1024)return json({error:'照片总大小不能超过 24 MB。'},400);
   const provisional=makeMoment({text,title,location,paths:[]});
   const imagePaths=photos.map((_,index)=>`/img/moments/${provisional.day}/${provisional.slug}-${String(index+1).padStart(2,'0')}.jpg`);
   const moment=makeMoment({text,title,location,paths:imagePaths,identity:provisional});
@@ -66,23 +66,23 @@ export default {async fetch(request,env){
     if(request.headers.get('X-Moment-Request')!=='1')return json({error:'Invalid request.'},400);
     if(url.pathname==='/health'&&request.method==='GET')return json({ok:true});
     if(url.pathname==='/login'&&request.method==='POST'){
-      if(!env.PUBLISH_PASSWORD||!env.SESSION_SECRET||env.SESSION_SECRET.length<32)return json({error:'???????????'},503);
+      if(!env.PUBLISH_PASSWORD||!env.SESSION_SECRET||env.SESSION_SECRET.length<32)return json({error:'发布服务尚未正确配置。'},503);
       const client=request.headers.get('CF-Connecting-IP')||'unknown',now=Date.now(),record=loginFailures.get(client);
-      if(record&&record.until>now&&record.count>=5)return json({error:'???????????????'},429);
+      if(record&&record.until>now&&record.count>=5)return json({error:'尝试次数过多，请十分钟后再试。'},429);
       const {password=''}=await request.json().catch(()=>({}));
       if(!safeEqual(await sha256(String(password)),await sha256(env.PUBLISH_PASSWORD))){
         const current=record&&record.until>now?record:{count:0,until:now+loginWindow};
         current.count+=1;loginFailures.set(client,current);
-        return json({error:'??????'},401);
+        return json({error:'密码不正确。'},401);
       }
       loginFailures.delete(client);
       return json({ok:true,token:await makeToken(env.SESSION_SECRET),expiresIn:14400});
     }
-    if(!await validToken(authToken(request),env.SESSION_SECRET))return json({error:'??????'},401);
+    if(!await validToken(authToken(request),env.SESSION_SECRET))return json({error:'登录已过期。'},401);
     if(url.pathname==='/session'&&request.method==='GET')return json({ok:true});
     if(url.pathname==='/publish'&&request.method==='POST')return publish(request,env);
     return json({error:'Not found.'},404);
   };
   try {const response=await respond();Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
-  catch(error){console.error(error);const response=json({error:'??????????'},500);Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
+  catch(error){console.error(error);const response=json({error:'发布服务暂时不可用。'},500);Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
 }};
