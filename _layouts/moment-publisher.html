@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{% include head.html %}
+<body class="moment-publisher-page" ontouchstart="">
+  {% include nav.html %}
+  {% include intro-header.html type='page' %}
+  <main class="moments-page" lang="zh-CN">
+    {{ content }}
+  </main>
+  <footer class="publisher-local-footer">
+    <p>Copyright &copy; {{ site.title }} {{ site.time | date: '%Y' }}</p>
+  </footer>
+</body>
+</html>

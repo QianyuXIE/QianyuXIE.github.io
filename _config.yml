@@ -8,6 +8,7 @@ description: "我刚刚睡醒，真对不起，瞧我的头发还是乱蓬蓬的
 keyword: "浅羽的小屋, Qianyu Xie, 谢浅羽"
 url: "https://qianyuxie.github.io/"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
+moment_publisher_url: "https://qianyu-moment-publisher.xieqy1921.workers.dev"
 github_repo: "https://github.com/QianyuXIE/QianyuXIE.github.io.git" # you code repository
 favicon: "/img/favicon.ico"
 
@@ -39,7 +40,7 @@ collections:
 # from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
 permalink: pretty
 paginate: 10
-exclude: ["less","node_modules","vendor",".bundle","room-3d","scripts","docs","Gemfile","Gemfile.lock","Gruntfile.js","package.json","README.md","original_readme.md"]
+exclude: ["less","node_modules","vendor",".bundle","room-3d","scripts","services","docs","Gemfile","Gemfile.lock","Gruntfile.js","package.json","README.md","original_readme.md"]
 anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
 
 

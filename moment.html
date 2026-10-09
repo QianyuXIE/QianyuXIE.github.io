@@ -7,7 +7,7 @@ header-img: "img/Me/Whale.JPG"
 ---
 
 <div class="moments-feed">
-  <header class="moments-intro"><span class="moments-eyebrow">LITTLE THINGS, KEPT HERE</span><h2>生活的切片</h2><p>照片、片刻，还有一些想留下的话。</p></header>
+  <header class="moments-intro"><div><span class="moments-eyebrow">LITTLE THINGS, KEPT HERE</span><h2>生活的切片</h2><p>照片、片刻，还有一些想留下的话。</p></div><a class="moments-publish-link" href="{{ '/moment/publish/' | relative_url }}" rel="nofollow"><span aria-hidden="true">＋</span> 发布</a></header>
   {% assign moments = site.moments | sort: 'date' | reverse %}
   {% assign visible_count = 0 %}
   {% for moment in moments %}

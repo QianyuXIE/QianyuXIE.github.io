@@ -1,0 +1,55 @@
+---
+title: 发布 Moment
+permalink: /moment/publish/
+layout: moment-publisher
+description: "私人 Moment 发布工具"
+header-style: text
+hide-in-nav: true
+noindex: true
+private_tool: true
+---
+
+<div class="moment-publisher" data-publisher-endpoint="{{ site.moment_publisher_url | escape }}">
+  <header class="publisher-heading">
+    <a href="{{ '/moment/' | relative_url }}" class="publisher-back">← 返回 Moment</a>
+    <p class="moments-eyebrow">PRIVATE PUBLISHER</p>
+    <h2>发布一条生活动态</h2>
+    <p>手机选择照片，写下文字。照片会先在本机压缩，再一起提交。</p>
+  </header>
+
+  <section class="publisher-setup" data-publisher-setup hidden role="status">
+    <h3>发布服务尚未连接</h3>
+    <p>页面已经准备好。完成 README 中的“启用私人发布”步骤并填写 Worker 地址后即可使用。</p>
+  </section>
+
+  <form class="publisher-login" data-publisher-login autocomplete="on">
+    <label for="publisher-password">发布密码</label>
+    <div class="publisher-password-row">
+      <input id="publisher-password" name="password" type="password" autocomplete="current-password" required maxlength="160" enterkeyhint="go">
+      <button type="submit">进入</button>
+    </div>
+    <p class="publisher-status" data-login-status aria-live="polite"></p>
+  </form>
+
+  <form class="publisher-compose" data-publisher-compose hidden>
+    <div class="publisher-session-row"><span>仅你可发布</span><button type="button" data-publisher-logout>退出</button></div>
+    <label for="moment-text">这一刻</label>
+    <textarea id="moment-text" name="text" rows="7" maxlength="5000" placeholder="写点什么……"></textarea>
+    <div class="publisher-fields">
+      <label>标题（可选）<input name="title" maxlength="80"></label>
+      <label>地点（可选）<input name="location" maxlength="80"></label>
+    </div>
+    <div class="publisher-photo-field">
+      <input id="moment-photos" name="photos" type="file" accept="image/*" multiple hidden>
+      <button type="button" class="publisher-photo-picker" data-photo-picker><span aria-hidden="true">＋</span><strong>选择照片</strong><small>最多 9 张</small></button>
+      <div class="publisher-previews" data-photo-previews aria-live="polite"></div>
+    </div>
+    <div class="publisher-submit-row">
+      <span data-compose-count>0 / 5000</span>
+      <button type="submit" data-publish-submit>发布</button>
+    </div>
+    <progress data-publish-progress max="100" value="0" hidden></progress>
+    <p class="publisher-status" data-publish-status aria-live="polite"></p>
+  </form>
+</div>
+<script src="{{ '/js/moment-publisher.js' | relative_url }}?v=20261008" defer></script>

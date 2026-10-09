@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qianyu-moment-publisher",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-20",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGIN": "https://qianyuxie.github.io",
+    "GITHUB_OWNER": "QianyuXIE",
+    "GITHUB_REPO": "QianyuXIE.github.io",
+    "GITHUB_BRANCH": "main"
+  },
+  "secrets": {
+    "required": ["PUBLISH_PASSWORD", "SESSION_SECRET", "GITHUB_TOKEN"]
+  }
+}

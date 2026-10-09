@@ -25,6 +25,7 @@
 ├─ js/                     页面交互脚本
 ├─ room-3d/                Blender 建模源码、Three.js 源码与检查脚本
 ├─ scripts/                非 Room 页面的检查脚本
+├─ services/               私人发布服务（不参与 Jekyll 构建）
 ├─ index.md                CV 主页
 ├─ room.html               Room 内容配置
 ├─ moment.html             Moment 页面
@@ -91,6 +92,56 @@ images:
 ```
 
 `_moments/2026-09-21-example.md` 是使用现有照片的排版示例，不是真实的新动态。开始使用后可替换或删除它，并移除 `example: true`。原有 `_posts/` 文章仍保留在 Moment 下方，不需要迁移。
+
+#### 启用手机端私人发布
+
+GitHub Pages 是纯静态网站，不能安全地直接保存密码或把照片写回仓库。因此 `/moment/publish/` 使用一个很小的 Cloudflare Worker 验证密码，再通过 GitHub API 原子提交 Markdown 和照片。密码、登录签名密钥与 GitHub token 都保存为 Cloudflare 加密 Secret，不会出现在公开仓库或浏览器源码中。
+
+首次启用：
+
+1. 在 GitHub 创建 fine-grained personal access token，只授权 `QianyuXIE/QianyuXIE.github.io`，Repository permissions 仅开启 **Contents: Read and write**。建议设置有效期并在到期前更换。
+2. 登录 Cloudflare，进入发布服务目录并安装依赖：
+
+   ```powershell
+   cd services/moment-publisher
+   npm install
+   npx wrangler login
+   ```
+
+3. 依次保存三个 Secret。`PUBLISH_PASSWORD` 请使用专门生成的长密码，不要复用 GitHub 密码；`GITHUB_TOKEN` 填第 1 步的 token：
+
+   ```powershell
+   npx wrangler secret put PUBLISH_PASSWORD
+   npx wrangler secret put SESSION_SECRET
+   npx wrangler secret put GITHUB_TOKEN
+   ```
+
+   `SESSION_SECRET` 应为至少 32 字节的随机值，可以在本机 PowerShell 生成后粘贴到提示中：
+
+   ```powershell
+   $randomBytes = New-Object byte[] 32
+   [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($randomBytes)
+   [Convert]::ToBase64String($randomBytes)
+   ```
+
+   不要把以上三个值写进 `_config.yml`、`.dev.vars`、README、Git 提交或聊天记录。
+
+4. 部署并复制 Wrangler 输出的 `https://...workers.dev` 地址：
+
+   ```powershell
+   npx wrangler deploy
+   ```
+
+5. 把 `_config.yml` 的 `moment_publisher_url` 改成该地址（末尾不加 `/`），提交并推送。之后手机打开 Moment，点右上角“发布”，输入密码即可选 1–9 张照片并发布。
+
+登录状态只存在当前浏览器标签页，4 小时后自动失效。发布页设置为 `noindex`，并使用不加载第三方 JavaScript 的独立布局。公开访问者能看到发布入口，但没有密码无法创建内容；静态网页本身不能隐藏入口地址。
+
+本地检查 Worker：
+
+```powershell
+cd services/moment-publisher
+npm test
+```
 
 ### Room 棋桌
 
