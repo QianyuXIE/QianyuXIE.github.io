@@ -2,6 +2,10 @@
 
 This private service accepts the owner password, issues a four-hour signed session token, and creates one atomic Git commit containing the Moment Markdown file and up to nine JPEG images.
 
+The form supplies the post date in Asia/Shanghai time. New photos are written to
+`img/_Moment/` with filenames in `YYYY-MM-DD-HHMMSS-random-NN.jpg` format, and
+the same date is stored in the Moment front matter.
+
 Required Cloudflare encrypted secrets:
 
 - `PUBLISH_PASSWORD`: the password used on the phone.

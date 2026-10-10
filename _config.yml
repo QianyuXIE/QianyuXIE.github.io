@@ -36,6 +36,8 @@ github_username:    QianyuXIE
 collections:
   moments:
     output: false
+# Jekyll 3 filters nested entries by basename, so the underscored folder itself must be included.
+include: ["_Moment"]
 
 # from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
 permalink: pretty

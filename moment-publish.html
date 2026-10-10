@@ -36,6 +36,7 @@ private_tool: true
     <label for="moment-text">这一刻</label>
     <textarea id="moment-text" name="text" rows="7" maxlength="5000" placeholder="写点什么……"></textarea>
     <div class="publisher-fields">
+      <label class="publisher-date-field">帖子日期<input name="date" type="datetime-local" min="2000-01-01T00:00" max="2100-12-31T23:59" required></label>
       <label>标题（可选）<input name="title" maxlength="80"></label>
       <label>地点（可选）<input name="location" maxlength="80"></label>
     </div>
@@ -52,4 +53,4 @@ private_tool: true
     <p class="publisher-status" data-publish-status aria-live="polite"></p>
   </form>
 </div>
-<script src="{{ '/js/moment-publisher.js' | relative_url }}?v=20261008" defer></script>
+<script src="{{ '/js/moment-publisher.js' | relative_url }}?v=20261010" defer></script>

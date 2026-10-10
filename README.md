@@ -65,8 +65,8 @@ npm run build
 ---
 date: 2026-09-21 18:30:00 +0800
 images:
-  - /img/moments/2026-09-21/01.jpg
-  - /img/moments/2026-09-21/02.jpg
+  - /img/_Moment/2026-09-21-183000-a1b2c3-01.jpg
+  - /img/_Moment/2026-09-21-183000-a1b2c3-02.jpg
 ---
 
 这里写朋友圈文字。可以分段，也可以使用 **粗体**。
@@ -74,7 +74,7 @@ images:
 
 使用步骤：
 
-1. 把照片放到仓库中，例如 `img/moments/2026-09-21/`（自行新建文件夹）。
+1. 把照片放到仓库的 `img/_Moment/`。文件名建议使用帖子日期时间和序号，例如 `2026-09-21-183000-a1b2c3-01.jpg`。
 2. 在 `_moments/` 新建 Markdown 文件，填写日期、图片地址和正文。
 3. 提交并推送，GitHub Pages 构建后会显示在 `/moment/`；新日期排在前面。
 
@@ -86,8 +86,8 @@ images:
 
 ```yaml
 images:
-  - src: /img/moments/2026-09-21/01.jpg
-    thumb: /img/moments/2026-09-21/01-small.jpg
+  - src: /img/_Moment/2026-09-21-183000-a1b2c3-01.jpg
+    thumb: /img/_Moment/2026-09-21-183000-a1b2c3-01-small.jpg
     alt: 照片的简短说明
 ```
 
@@ -132,7 +132,7 @@ GitHub Pages 是纯静态网站，不能安全地直接保存密码或把照片�
    npx wrangler deploy
    ```
 
-5. 把 `_config.yml` 的 `moment_publisher_url` 改成该地址（末尾不加 `/`），提交并推送。之后手机打开 Moment，点右上角“发布”，输入密码即可选 1–9 张照片并发布。
+5. 把 `_config.yml` 的 `moment_publisher_url` 改成该地址（末尾不加 `/`），提交并推送。之后手机打开 Moment，点右上角“发布”，输入密码即可设置帖子日期、选择 1–9 张照片并发布。新照片保存在 `img/_Moment/`，按帖子日期时间和照片序号命名，例如 `2026-10-10-143025-a1b2c3-01.jpg`。
 
 登录状态只存在当前浏览器标签页，4 小时后自动失效。发布页设置为 `noindex`，并使用不加载第三方 JavaScript 的独立布局。公开访问者能看到发布入口，但没有密码无法创建内容；静态网页本身不能隐藏入口地址。
 

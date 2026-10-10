@@ -48,6 +48,7 @@ test('allows only the configured site origin and password',async()=>{
 test('publishes Markdown and photos in one Git commit',async t=>{
   const originalFetch=globalThis.fetch;
   const blobs=[];
+  const trees=[];
   let blobNumber=0;
   globalThis.fetch=async(url,options={})=>{
     const parsed=new URL(url);
@@ -59,7 +60,7 @@ test('publishes Markdown and photos in one Git commit',async t=>{
     }
     if(path==='/git/ref/heads/main')return Response.json({object:{sha:'parent-sha'}});
     if(path==='/git/commits/parent-sha')return Response.json({tree:{sha:'base-tree'}});
-    if(path==='/git/trees'&&options.method==='POST')return Response.json({sha:'new-tree'});
+    if(path==='/git/trees'&&options.method==='POST'){trees.push(JSON.parse(options.body));return Response.json({sha:'new-tree'});}
     if(path==='/git/commits'&&options.method==='POST')return Response.json({sha:'new-commit'});
     if(path==='/git/refs/heads/main'&&options.method==='PATCH')return Response.json({object:{sha:'new-commit'}});
     return Response.json({message:`Unhandled test URL ${path}`},{status:500});
@@ -69,6 +70,7 @@ test('publishes Markdown and photos in one Git commit',async t=>{
   const {body:auth}=await login();
   const form=new FormData();
   form.set('text','今天的文字\n第二行');
+  form.set('date','2025-03-08T09:07');
   form.set('title','生活: “一页”');
   form.set('location','深圳');
   form.append('photos',new File([new Uint8Array([0xff,0xd8,0xff,0xd9])],'one.jpg',{type:'image/jpeg'}));
@@ -78,7 +80,7 @@ test('publishes Markdown and photos in one Git commit',async t=>{
 
   assert.equal(response.status,200);
   assert.equal(body.commit,'new-commit');
-  assert.match(body.momentUrl,/^https:\/\/qianyuxie\.github\.io\/moment\/#moment-\d{4}-\d{2}-\d{2}-/);
+  assert.match(body.momentUrl,/^https:\/\/qianyuxie\.github\.io\/moment\/#moment-2025-03-08-090700-/);
   assert.equal(blobs.length,3);
   const decoded=blobs.map(item=>Buffer.from(item.content,'base64'));
   assert.deepEqual([...decoded[0]],[0xff,0xd8,0xff,0xd9]);
@@ -86,8 +88,14 @@ test('publishes Markdown and photos in one Git commit',async t=>{
   const markdown=decoded[2].toString('utf8');
   assert.match(markdown,/title: "生活: “一页”"/);
   assert.match(markdown,/location: "深圳"/);
-  assert.match(markdown,/images:\n  - \/img\/moments\/\d{4}-\d{2}-\d{2}\/.+-01\.jpg\n  - \/img\/moments\/\d{4}-\d{2}-\d{2}\/.+-02\.jpg/);
+  assert.match(markdown,/date: 2025-03-08 09:07:00 \+0800/);
+  assert.match(markdown,/images:\n  - \/img\/_Moment\/2025-03-08-090700-.+-01\.jpg\n  - \/img\/_Moment\/2025-03-08-090700-.+-02\.jpg/);
   assert.match(markdown,/---\n\n今天的文字\n第二行\n$/);
+  assert.deepEqual(trees[0].tree.map(item=>item.path),[
+    'img/_Moment/'+body.momentUrl.match(/moment-(2025-03-08-090700-[^/]+)/)[1]+'-01.jpg',
+    'img/_Moment/'+body.momentUrl.match(/moment-(2025-03-08-090700-[^/]+)/)[1]+'-02.jpg',
+    '_moments/'+body.momentUrl.match(/moment-(2025-03-08-090700-[^/]+)/)[1]+'.md'
+  ]);
 });
 
 test('validates empty posts, file type and photo count before GitHub',async()=>{
@@ -105,6 +113,11 @@ test('validates empty posts, file type and photo count before GitHub',async()=>{
   const countResponse=await worker.fetch(request('/publish',{method:'POST',token:auth.token,body:tooMany}),env);
   assert.equal(countResponse.status,400);
   assert.match((await countResponse.json()).error,/9/);
+
+  const invalidDate=new FormData();invalidDate.set('text','日期测试');invalidDate.set('date','2026-02-30T12:00');
+  const dateResponse=await worker.fetch(request('/publish',{method:'POST',token:auth.token,body:invalidDate}),env);
+  assert.equal(dateResponse.status,400);
+  assert.match((await dateResponse.json()).error,/日期/);
 });
 
 test('temporarily throttles repeated wrong passwords from one address',async()=>{
