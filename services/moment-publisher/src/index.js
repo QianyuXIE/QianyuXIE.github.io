@@ -30,6 +30,14 @@ function makeMoment({text,title,location,paths,identity={}}){
   return {slug,day,now,markdown:`${front.join('\n')}\n---\n\n${text}\n`,path:`_moments/${slug}.md`};
 }
 function corsHeaders(origin){return {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Authorization, Content-Type, X-Moment-Request','Access-Control-Max-Age':'86400','Vary':'Origin'};}
+function publicError(error){
+  const status=Number(/^GitHub (\d+):/.exec(error?.message||'')?.[1]);
+  if(status===401)return 'GitHub 凭据已失效，请更新发布服务的 GITHUB_TOKEN。';
+  if(status===403)return 'GitHub 拒绝写入。请确认 token 只选中了 QianyuXIE.github.io，并开启 Contents: Read and write。';
+  if(status===404)return 'GitHub 无法访问目标仓库。请检查 token 的 Repository access 是否包含 QianyuXIE.github.io。';
+  if(status===409||status===422)return 'GitHub 分支刚刚发生变化，请稍后重新发布。';
+  return '发布服务暂时不可用。';
+}
 async function github(env,path,options={}){
   const response=await fetch(`https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}${path}`,{...options,headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${env.GITHUB_TOKEN}`,'User-Agent':'qianyu-moment-publisher','X-GitHub-Api-Version':'2022-11-28',...(options.headers||{})}});
   const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(`GitHub ${response.status}: ${body.message||'request failed'}`);return body;
@@ -94,5 +102,5 @@ export default {async fetch(request,env){
     return json({error:'Not found.'},404);
   };
   try {const response=await respond();Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
-  catch(error){console.error(error);const response=json({error:'发布服务暂时不可用。'},500);Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
+  catch(error){console.error(error);const response=json({error:publicError(error)},500);Object.entries(headers).forEach(([key,value])=>response.headers.set(key,value));return response;}
 }};
