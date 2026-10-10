@@ -82,6 +82,7 @@
 .moments-page .publisher-fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0 18px; }
 .moments-page .publisher-fields label { color:#68766f; font-size:12px; }
 .moments-page .publisher-fields input { display:block; margin-top:7px; }
+.moments-page .publisher-date-field { grid-column:1/-1; }
 .moments-page .publisher-photo-field { display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; }
 .moments-page .publisher-photo-picker { width:112px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px dashed #aebeb5; border-radius:10px; background:#f2f5f2; color:#586b62; }
 .moments-page .publisher-photo-picker span { font-size:28px; font-weight:300; line-height:1; }

@@ -14,6 +14,7 @@
   const count=root.querySelector('[data-compose-count]');
   const submit=root.querySelector('[data-publish-submit]');
   const progress=root.querySelector('[data-publish-progress]');
+  const momentDate=compose.elements.date;
   const sessionKey='qianyu-moment-session';
   let files=[];
 
@@ -22,7 +23,12 @@
     element.className=`publisher-status${type?` is-${type}`:''}`;
   };
   const getToken=()=>sessionStorage.getItem(sessionKey)||'';
-  const showCompose=()=>{login.hidden=true;compose.hidden=false;text.focus();};
+  const setDefaultDate=()=>{
+    if(momentDate.value) return;
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts().filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+    momentDate.value=`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+  };
+  const showCompose=()=>{login.hidden=true;compose.hidden=false;setDefaultDate();text.focus();};
   const showLogin=()=>{compose.hidden=true;login.hidden=false;password.focus();};
   async function api(path,options={}) {
     const headers=new Headers(options.headers||{});
@@ -96,11 +102,11 @@
     if(!text.value.trim()&&!files.length){setStatus(publishStatus,'请写文字或选择照片。','error');return;}
     submit.disabled=true;progress.hidden=false;progress.value=4;setStatus(publishStatus,'正在处理照片…');
     try {
-      const form=new FormData();form.set('text',text.value.trim());form.set('title',compose.elements.title.value.trim());form.set('location',compose.elements.location.value.trim());
+      const form=new FormData();form.set('text',text.value.trim());form.set('date',momentDate.value);form.set('title',compose.elements.title.value.trim());form.set('location',compose.elements.location.value.trim());
       for(let i=0;i<files.length;i++){form.append('photos',await compress(files[i]),`photo-${String(i+1).padStart(2,'0')}.jpg`);progress.value=10+Math.round((i+1)/Math.max(files.length,1)*45);}
       setStatus(publishStatus,'正在安全上传并创建动态…');progress.value=62;
       const result=await api('/publish',{method:'POST',body:form});progress.value=100;
-      compose.reset();files=[];renderPreviews();count.textContent='0 / 5000';
+      compose.reset();setDefaultDate();files=[];renderPreviews();count.textContent='0 / 5000';
       const link=document.createElement('a');link.href=result.momentUrl;link.textContent='稍后查看 Moment';link.rel='noopener';
       publishStatus.replaceChildren(document.createTextNode('发布提交成功，GitHub Pages 通常需要约一分钟更新。 '),link);publishStatus.className='publisher-status is-success';
     } catch(error) {

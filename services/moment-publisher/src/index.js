@@ -12,7 +12,16 @@ async function makeToken(secret){const expires=Math.floor(Date.now()/1000)+14400
 async function validToken(token,secret){if(!token||!secret)return false;const parts=token.split('.');if(parts.length!==3||Number(parts[0])<Date.now()/1000)return false;return safeEqual(parts[2],await signature(`${parts[0]}.${parts[1]}`,secret));}
 const authToken=request=>(request.headers.get('Authorization')||'').replace(/^Bearer\s+/i,'');
 const yamlString=value=>JSON.stringify(String(value).replace(/\r\n?/g,'\n'));
-const dateParts=()=>Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts().filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+const dateParts=(date=new Date())=>Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+function parseMomentDate(value){
+  if(!value)return dateParts();
+  const match=/^(20\d{2}|2100)-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
+  if(!match)return null;
+  const [,year,month,day,hour,minute,second='00']=match,instant=new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+08:00`);
+  if(Number.isNaN(instant.getTime()))return null;
+  const parts=dateParts(instant);
+  return parts.year===year&&parts.month===month&&parts.day===day&&parts.hour===hour&&parts.minute===minute&&parts.second===second?parts:null;
+}
 function makeMoment({text,title,location,paths,identity={}}){
   const now=identity.now||dateParts(),day=identity.day||`${now.year}-${now.month}-${now.day}`,clock=`${now.hour}${now.minute}${now.second}`,slug=identity.slug||`${day}-${clock}-${crypto.randomUUID().slice(0,6)}`;
   const front=['---',`date: ${day} ${now.hour}:${now.minute}:${now.second} +0800`];
@@ -41,15 +50,16 @@ async function commitFiles(env,files,message){
 async function publish(request,env){
   const contentLength=Number(request.headers.get('Content-Length')||0);
   if(contentLength>28*1024*1024)return json({error:'本次上传内容过大。'},413);
-  const form=await request.formData(),text=String(form.get('text')||'').replace(/\r\n?/g,'\n').trim(),title=String(form.get('title')||'').replace(/\r\n?/g,' ').trim(),location=String(form.get('location')||'').replace(/\r\n?/g,' ').trim();
+  const form=await request.formData(),text=String(form.get('text')||'').replace(/\r\n?/g,'\n').trim(),title=String(form.get('title')||'').replace(/\r\n?/g,' ').trim(),location=String(form.get('location')||'').replace(/\r\n?/g,' ').trim(),postDate=parseMomentDate(String(form.get('date')||'').trim());
   const photos=form.getAll('photos').filter(value=>value instanceof File);
   if(!text&&!photos.length)return json({error:'请写文字或选择照片。'},400);
+  if(!postDate)return json({error:'帖子日期无效。'},400);
   if(text.length>5000||title.length>80||location.length>80)return json({error:'文字超过长度限制。'},400);
   if(photos.length>9)return json({error:'每条动态最多 9 张照片。'},400);
   let total=0;for(const photo of photos){total+=photo.size;if(photo.type!=='image/jpeg'||photo.size>3*1024*1024)return json({error:'照片必须是压缩后的 JPEG，且每张不超过 3 MB。'},400);}
   if(total>24*1024*1024)return json({error:'照片总大小不能超过 24 MB。'},400);
-  const provisional=makeMoment({text,title,location,paths:[]});
-  const imagePaths=photos.map((_,index)=>`/img/moments/${provisional.day}/${provisional.slug}-${String(index+1).padStart(2,'0')}.jpg`);
+  const provisional=makeMoment({text,title,location,paths:[],identity:{now:postDate}});
+  const imagePaths=photos.map((_,index)=>`/img/_Moment/${provisional.slug}-${String(index+1).padStart(2,'0')}.jpg`);
   const moment=makeMoment({text,title,location,paths:imagePaths,identity:provisional});
   const files=[];for(let i=0;i<photos.length;i++)files.push({path:imagePaths[i].slice(1),bytes:await photos[i].arrayBuffer()});
   files.push({path:moment.path,bytes:encoder.encode(moment.markdown)});
