@@ -25,7 +25,7 @@ function parseMomentDate(value){
 function makeMoment({text,title,location,paths,identity={}}){
   const now=identity.now||dateParts(),day=identity.day||`${now.year}-${now.month}-${now.day}`,clock=`${now.hour}${now.minute}${now.second}`,slug=identity.slug||`${day}-${clock}-${crypto.randomUUID().slice(0,6)}`;
   const front=['---',`date: ${day} ${now.hour}:${now.minute}:${now.second} +0800`];
-  if(title)front.push(`title: ${yamlString(title)}`);if(location)front.push(`location: ${yamlString(location)}`);
+  front.push(`title: ${yamlString(title)}`);if(location)front.push(`location: ${yamlString(location)}`);
   if(paths.length){front.push('images:');paths.forEach(path=>front.push(`  - ${path}`));}
   return {slug,day,now,markdown:`${front.join('\n')}\n---\n\n${text}\n`,path:`_moments/${slug}.md`};
 }

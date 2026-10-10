@@ -96,6 +96,14 @@ test('publishes Markdown and photos in one Git commit',async t=>{
     'img/_Moment/'+body.momentUrl.match(/moment-(2025-03-08-090700-[^/]+)/)[1]+'-02.jpg',
     '_moments/'+body.momentUrl.match(/moment-(2025-03-08-090700-[^/]+)/)[1]+'.md'
   ]);
+
+  const untitledForm=new FormData();
+  untitledForm.set('text','没有填写标题');
+  untitledForm.set('date','2025-03-09T10:08');
+  const untitledResponse=await worker.fetch(request('/publish',{method:'POST',token:auth.token,body:untitledForm}),env);
+  assert.equal(untitledResponse.status,200);
+  const untitledMarkdown=Buffer.from(blobs.at(-1).content,'base64').toString('utf8');
+  assert.match(untitledMarkdown,/\ntitle: ""\n/);
 });
 
 test('validates empty posts, file type and photo count before GitHub',async()=>{

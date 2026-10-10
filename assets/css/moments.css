@@ -15,7 +15,7 @@
 .moments-page .moment-example { margin-left:auto; font-size:11px; color:#7d8179; background:#f3f4ef; padding:4px 9px; border-radius:20px; }
 .moments-page .moment-card h3 { font-size:18px; font-weight:600; margin:0 0 12px; }
 .moments-page .moment-copy { font-size:16px; line-height:1.9; overflow-wrap:anywhere; }
-.moments-page .moment-copy p { margin:0 0 14px; }
+.moments-page .moment-copy p { margin:0 0 14px; white-space:pre-line; }
 .moments-page .moment-copy img { max-width:100%; height:auto; }
 .moments-page .moment-copy pre { overflow:auto; }
 .moments-page .moment-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; max-width:580px; margin-top:18px; }

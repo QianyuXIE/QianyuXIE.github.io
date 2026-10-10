@@ -1,5 +1,6 @@
 ---
 date: 2025-06-23 14:22:00 +0800
+title: ""
 location: "Spain・Toledo"
 images:
   - /img/_Moment/2025-06-23-142200-1c39c1-01.jpg

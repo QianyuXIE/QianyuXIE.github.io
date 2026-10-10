@@ -15,7 +15,7 @@ header-img: "img/Me/Whale.JPG"
   {% assign visible_count = visible_count | plus: 1 %}
   <article class="moment-card" id="moment-{{ moment.slug | escape }}">
     <div class="moment-author"><img src="{{ '/img/Me/Me11.JPG' | relative_url }}" alt="" width="44" height="44" loading="lazy"><div><strong>uu.</strong><time datetime="{{ moment.date | date_to_xmlschema }}">{{ moment.date | date: '%Y.%m.%d' }}</time></div>{% if moment.example %}<span class="moment-example">排版示例</span>{% endif %}</div>
-    {% if moment.title %}<h3>{{ moment.title | escape }}</h3>{% endif %}
+    {% if moment.title and moment.title != empty %}<h3>{{ moment.title | escape }}</h3>{% endif %}
     <div class="moment-copy">{{ moment.content | markdownify }}</div>
     {% assign photo_count = moment.images | size | at_most: 9 %}
     {% if photo_count > 0 %}
