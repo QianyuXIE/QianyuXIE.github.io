@@ -37,7 +37,8 @@
     <link rel="manifest" href="{{ site.baseurl }}/pwa/manifest.json">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ site.baseurl }}/img/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ site.favicon | relative_url }}?v=20261010">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ site.favicon | relative_url }}?v=20261010">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
