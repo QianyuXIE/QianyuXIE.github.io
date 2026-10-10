@@ -1,6 +1,6 @@
 ---
 date: 2025-06-23 14:22:00 +0800
-location: "Spain • Toledo"
+location: "Spain・Toledo"
 images:
   - /img/_Moment/2025-06-23-142200-1c39c1-01.jpg
   - /img/_Moment/2025-06-23-142200-1c39c1-02.jpg
