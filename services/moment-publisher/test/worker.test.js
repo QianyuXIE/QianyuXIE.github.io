@@ -130,3 +130,15 @@ test('temporarily throttles repeated wrong passwords from one address',async()=>
   assert.equal(blocked.status,429);
   assert.match((await blocked.json()).error,/十分钟/);
 });
+
+test('returns an actionable message when GitHub refuses the token',async t=>{
+  const originalFetch=globalThis.fetch,originalConsoleError=console.error;
+  globalThis.fetch=async()=>Response.json({message:'Resource not accessible by personal access token'},{status:403});
+  console.error=()=>{};
+  t.after(()=>{globalThis.fetch=originalFetch;console.error=originalConsoleError;});
+  const {body:auth}=await login();
+  const form=new FormData();form.set('text','权限测试');form.set('date','2026-10-10T12:00');
+  const response=await worker.fetch(request('/publish',{method:'POST',token:auth.token,body:form}),env);
+  assert.equal(response.status,500);
+  assert.match((await response.json()).error,/Contents: Read and write/);
+});

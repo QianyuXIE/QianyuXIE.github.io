@@ -14,6 +14,17 @@ Required Cloudflare encrypted secrets:
 
 The public repository never contains these values. See the root README for setup and deployment commands.
 
+When the fine-grained GitHub token expires, run the local renewal helper from
+this directory:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\refresh-github-token.ps1
+```
+
+The helper hides the pasted token, verifies repository write access, and sends
+it directly to Cloudflare as an encrypted Worker secret. It never writes the
+token to the repository.
+
 The browser sends a short-lived signed bearer token after login. It is kept in
 `sessionStorage`, so closing the tab removes the local session. The publishing
 page deliberately uses a local-only layout with no third-party JavaScript.
